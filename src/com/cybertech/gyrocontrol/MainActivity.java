@@ -18,7 +18,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	
 	float[] mCurrent;
 	float[] mZero;
-	int i;
+	//int i;
 	
 	private SensorManager mSensorManager;
     private void log () {
@@ -28,7 +28,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     public MainActivity() {    	
     	mCurrent = new float[3];
     	mZero = new float[3];    	
-    	mTextViews = new TextView[3];
+    	mTextViews = new TextView[4];
     }
 	
     @Override
@@ -39,6 +39,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         mTextViews[0] = (TextView)findViewById(R.id.x);        
         mTextViews[1] = (TextView)findViewById(R.id.y);        
         mTextViews[2] = (TextView)findViewById(R.id.z);        
+        mTextViews[3] = (TextView)findViewById(R.id.norm);        
+        
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);              
     }
 
@@ -57,17 +59,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {		
-		if(event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){			
+		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){			
 			synchronized (this) {
 				process(event.values);
 			} 
 		} else {
-			Log.d("Sensor", ""+ event.sensor.getType());
+			Log.i("Sensor", ""+ event.sensor.getType());
 		}
 	}
 		
 	public void onClick(View view) {	
-		recalibrate();		
+		//recalibrate();		
 	}
 	
     private void recalibrate() {
@@ -91,21 +93,34 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
   
     private void process(float[] current) {    	
-        float m = 0;
-    	for (int i = 0; i < 3; ++i) { 
-    		float d = mCurrent[i] - current[i]; 
-    		m += d * d; 
-    	}
-    	
-    	if ( m <= 0.05) 
-    		return;
-    	
-    	mCurrent = current.clone();
-        //final float[] corrected = current;
+//        float m = 0;
+//    	for (int i = 0; i < 3; ++i) { 
+//    		final float d = mCurrent[i] - current[i]; 
+//    		m += d * d; 
+//    	}
+//    	
+//    	//if ( m <= 0.05) 
+//    		//return;
+//    	
+    	float norm = 0;
         for (int i =  0; i < 3; ++i) {
-        	 current[i] = current[i] - mZero[i];
-        	 mTextViews[i].setText(Float.toString(current[i]));
+        	norm += current[i] * current[i]; 
         }
+
+        norm = (float)Math.sqrt(norm);
+        
+        for (int i =  0; i < 3; ++i) {
+        	
+        	current[i] = current[i]/norm;
+        	
+        	if (Math.abs(mCurrent[i] - current[i]) > 0.01) {
+    		  mCurrent[i] = current[i];
+    		  mTextViews[i].setText(Float.toString(mCurrent[i]));
+        	}
+        	
+        }
+
+        mTextViews[3].setText(Double.toString(norm));
         
     }
 	
