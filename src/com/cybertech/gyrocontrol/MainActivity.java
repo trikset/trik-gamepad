@@ -6,38 +6,44 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+//import android.content.pm.ActivityInfo;
+import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements SensorEventListener {
-	TextView x; 
-	TextView y; 
-	TextView z;
-	private SensorManager sensorManager;
+	TextView[]  mTextViews;
 	
-
+	float[] mCurrent;
+	float[] mZero;
+	int i;
+	
+	private SensorManager mSensorManager;
+    private void log () {
+    	Log.w("me", Thread.currentThread().getStackTrace()[3].getMethodName());
+    }
+    
+    public MainActivity() {    	
+    	mCurrent = new float[3];
+    	mZero = new float[3];    	
+    	mTextViews = new TextView[3];
+    }
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        x=(TextView)findViewById(R.id.x);
-		y=(TextView)findViewById(R.id.y);
-		z=(TextView)findViewById(R.id.z);
-		sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
-		sensorManager.registerListener(this, 
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				SensorManager.SENSOR_DELAY_FASTEST);
-		
-		/*	More sensor speeds (taken from api docs)
-		    SENSOR_DELAY_FASTEST get sensor data as fast as possible
-		    SENSOR_DELAY_GAME	rate suitable for games
-		 	SENSOR_DELAY_NORMAL	rate (default) suitable for screen orientation changes
-		*/
+        mSensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);        
+        mTextViews[0] = (TextView)findViewById(R.id.x);        
+        mTextViews[1] = (TextView)findViewById(R.id.y);        
+        mTextViews[2] = (TextView)findViewById(R.id.z);        
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);              
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {    	
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
@@ -46,22 +52,61 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		// TODO Auto-generated method stub
-		
+	
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
-		// check sensor type
-		if(event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
-			
-			// assign directions
-			float x=event.values[0];
-			float y=event.values[1];
-			float z=event.values[2];
-			
-			this.x.setText("X: "+x);
-			this.y.setText("Y: "+y);
-			this.z.setText("Z: "+z);
+	public void onSensorChanged(SensorEvent event) {		
+		if(event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){			
+			synchronized (this) {
+				process(event.values);
+			} 
+		} else {
+			Log.d("Sensor", ""+ event.sensor.getType());
 		}
 	}
+		
+	public void onClick(View view) {	
+		recalibrate();		
+	}
+	
+    private void recalibrate() {
+    	mZero = mCurrent.clone();    	
+	}
+
+	@Override
+    protected void onResume() {    	
+        super.onResume();
+		mSensorManager.registerListener(this, 
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
+                SensorManager.SENSOR_DELAY_NORMAL);
+               	
+
+    }
+    
+    @Override
+    protected void onStop() {    	
+        mSensorManager.unregisterListener(this);
+        super.onStop();
+    }
+  
+    private void process(float[] current) {    	
+        float m = 0;
+    	for (int i = 0; i < 3; ++i) { 
+    		float d = mCurrent[i] - current[i]; 
+    		m += d * d; 
+    	}
+    	
+    	if ( m <= 0.05) 
+    		return;
+    	
+    	mCurrent = current.clone();
+        //final float[] corrected = current;
+        for (int i =  0; i < 3; ++i) {
+        	 current[i] = current[i] - mZero[i];
+        	 mTextViews[i].setText(Float.toString(current[i]));
+        }
+        
+    }
+	
 }

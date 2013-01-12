@@ -3,8 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity" 
-    android:orientation="vertical"
-    android:screenOrientation="portrait">
+    android:orientation="vertical"   
+    android:onClick="onClick"
+    >
  		<TextView 
 			android:id="@+id/x"
 			android:text="X: "
