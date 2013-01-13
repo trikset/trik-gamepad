@@ -1,34 +1,102 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" 
-    android:orientation="vertical"   
+    android:keepScreenOn="true"
     android:onClick="onClick"
-    >
- 		<TextView 
-			android:id="@+id/x"
-			android:text="X: "
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-		/>
-		<TextView 
-			android:id="@+id/y"
-			android:text="Y: "
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-		/>
-		<TextView 
-			android:id="@+id/z"
-			android:text="Z: "
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-		/>
-		<TextView 
-			android:id="@+id/norm"
-			android:text="Length: "
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-		/>
+    android:orientation="horizontal"
+    tools:context=".MainActivity" >
+    	<SeekBar 
+    	    android:id="@+id/powerAll"
+    	    android:layout_width="match_parent" 
+    	    android:layout_height="wrap_content" 
+    	    android:layout_alignParentTop="true"
+    	    />  
+	    <TextView
+	        android:id="@+id/x"	        
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/powerAll"
+	        android:text="X" />
+	
+	    <TextView
+	        android:id="@+id/y"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/x"	        
+	        android:text="Y" />
+	
+	    <TextView
+	        android:id="@+id/z"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/y"	        
+	        android:text="Z" />
+	
+	    <TextView
+	        android:id="@+id/norm"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/z"	        
+	        android:background="@android:color/background_light"
+	        android:text="Length" />
+	
+<!--	    <LinearLayout
+	        android:id="@+id/bars"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/norm"
+	         
+	        android:orientation="vertical"/>
+-->
 
-</LinearLayout>
+        <RelativeLayout android:layout_width="100dp" 
+                        android:layout_height="100dp" 
+                        android:layout_centerInParent="true">
+
+            <TextView
+			    android:id="@+id/power0"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerInParent="true"
+			    android:padding="10dp"			    
+			    android:text="PWR" />
+            
+			<TextView
+			    android:id="@+id/power1"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerHorizontal="true"
+			    android:layout_above="@id/power0"
+			    android:layout_alignParentTop="true"
+			    android:text="01" />
+
+			<TextView
+			    android:id="@+id/power2"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerVertical="true"
+			    android:layout_alignParentRight="true"
+			    android:layout_toRightOf="@id/power0"
+			    android:text="02" />
+
+			<TextView
+			    android:id="@+id/power3"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_alignParentBottom="true"
+			    android:layout_below="@id/power0"
+			    android:layout_centerHorizontal="true"
+			    android:text="03" />
+
+			<TextView
+			    android:id="@+id/power4"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerVertical="true"
+			    android:layout_alignParentLeft="true"
+			    android:layout_toLeftOf="@id/power0"
+			    android:text="04" />
+
+		</RelativeLayout>
+</RelativeLayout>
