@@ -2,17 +2,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
-    android:onClick="onClick"
-    android:orientation="horizontal"
-    tools:context=".MainActivity" >
+    android:keepScreenOn="true"    
+    android:orientation="vertical"
+    tools:context=".MainActivity" 
+    android:id="@+id/main">
     	<SeekBar 
     	    android:id="@+id/powerAll"
     	    android:layout_width="match_parent" 
     	    android:layout_height="wrap_content" 
     	    android:layout_alignParentTop="true"
     	    />  
-	    <TextView
+	    <!-- <TextView
 	        android:id="@+id/x"	        
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
 	        android:layout_below="@id/z"	        
 	        android:background="@android:color/background_light"
 	        android:text="Length" />
-	
+	-->
 <!--	    <LinearLayout
 	        android:id="@+id/bars"
 	        android:layout_width="match_parent"
@@ -50,7 +50,7 @@
 	        android:orientation="vertical"/>
 -->
 
-        <RelativeLayout android:layout_width="100dp" 
+ <!-- <RelativeLayout android:layout_width="100dp" 
                         android:layout_height="100dp" 
                         android:layout_centerInParent="true">
 
@@ -97,6 +97,19 @@
 			    android:layout_alignParentLeft="true"
 			    android:layout_toLeftOf="@id/power0"
 			    android:text="04" />
+			     
 
 		</RelativeLayout>
+		-->
+
+	    <VideoView
+	        android:id="@+id/videoView"
+	        android:layout_below="@id/powerAll"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignParentLeft="true"
+	        android:layout_marginTop="10dp" 
+	        />
+       
 </RelativeLayout>
