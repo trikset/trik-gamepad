@@ -5,12 +5,12 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="11" 
-        android:maxSdkVersion="17" />
+        android:maxSdkVersion="17"
+        android:minSdkVersion="10"
+        android:targetSdkVersion="11" />
 
     <application
-        android:allowBackup="true"        
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -22,6 +22,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.gyrocontrol.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+          <!--   <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="android.preference.PreferenceActivity" />
+-->
         </activity>
     </application>
 

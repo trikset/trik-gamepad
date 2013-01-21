@@ -1,6 +1,7 @@
 package com.gyrocontrol;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -91,6 +92,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(android.view.MenuItem item) {
+		switch (item.getItemId()) {
+		case com.gyrocontrol.R.id.menuSettings:
+			Intent settings = new Intent(this, SettingsActivity.class);
+			startActivity(settings);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	};
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
