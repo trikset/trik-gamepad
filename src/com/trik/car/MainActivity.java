@@ -237,9 +237,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 	}
 
 	void carStop() {
-		if (mPower == 0)
-			return;
 		changeCarPower(-mPower);
+		changeCarAngle(-mAngle);
 		Log.d("Car", "Stop");
 	}
 
