@@ -137,5 +137,14 @@
     	    android:layout_marginRight="60dp"
     	    android:text="Direction"
     	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    	<Button
+    	    android:id="@+id/btnConnect"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_alignRight="@+id/tvControl"
+    	    android:layout_below="@+id/btnFwd"
+    	    android:layout_marginRight="38dp"
+    	    android:text="Connect" />
        
 </RelativeLayout>

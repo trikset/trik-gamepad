@@ -14,58 +14,12 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 
 //import android.content.pm.ActivityInfo;
 
 public class MainActivity extends Activity implements SensorEventListener {
 	// TextView[] mTextViews;
-
-	private class ControlGestureListner extends SimpleOnGestureListener {
-
-		@Override
-		public boolean onDown(MotionEvent e) {
-			return true; // otherwise gesture-recognition seems to fail
-		}
-
-		// @Override
-		// public boolean onFling(MotionEvent e1, MotionEvent e2, float
-		// velocityX,
-		// float velocityY) {
-		// // Log.d("EVENT", "Fling");
-		// if (velocityY > 0)
-		// startCar();
-		// else
-		// stopCar();
-		//
-		// return super.onFling(e1, e2, velocityX, velocityY);
-		// }
-
-		@Override
-		public void onLongPress(MotionEvent e) {
-			Log.d("EVENT", "LongPress");
-		}
-
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
-			// Log.d("EVENT", "Scroll " + distanceY);
-			changeCarPower((int) distanceY);
-			changeCarAngle(-(int) distanceX);
-			return true;
-		}
-
-		@Override
-		public void onShowPress(MotionEvent e) {
-			Log.d("EVENT", "ShowPress");
-		}
-
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			recalibrate();
-			return true;
-		}
-
-	}
 
 	float[] mCurrentAccel;
 	float[] mZeroAccel;
@@ -77,6 +31,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	private int mPower; // -100% ... +100%
 	private int mAngle; // -100% ... +100%
+	private final boolean mBound = false;
+	protected SenderService mSender;
 
 	public MainActivity() {
 		mCurrentAccel = new float[3];
@@ -159,6 +115,25 @@ public class MainActivity extends Activity implements SensorEventListener {
 	}
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+		// Intent intent = new Intent(this, SenderService.class);
+		// mBound = getApplicationContext().bindService(intent, mConnection,
+		// Context.BIND_AUTO_CREATE);
+		// Log.d("Main", "Bound to SenderService = " + mBound);
+	}
+
+	@Override
+	protected void onStop() {
+		mSensorManager.unregisterListener(this);
+		// if (mBound) {
+		// unbindService(mConnection);
+		// mBound = false;
+		// }
+		super.onStop();
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -188,6 +163,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 					}
 				});
+
+		if (mSender == null)
+			mSender = new SenderService();
+		((Button) findViewById(R.id.btnConnect))
+				.setOnClickListener(new Button.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+
+						boolean connected = mSender.connect();
+
+						Button btnConnect = (Button) findViewById(R.id.btnConnect);
+						btnConnect.setText(connected ? "Ok" : "Error");
+						// btnConnect.setClickable(false);
+
+					}
+				});
+
 		// mTextViews[0] = (TextView)findViewById(R.id.x);
 		// mTextViews[1] = (TextView)findViewById(R.id.y);
 		// mTextViews[2] = (TextView)findViewById(R.id.z);
@@ -195,6 +188,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
+
+	// private final ServiceConnection mConnection = new ServiceConnection() {
+	//
+	// @Override
+	// public void onServiceConnected(ComponentName className, IBinder service)
+	// {
+	// // We've bound to LocalService, cast the IBinder and get
+	// // LocalService instance
+	// LocalBinder binder = (LocalBinder) service;
+	// mSender = binder.getService();
+	// mBound = true;
+	// }
+	//
+	// @Override
+	// public void onServiceDisconnected(ComponentName arg0) {
+	// mBound = false;
+	// }
+	// };
 
 	@Override
 	protected void onResume() {
@@ -205,19 +216,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	}
 
-	@Override
-	protected void onStop() {
-		mSensorManager.unregisterListener(this);
-		super.onStop();
-	}
-
 	void changeCarPower(int powerIncrement) {
 		mPower = powerIncrement + mPower;
 		if (mPower > 100)
 			mPower = 100;
 		if (mPower < -100)
 			mPower = -100;
-
+		mSender.send("power " + mPower);
 		Log.d("Car", "Power:" + mPower);
 	}
 
@@ -227,7 +232,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 			mAngle = 100;
 		if (mAngle < -100)
 			mAngle = -100;
-
+		mSender.send("angle " + mAngle);
 		Log.d("Car", "Angle:" + mAngle);
 	}
 
@@ -237,4 +242,50 @@ public class MainActivity extends Activity implements SensorEventListener {
 		changeCarPower(-mPower);
 		Log.d("Car", "Stop");
 	}
+
+	private class ControlGestureListner extends SimpleOnGestureListener {
+
+		@Override
+		public boolean onDown(MotionEvent e) {
+			return true; // otherwise gesture-recognition seems to fail
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) {
+			if (Math.abs(velocityX) > 10)
+				changeCarAngle((int) (10 * velocityX));
+			if (Math.abs(velocityX) > 10)
+				changeCarPower((int) (10 * velocityY));
+
+			return super.onFling(e1, e2, velocityX, velocityY);
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			Log.d("EVENT", "LongPress");
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2,
+				float distanceX, float distanceY) {
+			// Log.d("EVENT", "Scroll " + distanceY);
+			changeCarPower((int) distanceY);
+			changeCarAngle((int) distanceX);
+			return true;
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e) {
+			Log.d("EVENT", "ShowPress");
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			recalibrate();
+			return true;
+		}
+
+	}
+
 }
