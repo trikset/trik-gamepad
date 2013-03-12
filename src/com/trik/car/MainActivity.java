@@ -1,4 +1,4 @@
-package com.gyrocontrol;
+package com.trik.car;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,7 +14,6 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.VideoView;
 
 //import android.content.pm.ActivityInfo;
 
@@ -28,12 +27,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 			return true; // otherwise gesture-recognition seems to fail
 		}
 
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			Log.d("EVENT", "Fling");
-			return super.onFling(e1, e2, velocityX, velocityY);
-		}
+		// @Override
+		// public boolean onFling(MotionEvent e1, MotionEvent e2, float
+		// velocityX,
+		// float velocityY) {
+		// // Log.d("EVENT", "Fling");
+		// if (velocityY > 0)
+		// startCar();
+		// else
+		// stopCar();
+		//
+		// return super.onFling(e1, e2, velocityX, velocityY);
+		// }
 
 		@Override
 		public void onLongPress(MotionEvent e) {
@@ -43,7 +48,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
-			Log.d("EVENT", "Scroll " + distanceY);
+			// Log.d("EVENT", "Scroll " + distanceY);
+			changeCarPower((int) distanceY);
+			changeCarAngle(-(int) distanceX);
 			return true;
 		}
 
@@ -60,22 +67,20 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	}
 
-	float[] mCurrent;
-	float[] mZero;
+	float[] mCurrentAccel;
+	float[] mZeroAccel;
 	GestureDetector mGestureDetector;
 
-	VideoView mVideoView;
-	// int i;
-
-	// private void log () {
-	// Log.w("me", Thread.currentThread().getStackTrace()[3].getMethodName());
-	// }
+	// VideoView mVideoView;
 
 	private SensorManager mSensorManager;
 
+	private int mPower; // -100% ... +100%
+	private int mAngle; // -100% ... +100%
+
 	public MainActivity() {
-		mCurrent = new float[3];
-		mZero = new float[3];
+		mCurrentAccel = new float[3];
+		mZeroAccel = new float[3];
 		mGestureDetector = new GestureDetector(new ControlGestureListner());
 		// mTextViews = new TextView[4];
 	}
@@ -96,7 +101,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
 		switch (item.getItemId()) {
-		case com.gyrocontrol.R.id.menuSettings:
+		case com.trik.car.R.id.menuSettings:
 			Intent settings = new Intent(this, SettingsActivity.class);
 			startActivity(settings);
 			return true;
@@ -137,8 +142,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 			current[i] = current[i] / norm;
 
-			if (Math.abs(mCurrent[i] - current[i]) > 0.01) {
-				mCurrent[i] = current[i];
+			if (Math.abs(mCurrentAccel[i] - current[i]) > 0.01) {
+				mCurrentAccel[i] = current[i];
 				// mTextViews[i].setText(Float.toString(mCurrent[i]));
 			}
 
@@ -149,16 +154,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 	}
 
 	private void recalibrate() {
-		mZero = mCurrent.clone();
-		mZero[2] = 0;
+		mZeroAccel = mCurrentAccel.clone();
+		mZeroAccel[2] = 0;
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		mVideoView = (VideoView) findViewById(R.id.videoView);
+		// mVideoView = (VideoView) findViewById(R.id.videoView);
 		findViewById(R.id.main).setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -171,12 +177,23 @@ public class MainActivity extends Activity implements SensorEventListener {
 				}
 			}
 		});
+
+		findViewById(R.id.btnStop).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						carStop();
+						// ((Button)v).sette
+
+					}
+				});
 		// mTextViews[0] = (TextView)findViewById(R.id.x);
 		// mTextViews[1] = (TextView)findViewById(R.id.y);
 		// mTextViews[2] = (TextView)findViewById(R.id.z);
 		// mTextViews[3] = (TextView)findViewById(R.id.norm);
 
-		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
 
 	@Override
@@ -194,4 +211,30 @@ public class MainActivity extends Activity implements SensorEventListener {
 		super.onStop();
 	}
 
+	void changeCarPower(int powerIncrement) {
+		mPower = powerIncrement + mPower;
+		if (mPower > 100)
+			mPower = 100;
+		if (mPower < -100)
+			mPower = -100;
+
+		Log.d("Car", "Power:" + mPower);
+	}
+
+	void changeCarAngle(int angleIncrement) {
+		mAngle = angleIncrement + mAngle;
+		if (mAngle > 100)
+			mAngle = 100;
+		if (mAngle < -100)
+			mAngle = -100;
+
+		Log.d("Car", "Angle:" + mAngle);
+	}
+
+	void carStop() {
+		if (mPower == 0)
+			return;
+		changeCarPower(-mPower);
+		Log.d("Car", "Stop");
+	}
 }

@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"    
-    android:orientation="vertical"
     tools:context=".MainActivity" 
     android:id="@+id/main">
     	<SeekBar 
@@ -102,14 +101,41 @@
 		</RelativeLayout>
 		-->
 
-	    <VideoView
-	        android:id="@+id/videoView"
-	        android:layout_below="@id/powerAll"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentBottom="true"
-	        android:layout_alignParentLeft="true"
-	        android:layout_marginTop="10dp" 
-	        />
+    	<Button
+    	    android:id="@+id/btnFwd"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_below="@+id/powerAll"
+    	    android:layout_centerHorizontal="true"
+    	    android:layout_marginTop="22dp"
+    	    android:text="FWD" />
+
+    	<Button
+    	    android:id="@+id/btnBack"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_alignLeft="@+id/btnFwd"
+    	    android:layout_below="@+id/btnFwd"
+    	    android:layout_marginTop="54dp"
+    	    android:text="BCK" />
+
+    	<Button
+    	    android:id="@+id/btnStop"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_alignParentLeft="true"
+    	    android:layout_below="@+id/btnFwd"
+    	    android:layout_marginLeft="49dp"
+    	    android:text="Stop!!!" />
+
+    	<TextView
+    	    android:id="@+id/tvControl"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_alignBottom="@+id/btnGo"
+    	    android:layout_alignParentRight="true"
+    	    android:layout_marginRight="60dp"
+    	    android:text="Direction"
+    	    android:textAppearance="?android:attr/textAppearanceLarge" />
        
 </RelativeLayout>
