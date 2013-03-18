@@ -252,10 +252,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
-			if (Math.abs(velocityX) > 10)
-				changeCarAngle((int) (10 * velocityX));
-			if (Math.abs(velocityX) > 10)
-				changeCarPower((int) (10 * velocityY));
+			// if (Math.abs(velocityX) > 10)
+			// changeCarAngle((int) (10 * velocityX));
+			if (Math.abs(velocityY) > 10)
+				changeCarPower(-(int) (10 * velocityY));
 
 			return super.onFling(e1, e2, velocityX, velocityY);
 		}
@@ -270,7 +270,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 				float distanceX, float distanceY) {
 			// Log.d("EVENT", "Scroll " + distanceY);
 			changeCarPower((int) distanceY);
-			changeCarAngle((int) distanceX);
+			changeCarAngle(-(int) distanceX);
 			return true;
 		}
 

@@ -12,7 +12,8 @@ public class SenderService {// extends Service {
 	// private final IBinder mBinder = new LocalBinder();
 	private OutputStreamWriter mOut;
 
-	public static final String SERVERIP = "192.168.1.150";
+	// public static final String SERVERIP = "192.168.1.150";
+	public static final String SERVERIP = "192.168.51.2";
 	public static final int SERVERPORT = 4444;
 
 	public class LocalBinder extends Binder {
