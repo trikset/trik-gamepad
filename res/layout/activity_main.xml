@@ -12,33 +12,21 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:max="100" />
- 
-    <TextView
-        android:id="@+id/tvControl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/powerAll"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="Direction"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/btnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="54dp"
         android:text="Stop!!!" />
 
     <ToggleButton
         android:id="@+id/tglConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/btnStop"
-        android:layout_marginRight="72dp"
         android:text="ConnectTo"
         android:textOff="Connect..."
         android:textOn="Connected" />
@@ -47,11 +35,20 @@
         android:id="@+id/tglWheel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvControl"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
         android:text="Wheel"
         android:textOff="Wheel"
         android:textOn="Wheel" />
+
+    <TextView
+        android:id="@+id/tvControl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sbPower"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="76dp"
+        android:text="Direction"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>
