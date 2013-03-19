@@ -14,6 +14,8 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -78,18 +80,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void process(float[] current) {
-        final int ACCEL_SENSITIVITY_STEPS_PER_PI = 50; // in radians
-        final float WHEEL_BOOSTER_MULTIPLIER = 1.5;
+        final float WHEEL_BOOSTER_MULTIPLIER = 1.5f;
         final float x = current[0];
         final float y = current[1];
         // final float norm = (float) Math.sqrt(x*x+y*y); // w/o Z
 
-        final float angle = (float) (WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x));
+        final int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x) / Math.PI);
 
-        if (ACCEL_SENSITIVITY_STEPS_PER_PI * Math.abs(mCurrentAngle - angle) > Math.PI) {
-            mAngle = angle;
-            changeCarAngle(angleIncrement)
-        }
+        setCarAngle(angle);
+
     }
 
     @Override
@@ -123,6 +122,24 @@ public class MainActivity extends Activity implements SensorEventListener {
             @Override
             public void onClick(View v) {
                 carStop();
+            }
+        });
+
+        ((SeekBar) findViewById(R.id.sbPower)).setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                setCarPower(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+
             }
         });
 
@@ -161,39 +178,46 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     void changeCarPower(int powerIncrement) {
-        mPower = powerIncrement + mPower;
-        if (mPower > 100)
-            mPower = 100;
-        if (mPower < -100)
-            mPower = -100;
-        mSender.send("power " + mPower);
-        Log.d("Car", "Power:" + mPower);
+        setCarPower(powerIncrement + mPower);
+    }
+
+    private void setCarPower(int value) {
+        final int POWER_SENSITIVITY_PERCENT = 5;
+        final int power = Math.max(-100, Math.min(100, value));
+        if (Math.abs(mPower - power) > POWER_SENSITIVITY_PERCENT) {
+            mPower = power;
+            mSender.send("power " + mPower);
+        }
     }
 
     void changeCarAngle(int angleIncrement) {
-        mAngle = angleIncrement + mAngle;
-        setCarAngle();
+        setCarAngle(angleIncrement + mAngle);
     }
 
-    private void setCarAngle() {
-        if (mAngle > 100)
-            mAngle = 100;
-        if (mAngle < -100)
-            mAngle = -100;
-        mSender.send("angle " + mAngle);
-        Log.d("Car", "Angle:" + mAngle);
+    private void setCarAngle(int value) {
+        final int SENSITIVITY_PERCENT = 4;
+        final int angle = Math.max(-100, Math.min(100, value));
+        if (Math.abs(mAngle - angle) > SENSITIVITY_PERCENT) {
+            mAngle = angle;
+            mSender.send("angle " + mAngle);
+        }
     }
 
     void carStop() {
-        changeCarPower(-mPower);
-        changeCarAngle(-mAngle);
         Log.d("Car", "Stop");
+        setCarPower(0);
+        setCarAngle(0);
     }
 
     private class ControlGestureListner extends SimpleOnGestureListener {
 
+        int mInitialPower;
+        int mInitialAngle;
+
         @Override
         public boolean onDown(MotionEvent e) {
+            mInitialAngle = mAngle;
+            mInitialPower = mPower;
             return true; // otherwise gesture-recognition seems to fail
         }
 
@@ -213,11 +237,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            changeCarPower((int) distanceY);
-            changeCarAngle(-(int) distanceX);
+            setCarPower(mInitialPower + ((int) (e1.getY() - e2.getY())));
+            setCarAngle(mInitialAngle + ((int) (e2.getX() - e1.getX())));
             return true;
         }
-
     }
 
 }
