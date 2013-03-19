@@ -3,6 +3,7 @@ package com.trik.car;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -77,15 +78,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	}
 
 	private void process(float[] current) {
-		// float m = 0;
-		// for (int i = 0; i < 3; ++i) {
-		// final float d = mCurrent[i] - current[i];
-		// m += d * d;
-		// }
-		//
-		// //if ( m <= 0.05)
-		// //return;
-		//
+		final float ACCEL_SENSITIVITY = 0.05f;
 		float norm = 0;
 		for (int i = 0; i < 3; ++i) {
 			norm += current[i] * current[i];
@@ -94,18 +87,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 		norm = (float) Math.sqrt(norm);
 
 		for (int i = 0; i < 3; ++i) {
-
 			current[i] = current[i] / norm;
-
-			if (Math.abs(mCurrentAccel[i] - current[i]) > 0.01) {
+			if (Math.abs(mCurrentAccel[i] - current[i]) > ACCEL_SENSITIVITY) {
 				mCurrentAccel[i] = current[i];
-				// mTextViews[i].setText(Float.toString(mCurrent[i]));
 			}
-
 		}
-
-		// mTextViews[3].setText(Double.toString(norm));
-
 	}
 
 	private void recalibrate() {
@@ -114,21 +100,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 	}
 
 	@Override
-	protected void onStart() {
-		super.onStart();
-		// Intent intent = new Intent(this, SenderService.class);
-		// mBound = getApplicationContext().bindService(intent, mConnection,
-		// Context.BIND_AUTO_CREATE);
-		// Log.d("Main", "Bound to SenderService = " + mBound);
-	}
-
-	@Override
 	protected void onStop() {
 		mSensorManager.unregisterListener(this);
-		// if (mBound) {
-		// unbindService(mConnection);
-		// mBound = false;
-		// }
 		super.onStop();
 	}
 
@@ -154,57 +127,25 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 		findViewById(R.id.btnStop).setOnClickListener(
 				new View.OnClickListener() {
-
 					@Override
 					public void onClick(View v) {
 						carStop();
-						// ((Button)v).sette
-
 					}
 				});
 
-		if (mSender == null)
-			mSender = new SenderService();
-		((Button) findViewById(R.id.btnConnect))
-				.setOnClickListener(new Button.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-
-						boolean connected = mSender.connect();
-
-						Button btnConnect = (Button) findViewById(R.id.btnConnect);
-						btnConnect.setText(connected ? "Ok" : "Error");
-						// btnConnect.setClickable(false);
-
-					}
-				});
-
-		// mTextViews[0] = (TextView)findViewById(R.id.x);
-		// mTextViews[1] = (TextView)findViewById(R.id.y);
-		// mTextViews[2] = (TextView)findViewById(R.id.z);
-		// mTextViews[3] = (TextView)findViewById(R.id.norm);
-
+		final Button btnConnect = (Button) findViewById(R.id.btnConnect);
+		btnConnect.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mSender = new SenderService();
+				boolean connected = mSender.connect();
+				btnConnect.get
+				btnConnect.setD BackgroundColor(connected ? Color.GREEN
+						: Color.RED);
+			}
+		});
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
-
-	// private final ServiceConnection mConnection = new ServiceConnection() {
-	//
-	// @Override
-	// public void onServiceConnected(ComponentName className, IBinder service)
-	// {
-	// // We've bound to LocalService, cast the IBinder and get
-	// // LocalService instance
-	// LocalBinder binder = (LocalBinder) service;
-	// mSender = binder.getService();
-	// mBound = true;
-	// }
-	//
-	// @Override
-	// public void onServiceDisconnected(ComponentName arg0) {
-	// mBound = false;
-	// }
-	// };
 
 	@Override
 	protected void onResume() {
@@ -251,11 +192,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
-			// if (Math.abs(velocityX) > 10)
-			// changeCarAngle((int) (10 * velocityX));
 			if (Math.abs(velocityY) > 10)
 				changeCarPower(-(int) (10 * velocityY));
-
 			return super.onFling(e1, e2, velocityX, velocityY);
 		}
 
@@ -267,7 +205,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
-			// Log.d("EVENT", "Scroll " + distanceY);
 			changeCarPower((int) distanceY);
 			changeCarAngle(-(int) distanceX);
 			return true;
@@ -280,7 +217,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
-			recalibrate();
+			// recalibrate();
 			return true;
 		}
 

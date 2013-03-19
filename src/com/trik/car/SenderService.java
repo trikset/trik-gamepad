@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class SenderService {// extends Service {
-	// private final IBinder mBinder = new LocalBinder();
 	private PrintWriter mOut;
 
 	// public static final String SERVERIP = "192.168.1.150";
@@ -62,37 +61,17 @@ public class SenderService {// extends Service {
 		if (mOut == null)
 			return;
 		final String tempCommand = command;
-		synchronized (mOut) {
-			new AsyncTask<Void, Void, Void>() {
+		// synchronized (mOut) {
+		new AsyncTask<Void, Void, Void>() {
 
-				@Override
-				protected Void doInBackground(Void... params) {
-					mOut.println(tempCommand);
-					return null;
-				}
+			@Override
+			protected Void doInBackground(Void... params) {
+				mOut.println(tempCommand);
+				return null;
+			}
 
-			}.execute();
+		}.execute();
 
-		}
+		// }
 	}
-
-	// public class SendingServiceThread implements Runnable {
-	//
-	// public SendingServiceThread() {
-	// // Nothing to do...
-	// }
-	//
-	// @Override
-	// public void run() {
-	// try {
-	// while (true) {
-	// String newLine = inBuff.readLine();
-	// System.out.println(newLine); // Replace this with any
-	// // processing you want !
-	// }
-	// } catch (IOException e) {
-	// System.err.println("Connection problem");
-	// }
-	// }
-	// }
 }
