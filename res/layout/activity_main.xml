@@ -1,150 +1,56 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"    
-    tools:context=".MainActivity" 
-    android:id="@+id/main">
-    	<SeekBar 
-    	    android:id="@+id/powerAll"
-    	    android:layout_width="match_parent" 
-    	    android:layout_height="wrap_content" 
-    	    android:layout_alignParentTop="true"
-    	    />  
-	    <!-- <TextView
-	        android:id="@+id/x"	        
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/powerAll"
-	        android:text="X" />
-	
-	    <TextView
-	        android:id="@+id/y"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/x"	        
-	        android:text="Y" />
-	
-	    <TextView
-	        android:id="@+id/z"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/y"	        
-	        android:text="Z" />
-	
-	    <TextView
-	        android:id="@+id/norm"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/z"	        
-	        android:background="@android:color/background_light"
-	        android:text="Length" />
-	-->
-<!--	    <LinearLayout
-	        android:id="@+id/bars"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/norm"
-	         
-	        android:orientation="vertical"/>
--->
+    android:keepScreenOn="true"
+    tools:context=".MainActivity" >
 
- <!-- <RelativeLayout android:layout_width="100dp" 
-                        android:layout_height="100dp" 
-                        android:layout_centerInParent="true">
+    <SeekBar
+        android:id="@+id/powerAll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" />
+ 
+    <TextView
+        android:id="@+id/tvControl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/powerAll"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Direction"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <TextView
-			    android:id="@+id/power0"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_centerInParent="true"
-			    android:padding="10dp"			    
-			    android:text="PWR" />
-            
-			<TextView
-			    android:id="@+id/power1"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_centerHorizontal="true"
-			    android:layout_above="@id/power0"
-			    android:layout_alignParentTop="true"
-			    android:text="01" />
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="54dp"
+        android:text="Stop!!!" />
 
-			<TextView
-			    android:id="@+id/power2"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_centerVertical="true"
-			    android:layout_alignParentRight="true"
-			    android:layout_toRightOf="@id/power0"
-			    android:text="02" />
+    <ToggleButton
+        android:id="@+id/tglConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/btnStop"
+        android:layout_marginRight="72dp"
+        android:text="ConnectTo"
+        android:textOff="Connect..."
+        android:textOn="Connected" />
 
-			<TextView
-			    android:id="@+id/power3"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_alignParentBottom="true"
-			    android:layout_below="@id/power0"
-			    android:layout_centerHorizontal="true"
-			    android:text="03" />
+    <ToggleButton
+        android:id="@+id/tglWheel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvControl"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:text="Wheel"
+        android:textOff="Wheel"
+        android:textOn="Wheel" />
 
-			<TextView
-			    android:id="@+id/power4"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:layout_centerVertical="true"
-			    android:layout_alignParentLeft="true"
-			    android:layout_toLeftOf="@id/power0"
-			    android:text="04" />
-			     
-
-		</RelativeLayout>
-		-->
-
-    	<Button
-    	    android:id="@+id/btnFwd"
-    	    android:layout_width="wrap_content"
-    	    android:layout_height="wrap_content"
-    	    android:layout_below="@+id/powerAll"
-    	    android:layout_centerHorizontal="true"
-    	    android:layout_marginTop="22dp"
-    	    android:text="FWD" />
-
-    	<Button
-    	    android:id="@+id/btnBack"
-    	    android:layout_width="wrap_content"
-    	    android:layout_height="wrap_content"
-    	    android:layout_alignLeft="@+id/btnFwd"
-    	    android:layout_below="@+id/btnFwd"
-    	    android:layout_marginTop="54dp"
-    	    android:text="BCK" />
-
-    	<Button
-    	    android:id="@+id/btnStop"
-    	    android:layout_width="wrap_content"
-    	    android:layout_height="wrap_content"
-    	    android:layout_alignParentLeft="true"
-    	    android:layout_below="@+id/btnFwd"
-    	    android:layout_marginLeft="49dp"
-    	    android:text="Stop!!!" />
-
-    	<TextView
-    	    android:id="@+id/tvControl"
-    	    android:layout_width="wrap_content"
-    	    android:layout_height="wrap_content"
-    	    android:layout_alignBottom="@+id/btnGo"
-    	    android:layout_alignParentRight="true"
-    	    android:layout_marginRight="60dp"
-    	    android:text="Direction"
-    	    android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    	<Button
-    	    android:id="@+id/btnConnect"
-    	    android:layout_width="wrap_content"
-    	    android:layout_height="wrap_content"
-    	    android:layout_alignRight="@+id/tvControl"
-    	    android:layout_below="@+id/btnFwd"
-    	    android:layout_marginRight="38dp"
-    	    android:text="Connect" />
-       
 </RelativeLayout>

@@ -3,7 +3,6 @@ package com.trik.car;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,212 +14,210 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-
-//import android.content.pm.ActivityInfo;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class MainActivity extends Activity implements SensorEventListener {
-	// TextView[] mTextViews;
+    // TextView[] mTextViews;
 
-	float[] mCurrentAccel;
-	float[] mZeroAccel;
-	GestureDetector mGestureDetector;
+    GestureDetector         mGestureDetector;
 
-	// VideoView mVideoView;
+    // VideoView mVideoView;
 
-	private SensorManager mSensorManager;
+    private SensorManager   mSensorManager;
 
-	private int mPower; // -100% ... +100%
-	private int mAngle; // -100% ... +100%
-	protected SenderService mSender;
+    private int             mPower;               // -100% ... +100%
+    private int             mAngle;               // -100% ... +100%
+    protected SenderService mSender;
+    private boolean         mWheelEnabled = false;
 
-	public MainActivity() {
-		mCurrentAccel = new float[3];
-		mZeroAccel = new float[3];
-		mGestureDetector = new GestureDetector(new ControlGestureListner());
-		// mTextViews = new TextView[4];
-	}
+    private TextView        mDirectionView;
 
-	@Override
-	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		// TODO Auto-generated method stub
+    public MainActivity() {
+        mGestureDetector = new GestureDetector(new ControlGestureListner());
+        mSender = new SenderService();
+    }
 
-	}
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
-	}
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(android.view.MenuItem item) {
-		switch (item.getItemId()) {
-		case com.trik.car.R.id.menuSettings:
-			Intent settings = new Intent(this, SettingsActivity.class);
-			startActivity(settings);
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	};
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-			synchronized (this) {
-				process(event.values);
-			}
-		} else {
-			Log.i("Sensor", "" + event.sensor.getType());
-		}
-	}
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        switch (item.getItemId()) {
+        case com.trik.car.R.id.menuSettings:
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    };
 
-	private void process(float[] current) {
-		final float ACCEL_SENSITIVITY = 0.05f;
-		float norm = 0;
-		for (int i = 0; i < 3; ++i) {
-			norm += current[i] * current[i];
-		}
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            if (!mWheelEnabled)
+                return;
+            synchronized (this) {
+                process(event.values);
+            }
+        } else {
+            Log.i("Sensor", "" + event.sensor.getType());
+        }
+    }
 
-		norm = (float) Math.sqrt(norm);
+    private void process(float[] current) {
+        final int ACCEL_SENSITIVITY_STEPS_PER_PI = 50; // in radians
+        final float WHEEL_BOOSTER_MULTIPLIER = 1.5;
+        final float x = current[0];
+        final float y = current[1];
+        // final float norm = (float) Math.sqrt(x*x+y*y); // w/o Z
 
-		for (int i = 0; i < 3; ++i) {
-			current[i] = current[i] / norm;
-			if (Math.abs(mCurrentAccel[i] - current[i]) > ACCEL_SENSITIVITY) {
-				mCurrentAccel[i] = current[i];
-			}
-		}
-	}
+        final float angle = (float) (WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x));
 
-	private void recalibrate() {
-		mZeroAccel = mCurrentAccel.clone();
-		mZeroAccel[2] = 0;
-	}
+        if (ACCEL_SENSITIVITY_STEPS_PER_PI * Math.abs(mCurrentAngle - angle) > Math.PI) {
+            mAngle = angle;
+            changeCarAngle(angleIncrement)
+        }
+    }
 
-	@Override
-	protected void onStop() {
-		mSensorManager.unregisterListener(this);
-		super.onStop();
-	}
+    @Override
+    protected void onStop() {
+        mSensorManager.unregisterListener(this);
+        super.onStop();
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		// mVideoView = (VideoView) findViewById(R.id.videoView);
-		findViewById(R.id.main).setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (v.onTouchEvent(event)) {
-					return true;
-				} else if (mGestureDetector.onTouchEvent(event)) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		});
+        mDirectionView = (TextView) findViewById(R.id.tvControl);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        // mVideoView = (VideoView) findViewById(R.id.videoView);
+        findViewById(R.id.main).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (v.onTouchEvent(event)) {
+                    return true;
+                } else if (mGestureDetector.onTouchEvent(event)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
 
-		findViewById(R.id.btnStop).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						carStop();
-					}
-				});
+        findViewById(R.id.btnStop).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                carStop();
+            }
+        });
 
-		final Button btnConnect = (Button) findViewById(R.id.btnConnect);
-		btnConnect.setOnClickListener(new Button.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mSender = new SenderService();
-				boolean connected = mSender.connect();
-				btnConnect.get
-				btnConnect.setD BackgroundColor(connected ? Color.GREEN
-						: Color.RED);
-			}
-		});
-		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-	}
+        final ToggleButton tglConnect = (ToggleButton) findViewById(R.id.tglConnect);
+        tglConnect.setOnClickListener(new ToggleButton.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean connected = mSender.connect();
+                tglConnect.setChecked(connected);
+                Toast.makeText(getBaseContext(), "Connection " + (connected ? "established." : "error."),
+                        Toast.LENGTH_SHORT).show();
+            }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mSensorManager.registerListener(this,
-				mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
-				SensorManager.SENSOR_DELAY_NORMAL);
+        });
 
-	}
+        final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
+        tglWheel.setOnClickListener(new ToggleButton.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWheelEnabled = tglWheel.isChecked();
+                Toast.makeText(getBaseContext(), "Wheel turned " + (mWheelEnabled ? "ON" : "OFF"), Toast.LENGTH_SHORT)
+                        .show();
+            }
 
-	void changeCarPower(int powerIncrement) {
-		mPower = powerIncrement + mPower;
-		if (mPower > 100)
-			mPower = 100;
-		if (mPower < -100)
-			mPower = -100;
-		mSender.send("power " + mPower);
-		Log.d("Car", "Power:" + mPower);
-	}
+        });
 
-	void changeCarAngle(int angleIncrement) {
-		mAngle = angleIncrement + mAngle;
-		if (mAngle > 100)
-			mAngle = 100;
-		if (mAngle < -100)
-			mAngle = -100;
-		mSender.send("angle " + mAngle);
-		Log.d("Car", "Angle:" + mAngle);
-	}
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
 
-	void carStop() {
-		changeCarPower(-mPower);
-		changeCarAngle(-mAngle);
-		Log.d("Car", "Stop");
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
+                SensorManager.SENSOR_DELAY_NORMAL);
 
-	private class ControlGestureListner extends SimpleOnGestureListener {
+    }
 
-		@Override
-		public boolean onDown(MotionEvent e) {
-			return true; // otherwise gesture-recognition seems to fail
-		}
+    void changeCarPower(int powerIncrement) {
+        mPower = powerIncrement + mPower;
+        if (mPower > 100)
+            mPower = 100;
+        if (mPower < -100)
+            mPower = -100;
+        mSender.send("power " + mPower);
+        Log.d("Car", "Power:" + mPower);
+    }
 
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			if (Math.abs(velocityY) > 10)
-				changeCarPower(-(int) (10 * velocityY));
-			return super.onFling(e1, e2, velocityX, velocityY);
-		}
+    void changeCarAngle(int angleIncrement) {
+        mAngle = angleIncrement + mAngle;
+        setCarAngle();
+    }
 
-		@Override
-		public void onLongPress(MotionEvent e) {
-			Log.d("EVENT", "LongPress");
-		}
+    private void setCarAngle() {
+        if (mAngle > 100)
+            mAngle = 100;
+        if (mAngle < -100)
+            mAngle = -100;
+        mSender.send("angle " + mAngle);
+        Log.d("Car", "Angle:" + mAngle);
+    }
 
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
-			changeCarPower((int) distanceY);
-			changeCarAngle(-(int) distanceX);
-			return true;
-		}
+    void carStop() {
+        changeCarPower(-mPower);
+        changeCarAngle(-mAngle);
+        Log.d("Car", "Stop");
+    }
 
-		@Override
-		public void onShowPress(MotionEvent e) {
-			Log.d("EVENT", "ShowPress");
-		}
+    private class ControlGestureListner extends SimpleOnGestureListener {
 
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			// recalibrate();
-			return true;
-		}
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true; // otherwise gesture-recognition seems to fail
+        }
 
-	}
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            final float BARIER = 20;
+            final float abs = Math.abs(velocityY);
+            if (abs > BARIER)
+                changeCarPower(-(int) (100 * velocityY / abs));
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.d("EVENT", "LongPress");
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            changeCarPower((int) distanceY);
+            changeCarAngle(-(int) distanceX);
+            return true;
+        }
+
+    }
 
 }
