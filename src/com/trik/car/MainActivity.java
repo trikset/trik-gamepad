@@ -31,7 +31,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	private int mPower; // -100% ... +100%
 	private int mAngle; // -100% ... +100%
-	private final boolean mBound = false;
 	protected SenderService mSender;
 
 	public MainActivity() {
