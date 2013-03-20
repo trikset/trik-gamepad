@@ -9,13 +9,13 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class SenderService {// extends Service {
-    private PrintWriter        mOut;
+    private PrintWriter     mOut;
 
     // public static final String SERVERIP = "192.168.1.150";
-    public static final String SERVERIP   = "192.168.51.2";
-    public static final int    SERVERPORT = 4444;
+    // public static final String SERVERIP = "192.168.51.2";
+    public static final int SERVERPORT = 4444;
 
-    public boolean connect() {
+    public boolean connect(final String hostAddr) {
 
         mOut = null;
         try {
@@ -23,7 +23,7 @@ public class SenderService {// extends Service {
 
                 @Override
                 protected PrintWriter doInBackground(Void... params) {
-                    return connectToCar();
+                    return connectToCar(hostAddr);
                 }
 
             }.execute().get();
@@ -38,9 +38,9 @@ public class SenderService {// extends Service {
         return mOut != null;
     }
 
-    private PrintWriter connectToCar() {
+    private PrintWriter connectToCar(String hostAddr) {
         try {
-            InetAddress serverAddr = InetAddress.getByName(SERVERIP);
+            InetAddress serverAddr = InetAddress.getByName(hostAddr);
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket(serverAddr, SERVERPORT);
 

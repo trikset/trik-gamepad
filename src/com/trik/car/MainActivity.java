@@ -2,12 +2,14 @@ package com.trik.car;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -147,7 +149,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         tglConnect.setOnClickListener(new ToggleButton.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean connected = mSender.connect();
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                String addr = prefs.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
+                boolean connected = mSender.connect(addr);
                 tglConnect.setChecked(connected);
                 Toast.makeText(getBaseContext(), "Connection " + (connected ? "established." : "error."),
                         Toast.LENGTH_SHORT).show();
