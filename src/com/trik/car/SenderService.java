@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.trik.handy.R;
 
 public class SenderService {// extends Service {
     private PrintWriter     mOut;

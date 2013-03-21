@@ -7,6 +7,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+import com.trik.handy.R;
 
 public class SettingsActivity extends PreferenceActivity {
 

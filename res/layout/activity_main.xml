@@ -6,21 +6,6 @@
     android:keepScreenOn="true"
     tools:context=".MainActivity" >
 
-    <SeekBar
-        android:id="@+id/sbPower"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:max="100" />
-
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="Stop!!!" />
-
     <ToggleButton
         android:id="@+id/tglConnect"
         android:layout_width="wrap_content"
@@ -31,24 +16,57 @@
         android:textOff="Connect..."
         android:textOn="Connected" />
 
+    <Button
+        android:id="@+id/btnForward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="39dp"
+        android:layout_marginTop="37dp"
+        android:text="Forward" />
+
+    <Button
+        android:id="@+id/btnBackward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tglConnect"
+        android:layout_alignLeft="@+id/btnForward"
+        android:text="Backward" />
+
+    <Button
+        android:id="@+id/btnLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="58dp"
+        android:layout_toLeftOf="@+id/tglConnect"
+        android:text="Left" />
+
+    <Button
+        android:id="@+id/btnRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnLeft"
+        android:layout_alignBottom="@+id/btnLeft"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="39dp"
+        android:text="Right" />
+
     <ToggleButton
-        android:id="@+id/tglWheel"
+        android:id="@+id/tglHand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Wheel"
-        android:textOff="Wheel"
-        android:textOn="Wheel" />
+        android:text="Hand" />
 
-    <TextView
-        android:id="@+id/tvControl"
+    <Button
+        android:id="@+id/btnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/sbPower"
+        android:layout_below="@+id/btnLeft"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="76dp"
-        android:text="Direction"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="Stop" />
 
 </RelativeLayout>
