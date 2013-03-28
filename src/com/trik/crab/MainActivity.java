@@ -4,38 +4,51 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SensorEventListener {
+    GestureDetector         mGestureDetector;
 
-    // GestureDetector mGestureDetector;
-
-    // private SensorManager mSensorManager;
-
-    // private int mPower; // -100% ... +100%
-    // private int mAngle; // -100% ... +100%
+    private SensorManager   mSensorManager;
+    private int             mAngle;               // -100% ... +100%
+    private boolean         mWheelEnabled = false;
     protected SenderService mSender;
-
-    // private boolean mWheelEnabled = false;
-
-    // private TextView mDirectionView;
 
     public MainActivity() {
         // mGestureDetector = new GestureDetector(new ControlGestureListner());
         mSender = new SenderService();
     }
 
-    // @Override
-    // public void onAccuracyChanged(Sensor arg0, int arg1) {
-    // // TODO Auto-generated method stub
-    //
-    // }
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            if (!mWheelEnabled)
+                return;
+            synchronized (this) {
+                processSensor(event.values);
+            }
+        } else {
+            Log.i("Sensor", "" + event.sensor.getType());
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,59 +69,11 @@ public class MainActivity extends Activity {
         }
     };
 
-    // @Override
-    // public void onSensorChanged(SensorEvent event) {
-    // if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-    // if (!mWheelEnabled)
-    // return;
-    // synchronized (this) {
-    // process(event.values);
-    // }
-    // } else {
-    // Log.i("Sensor", "" + event.sensor.getType());
-    // }
-    // }
-
-    // private void process(float[] current) {
-    // final float WHEEL_BOOSTER_MULTIPLIER = 1.5f;
-    // final float x = current[0];
-    // final float y = current[1];
-    // // final float norm = (float) Math.sqrt(x*x+y*y); // w/o Z
-    //
-    // final int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan(y /
-    // x) / Math.PI);
-    //
-    // setCarAngle(angle);
-    //
-    // }
-
-    // @Override
-    // protected void onStop() {
-    // mSensorManager.unregisterListener(this);
-    // super.onStop();
-    // }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // mDirectionView = (TextView) findViewById(R.id.tvControl);
-        // mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        // mVideoView = (VideoView) findViewById(R.id.videoView);
-        // findViewById(R.id.main).setOnTouchListener(new View.OnTouchListener()
-        // {
-        // @Override
-        // public boolean onTouch(View v, MotionEvent event) {
-        // if (v.onTouchEvent(event)) {
-        // return true;
-        // } else if (mGestureDetector.onTouchEvent(event)) {
-        // return true;
-        // } else {
-        // return false;
-        // }
-        // }
-        // });
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         {
             final ToggleButton tglConnect = (ToggleButton) findViewById(R.id.tglConnect);
@@ -135,20 +100,24 @@ public class MainActivity extends Activity {
             });
         }
 
+        {
+            final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
+            tglWheel.setOnClickListener(new ToggleButton.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mWheelEnabled = tglWheel.isChecked();
+                    Toast.makeText(getBaseContext(), "Wheel turned " + (mWheelEnabled ? "ON" : "OFF"),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
+        }
+
         setListnersForMovementButtons();
         setListnersForArmButtons();
 
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
-
-    // @Override
-    // protected void onResume() {
-    // super.onResume();
-    // mSensorManager.registerListener(this,
-    // mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
-    // SensorManager.SENSOR_DELAY_NORMAL);
-    //
-    // }
 
     private void setCommand(int buttonId, final String commands[]) {
         final Button btn = (Button) findViewById(buttonId);
@@ -159,7 +128,6 @@ public class MainActivity extends Activity {
                     mSender.send(commands[i]);
             }
         });
-
     }
 
     private void setListnersForMovementButtons() {
@@ -179,4 +147,51 @@ public class MainActivity extends Activity {
 
         // private
     }
+
+    private void processSensor(float[] current) {
+        final float WHEEL_BOOSTER_MULTIPLIER = 1.5f;
+        final float x = current[0];
+        final float y = current[1];
+
+        int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x) / Math.PI);
+
+        if (angle > 100) {
+            angle = 100;
+        } else if (angle < -100) {
+            angle = -100;
+        }
+
+        if (Math.abs(angle) < 20 * WHEEL_BOOSTER_MULTIPLIER
+                || Math.abs(mAngle - angle) < 5 * WHEEL_BOOSTER_MULTIPLIER) {
+            return;
+        }
+
+        mAngle = angle;
+        mSender.send("left " + mAngle);
+        mSender.send("right " + (-mAngle));
+    }
+
+    @Override
+    protected void onStop() {
+        mSensorManager.unregisterListener(this);
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
+                SensorManager.SENSOR_DELAY_NORMAL);
+
+    }
+
+    private void setCarAngle(int value) {
+        final int SENSITIVITY_PERCENT = 4;
+        final int angle = Math.max(-100, Math.min(100, value));
+        if (Math.abs(mAngle - angle) > SENSITIVITY_PERCENT) {
+            mAngle = angle;
+            mSender.send("angle " + mAngle);
+        }
+    }
+
 }
