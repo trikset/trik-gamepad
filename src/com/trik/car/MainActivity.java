@@ -216,18 +216,15 @@ public class MainActivity extends Activity {
 
         });
 
-        final ToggleButton tglHand = (ToggleButton) findViewById(R.id.tglHand);
-        tglHand.setOnClickListener(new ToggleButton.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSender.send("hand " + (tglHand.isChecked() ? "-100" : "100"));
-                // Toast.makeText(getBaseContext(), "Wheel turned " +
-                // (mWheelEnabled ? "ON" : "OFF"), Toast.LENGTH_SHORT)
-                // .show();
-
-            }
-
-        });
+        // final ToggleButton tglHand = (ToggleButton)
+        // findViewById(R.id.tglHand);
+        // tglHand.setOnClickListener(new ToggleButton.OnClickListener() {
+        // @Override
+        // public void onClick(View v) {
+        // mSender.send("hand " + (tglHand.isChecked() ? "on" : "off"));
+        // }
+        //
+        // });
 
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
