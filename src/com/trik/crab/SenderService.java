@@ -43,6 +43,7 @@ public class SenderService {// extends Service {
             InetAddress serverAddr = InetAddress.getByName(hostAddr);
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket(serverAddr, SERVERPORT);
+            socket.setTcpNoDelay(true);
 
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
