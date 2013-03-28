@@ -89,7 +89,7 @@
             android:text="Freeze&amp;Hold" />
 
         <Button
-            android:id="@+id/btnALower"
+            android:id="@+id/btnDown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/btnAStop"
@@ -99,7 +99,7 @@
             android:text="Lower" />
 
         <Button
-            android:id="@+id/btnAUpper"
+            android:id="@+id/btnUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@id/btnAStop"

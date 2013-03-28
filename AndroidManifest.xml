@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.trik.handy"
+    package="com.trik.crab"
     android:versionCode="1"
     android:versionName="1.0" >
 <uses-permission android:name="android.permission.INTERNET" />    
@@ -17,7 +17,7 @@
        <!--  <service android:name=".SenderService" />  -->
         
         <activity
-            android:name="com.trik.car.MainActivity"
+            android:name="com.trik.crab.MainActivity"
             android:label="TrikHandy" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.trik.car.SettingsActivity"
+            android:name="com.trik.crab.SettingsActivity"
             android:label="@string/title_activity_settings" >
           <!--   <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
