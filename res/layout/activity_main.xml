@@ -6,73 +6,6 @@
     android:keepScreenOn="true"
     tools:context=".MainActivity" >
 
-    <ToggleButton
-        android:id="@+id/tglConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:checked="false"
-        android:text="ConnectTo"
-        android:textOff="Connect..."
-        android:textOn="Connected" />
-
-    <RelativeLayout
-        android:id="@+id/baseControls"
-        android:layout_width="220dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" >
-
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_margin="20dp"
-            android:text="Stop" />
-
-        <Button
-            android:id="@+id/btnBackward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btnStop"
-            android:layout_centerHorizontal="true"
-            android:ellipsize="none"
-            android:singleLine="true"
-            android:text="Backward" />
-
-        <Button
-            android:id="@+id/btnForward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/btnStop"
-            android:layout_centerHorizontal="true"
-            android:ellipsize="none"
-            android:singleLine="true"
-            android:text="Forward" />
-
-        <Button
-            android:id="@+id/btnLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/btnStop"
-            android:ellipsize="none"
-            android:singleLine="true"
-            android:text="Left" />
-
-        <Button
-            android:id="@+id/btnRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@id/btnStop"
-            android:ellipsize="none"
-            android:singleLine="true"
-            android:text="Right" />
-    </RelativeLayout>
-
     <RelativeLayout
         android:id="@+id/armControls"
         android:layout_width="240dp"
@@ -137,5 +70,27 @@
         android:text="ToggleButton"
         android:textOff="Wheel"
         android:textOn="Wheel" />
+
+    <TextView
+        android:id="@+id/tvBaseControl"
+        android:layout_width="240dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="false"
+        android:layout_centerVertical="true"
+        android:background="@android:color/darker_gray"
+        android:text="Touch &amp; move finger in this zone to control device movement"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <ToggleButton
+        android:id="@+id/tglConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/tvBaseControl"
+        android:checked="false"
+        android:text="ConnectTo"
+        android:textOff="Connect..."
+        android:textOn="Connected" />
 
 </RelativeLayout>

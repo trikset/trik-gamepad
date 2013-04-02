@@ -12,24 +12,22 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class MainActivity extends Activity implements SensorEventListener {
-    GestureDetector         mGestureDetector;
-
     private SensorManager   mSensorManager;
-    private int             mAngle;               // -100% ... +100%
+    private int             mAngle;                             // -100%
+                                                                 // ...
+                                                                 // +100%
     private boolean         mWheelEnabled = false;
-    protected SenderService mSender;
-
-    public MainActivity() {
-        // mGestureDetector = new GestureDetector(new ControlGestureListner());
-        mSender = new SenderService();
-    }
+    protected SenderService mSender       = new SenderService();
 
     @Override
     public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -113,7 +111,53 @@ public class MainActivity extends Activity implements SensorEventListener {
             });
         }
 
-        setListnersForMovementButtons();
+        {
+            final View tvBaseControl = findViewById(R.id.tvBaseControl);
+            tvBaseControl.setOnTouchListener(new OnTouchListener() {
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    // TODO Auto-generated method stub
+                    return v == tvBaseControl && gd.onTouchEvent(event);
+
+                }
+
+                final GestureDetector gd = new GestureDetector(new SimpleOnGestureListener() {
+                                             private float mMaxX;
+                                             private float mMaxY;
+
+                                             @Override
+                                             public void onShowPress(MotionEvent e) {
+                                                 super.onShowPress(e);
+                                                 mSender.send("onShowPress");
+                                             }
+
+                                             @Override
+                                             public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                                                     float distanceX, float distanceY) {
+                                                 final float x = e2.getX();
+                                                 final float y = e2.getY();
+                                                 if (x < 0 || y < 0 || x > mMaxX || y > mMaxY)
+                                                     return false;
+                                                 sendCommands((int) (200 * x / mMaxX - 100),
+                                                         (int) (200 * y / mMaxY - 100));
+                                                 return super.onScroll(e1, e2, distanceX, distanceY);
+                                             }
+
+                                             private void sendCommands(int x, int y) {
+                                                 mSender.send("x = " + x + ", y =" + y);
+                                             }
+
+                                             @Override
+                                             public boolean onDown(MotionEvent e) {
+                                                 mMaxX = tvBaseControl.getWidth();
+                                                 mMaxY = tvBaseControl.getHeight();
+                                                 return super.onDown(e) || true;
+                                             }
+                                         });
+
+            });
+        }
         setListnersForArmButtons();
 
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -128,14 +172,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                     mSender.send(commands[i]);
             }
         });
-    }
-
-    private void setListnersForMovementButtons() {
-        setCommand(R.id.btnForward, new String[] { "left 100", "right 100" });
-        setCommand(R.id.btnBackward, new String[] { "left -100", "right -100" });
-        setCommand(R.id.btnLeft, new String[] { "left -100", "right 100" });
-        setCommand(R.id.btnRight, new String[] { "left 100", "right -100" });
-        setCommand(R.id.btnStop, new String[] { "left 0", "right 0" });
     }
 
     private void setListnersForArmButtons() {
@@ -161,7 +197,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             angle = -100;
         }
 
-        if (Math.abs(angle) < 20 * WHEEL_BOOSTER_MULTIPLIER
+        if (Math.abs(angle) < 10 * WHEEL_BOOSTER_MULTIPLIER
                 || Math.abs(mAngle - angle) < 5 * WHEEL_BOOSTER_MULTIPLIER) {
             return;
         }
@@ -183,15 +219,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
 
-    }
-
-    private void setCarAngle(int value) {
-        final int SENSITIVITY_PERCENT = 4;
-        final int angle = Math.max(-100, Math.min(100, value));
-        if (Math.abs(mAngle - angle) > SENSITIVITY_PERCENT) {
-            mAngle = angle;
-            mSender.send("angle " + mAngle);
-        }
     }
 
 }
