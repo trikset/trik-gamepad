@@ -10,8 +10,8 @@
         android:id="@+id/armControls"
         android:layout_width="240dp"
         android:layout_height="fill_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" >
 
         <Button
             android:id="@+id/btnAStop"
@@ -61,33 +61,36 @@
             android:singleLine="true"
             android:text="Drop" />
     </RelativeLayout>
-
+    
+    <TextView
+        android:id="@+id/tvBaseControl"
+        android:layout_width="240dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@android:color/darker_gray"
+        android:text="Touch &amp; move finger in this zone to control device movement"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
     <ToggleButton
         android:id="@+id/tglWheel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/tvBaseControl"
         android:checked="false"
         android:text="ToggleButton"
         android:textOff="Wheel"
         android:textOn="Wheel" />
 
-    <TextView
-        android:id="@+id/tvBaseControl"
-        android:layout_width="240dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_centerHorizontal="false"
-        android:layout_centerVertical="true"
-        android:background="@android:color/darker_gray"
-        android:text="Touch &amp; move finger in this zone to control device movement"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 
     <ToggleButton
         android:id="@+id/tglConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/tvBaseControl"
+        android:layout_toRightOf="@id/tvBaseControl"
         android:checked="false"
         android:text="ConnectTo"
         android:textOff="Connect..."

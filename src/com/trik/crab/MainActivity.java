@@ -11,8 +11,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -115,51 +113,57 @@ public class MainActivity extends Activity implements SensorEventListener {
             final View tvBaseControl = findViewById(R.id.tvBaseControl);
             tvBaseControl.setOnTouchListener(new OnTouchListener() {
 
+                int mPrevLeft;
+                int mPrevRight;
+
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    // TODO Auto-generated method stub
-                    return v == tvBaseControl && gd.onTouchEvent(event);
+                    if (v != tvBaseControl)
+                        return false;
+
+                    final int SENSITIVITY = 10;
+                    switch (event.getAction()) {
+                    default:
+                        Log.e("TouchEvent", "Unknown:" + event.toString());
+                        return false;
+                    case MotionEvent.ACTION_UP:
+                        mSender.send("left 0");
+                        mSender.send("right 0");
+                        return true;
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_MOVE:
+                        final float aX = event.getX();
+                        final float aY = event.getY();
+                        final float mMaxX = tvBaseControl.getWidth();
+                        final float mMaxY = tvBaseControl.getHeight();
+                        if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
+                            return false;
+                        final int rX = (int) (200 * aX / mMaxX - 100);
+                        final int rY = -(int) (200 * aY / mMaxY - 100);
+                        final int left = Math.max(-100, Math.min(rY + rX, 100));
+                        final int right = Math.max(-100, Math.min(rY - rX, 100));
+
+                        if (Math.abs(left - mPrevLeft) > SENSITIVITY)
+                        {
+                            mPrevLeft = left;
+                            mSender.send("left " + left);
+                        }
+
+                        if (Math.abs(right - mPrevRight) > SENSITIVITY)
+                        {
+                            mPrevRight = right;
+                            mSender.send("right " + right);
+                        }
+
+                        return true;
+                    }
 
                 }
 
-                final GestureDetector gd = new GestureDetector(new SimpleOnGestureListener() {
-                                             private float mMaxX;
-                                             private float mMaxY;
-
-                                             @Override
-                                             public void onShowPress(MotionEvent e) {
-                                                 super.onShowPress(e);
-                                                 mSender.send("onShowPress");
-                                             }
-
-                                             @Override
-                                             public boolean onScroll(MotionEvent e1, MotionEvent e2,
-                                                     float distanceX, float distanceY) {
-                                                 final float x = e2.getX();
-                                                 final float y = e2.getY();
-                                                 if (x < 0 || y < 0 || x > mMaxX || y > mMaxY)
-                                                     return false;
-                                                 sendCommands((int) (200 * x / mMaxX - 100),
-                                                         (int) (200 * y / mMaxY - 100));
-                                                 return super.onScroll(e1, e2, distanceX, distanceY);
-                                             }
-
-                                             private void sendCommands(int x, int y) {
-                                                 mSender.send("x = " + x + ", y =" + y);
-                                             }
-
-                                             @Override
-                                             public boolean onDown(MotionEvent e) {
-                                                 mMaxX = tvBaseControl.getWidth();
-                                                 mMaxY = tvBaseControl.getHeight();
-                                                 return super.onDown(e) || true;
-                                             }
-                                         });
-
             });
         }
-        setListnersForArmButtons();
 
+        setListnersForArmButtons();
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
