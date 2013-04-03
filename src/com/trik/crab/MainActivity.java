@@ -15,7 +15,6 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -68,7 +67,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        super.setContentView(R.layout.activity_main);
+        super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         {
@@ -162,30 +162,57 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             });
         }
+        {
+            final View tvArmControl = findViewById(R.id.tvArmControl);
+            tvArmControl.setOnTouchListener(new OnTouchListener() {
 
-        setListnersForArmButtons();
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-    }
+                int mPrevHand;
+                int mPrevArm;
 
-    private void setCommand(int buttonId, final String commands[]) {
-        final Button btn = (Button) findViewById(buttonId);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                for (int i = 0; i < commands.length; ++i)
-                    mSender.send(commands[i]);
-            }
-        });
-    }
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (v != tvArmControl)
+                        return false;
 
-    private void setListnersForArmButtons() {
-        setCommand(R.id.btnUp, new String[] { "arm 100" });
-        setCommand(R.id.btnDown, new String[] { "arm -100" });
-        setCommand(R.id.btnATake, new String[] { "hand 100" });
-        setCommand(R.id.btnADrop, new String[] { "hand -100" });
-        setCommand(R.id.btnAStop, new String[] { "hand 0", "arm 0" });
+                    final int SENSITIVITY = 3;
+                    switch (event.getAction()) {
+                    default:
+                        Log.e("TouchEvent", "Unknown:" + event.toString());
+                        return false;
+                    case MotionEvent.ACTION_UP:
+                        mSender.send("arm 0");
+                        mSender.send("hand 0");
+                        return true;
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_MOVE:
+                        final float aX = event.getX();
+                        final float aY = event.getY();
+                        final float mMaxX = tvArmControl.getWidth();
+                        final float mMaxY = tvArmControl.getHeight();
+                        if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
+                            return false;
+                        final int rX = (int) (200 * aX / mMaxX - 100);
+                        final int rY = -(int) (200 * aY / mMaxY - 100);
+                        final int arm = Math.max(-100, Math.min(rY, 100));
+                        final int hand = Math.max(-100, Math.min(rX, 100));
 
-        // private
+                        if (Math.abs(hand - mPrevHand) > SENSITIVITY)
+                        {
+                            mPrevHand = hand;
+                            mSender.send("hand " + hand);
+                        }
+
+                        if (Math.abs(arm - mPrevArm) > SENSITIVITY)
+                        {
+                            mPrevArm = arm;
+                            mSender.send("arm " + arm);
+                        }
+
+                        return true;
+                    }
+                }
+            });
+        }
     }
 
     private void processSensor(float[] current) {
@@ -222,7 +249,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onResume();
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
-
     }
 
 }
