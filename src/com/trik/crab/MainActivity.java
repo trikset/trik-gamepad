@@ -189,8 +189,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                         Log.e("TouchEvent", "Unknown:" + event.toString());
                         return true;
                     case MotionEvent.ACTION_UP:
-                        // mSender.send("arm 0");
-                        // mSender.send("hand 0");
+                        mSender.send("arm 0");
+                        mSender.send("hand 0");
                         return true;
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_MOVE:
