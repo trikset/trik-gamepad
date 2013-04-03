@@ -21,23 +21,30 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        <ToggleButton
-            android:id="@+id/tglWheel"
+        <TextView
+            android:id="@+id/tvWheel"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="ToggleButton"
-            android:textOff="Wheel"
-            android:textOn="Wheel" />
+            android:layout_height="50dp"
+            android:background="@android:color/darker_gray"
+            android:text="Wheel" />
 
         <ToggleButton
             android:id="@+id/tglConnect"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="30dp"
             android:checked="false"
             android:text="ConnectTo"
             android:textOff="Connect..."
             android:textOn="Connected" />
+
+        <Button
+            android:id="@+id/btnBeep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Beep" />
+
     </LinearLayout>
 
     <TextView

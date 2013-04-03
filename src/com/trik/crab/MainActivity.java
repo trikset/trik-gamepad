@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -106,14 +107,32 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         {
-            final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
-            tglWheel.setOnClickListener(new ToggleButton.OnClickListener() {
+            final Button btnBeep = (Button) findViewById(R.id.btnBeep);
+            btnBeep.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mWheelEnabled = tglWheel.isChecked();
-                    Toast.makeText(getBaseContext(), "Wheel turned " + (mWheelEnabled ? "ON" : "OFF"),
-                            Toast.LENGTH_SHORT)
-                            .show();
+                    mSender.send("beep");
+                }
+            });
+        }
+        {
+            final View tvWheel = findViewById(R.id.tvWheel);
+            tvWheel.setOnTouchListener(new OnTouchListener() {
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (v != tvWheel)
+                        return false;
+                    switch (event.getAction()) {
+                    default:
+                        return false;
+                    case MotionEvent.ACTION_DOWN:
+                        mWheelEnabled = true;
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        mWheelEnabled = false;
+                        return true;
+                    }
                 }
             });
         }
@@ -131,6 +150,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         return false;
 
                     final int SENSITIVITY = 10;
+                    final float BOOST = 1.3f;
                     switch (event.getAction()) {
                     default:
                         Log.e("TouchEvent", "Unknown:" + event.toString());
@@ -147,8 +167,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                         final float mMaxY = tvBaseControl.getHeight();
                         if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
                             return false;
-                        final int rX = (int) (200 * aX / mMaxX - 100) / SENSITIVITY * SENSITIVITY;
-                        final int rY = -(int) (200 * aY / mMaxY - 100) / SENSITIVITY * SENSITIVITY;
+                        final int rX = (int) (BOOST * (200 * aX / mMaxX - 100)) / SENSITIVITY * SENSITIVITY;
+                        final int rY = -(int) (BOOST * (200 * aY / mMaxY - 100)) / SENSITIVITY * SENSITIVITY;
                         final int left = Math.max(-100, Math.min(rY + rX, 100));
                         final int right = Math.max(-100, Math.min(rY - rX, 100));
 
@@ -238,13 +258,17 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         if (Math.abs(angle) < 10 * WHEEL_BOOSTER_MULTIPLIER
-                || Math.abs(mAngle - angle) < 5 * WHEEL_BOOSTER_MULTIPLIER) {
+                || Math.abs(mAngle - angle - 50) < 5 * WHEEL_BOOSTER_MULTIPLIER) {
             return;
         }
 
         mAngle = angle;
-        mSender.send("left " + mAngle);
-        mSender.send("right " + (-mAngle));
+
+        final int left = Math.max(-100, Math.min(70 + mAngle, 100));
+        final int right = Math.max(-100, Math.min(70 - mAngle, 100));
+
+        mSender.send("left " + left);
+        mSender.send("right " + right);
     }
 
     @Override
