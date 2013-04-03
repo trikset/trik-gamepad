@@ -18,6 +18,8 @@ import android.view.View.OnTouchListener;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.trik.crab.SenderService.OnEventListener;
+
 public class MainActivity extends Activity implements SensorEventListener {
     private SensorManager   mSensorManager;
     private int             mAngle;                             // -100%
@@ -73,24 +75,31 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         {
             final ToggleButton tglConnect = (ToggleButton) findViewById(R.id.tglConnect);
+
+            OnEventListener<String> onDisconnect = new OnEventListener<String>() {
+                @Override
+                public void onEvent(String reason) {
+                    tglConnect.setChecked(false);
+                    Toast.makeText(getBaseContext(), "Disconnected." + reason, Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            mSender.setOnDiconnectedListner(onDisconnect);
+
             tglConnect.setOnClickListener(new ToggleButton.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boolean connected;
-                    String toastText;
                     if (!tglConnect.isChecked())
                     {
-                        mSender.disconnect();
-                        connected = false;
-                        toastText = "Disconnected.";
+                        mSender.disconnect("");
                     } else {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                         String addr = prefs.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
-                        connected = mSender.connect(addr);
-                        toastText = "Connection " + (connected ? "established." : "error.");
+                        boolean connected = mSender.connect(addr);
+                        tglConnect.setChecked(connected);
+                        Toast.makeText(getBaseContext(), "Connection " + (connected ? "established." : "error.")
+                                , Toast.LENGTH_SHORT).show();
                     }
-                    tglConnect.setChecked(connected);
-                    Toast.makeText(getBaseContext(), toastText, Toast.LENGTH_SHORT).show();
                 }
 
             });
@@ -138,18 +147,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                         final float mMaxY = tvBaseControl.getHeight();
                         if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
                             return false;
-                        final int rX = (int) (200 * aX / mMaxX - 100);
-                        final int rY = -(int) (200 * aY / mMaxY - 100);
+                        final int rX = (int) (200 * aX / mMaxX - 100) / SENSITIVITY * SENSITIVITY;
+                        final int rY = -(int) (200 * aY / mMaxY - 100) / SENSITIVITY * SENSITIVITY;
                         final int left = Math.max(-100, Math.min(rY + rX, 100));
                         final int right = Math.max(-100, Math.min(rY - rX, 100));
 
-                        if (Math.abs(left - mPrevLeft) > SENSITIVITY)
+                        if (left != mPrevLeft)
                         {
                             mPrevLeft = left;
                             mSender.send("left " + left);
                         }
 
-                        if (Math.abs(right - mPrevRight) > SENSITIVITY)
+                        if (right != mPrevRight)
                         {
                             mPrevRight = right;
                             mSender.send("right " + right);
@@ -174,14 +183,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                     if (v != tvArmControl)
                         return false;
 
-                    final int SENSITIVITY = 3;
+                    final int SENSITIVITY = 8;
                     switch (event.getAction()) {
                     default:
                         Log.e("TouchEvent", "Unknown:" + event.toString());
-                        return false;
+                        return true;
                     case MotionEvent.ACTION_UP:
-                        mSender.send("arm 0");
-                        mSender.send("hand 0");
+                        // mSender.send("arm 0");
+                        // mSender.send("hand 0");
                         return true;
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_MOVE:
@@ -191,18 +200,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                         final float mMaxY = tvArmControl.getHeight();
                         if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
                             return false;
-                        final int rX = (int) (200 * aX / mMaxX - 100);
-                        final int rY = -(int) (200 * aY / mMaxY - 100);
+                        final int rX = (int) (200 * aX / mMaxX - 100) / SENSITIVITY * SENSITIVITY;
+                        final int rY = -(int) (200 * aY / mMaxY - 100) / SENSITIVITY * SENSITIVITY;
                         final int arm = Math.max(-100, Math.min(rY, 100));
                         final int hand = Math.max(-100, Math.min(rX, 100));
 
-                        if (Math.abs(hand - mPrevHand) > SENSITIVITY)
+                        if (hand != mPrevHand)
                         {
                             mPrevHand = hand;
                             mSender.send("hand " + hand);
                         }
 
-                        if (Math.abs(arm - mPrevArm) > SENSITIVITY)
+                        if (arm != mPrevArm)
                         {
                             mPrevArm = arm;
                             mSender.send("arm " + arm);

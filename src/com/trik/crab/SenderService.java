@@ -1,7 +1,7 @@
 package com.trik.crab;
 
 import java.io.PrintWriter;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
 
@@ -9,11 +9,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class SenderService {// extends Service {
-    private PrintWriter     mOut;
+    private PrintWriter             mOut;
+    private OnEventListener<String> mOnDisconnectedListener;
 
-    // public static final String SERVERIP = "192.168.1.150";
-    // public static final String SERVERIP = "192.168.51.2";
-    public static final int SERVERPORT = 4444;
+    public static final int         SERVERPORT = 4444;
 
     public boolean connect(final String hostAddr) {
 
@@ -25,13 +24,10 @@ public class SenderService {// extends Service {
                 protected PrintWriter doInBackground(Void... params) {
                     return connectToCar(hostAddr);
                 }
-
             }.execute().get();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ExecutionException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -40,15 +36,14 @@ public class SenderService {// extends Service {
 
     private PrintWriter connectToCar(String hostAddr) {
         try {
-            InetAddress serverAddr = InetAddress.getByName(hostAddr);
             Log.e("TCP Client", "C: Connecting...");
-            Socket socket = new Socket(serverAddr, SERVERPORT);
+            Socket socket = new Socket();
             socket.setTcpNoDelay(true);
-
+            socket.connect(new InetSocketAddress(hostAddr, SERVERPORT), 5000);
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
             } catch (Exception e) {
-                Log.e("TCP", "Send: Error", e);
+                Log.e("TCP", "GetStream: Error", e);
                 socket.close();
                 socket = null;
             }
@@ -61,23 +56,43 @@ public class SenderService {// extends Service {
     public void send(String command) {
         if (mOut == null)
             return;
-        final String tempCommand = command;
-        new AsyncTask<Void, Void, Void>() {
+        synchronized (mOut) {
+            final String tempCommand = command;
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    mOut.println(tempCommand);
+                    Log.d("TCP", "Sent: " + tempCommand);
+                    return null;
+                }
 
-            @Override
-            protected Void doInBackground(Void... params) {
-                mOut.println(tempCommand);
-                Log.d("Sent", tempCommand);
-                return null;
-            }
+                @Override
+                protected void onPostExecute(Void result) {
+                    if (mOut.checkError())
+                    {
+                        Log.d("TCP", "NotSent: " + tempCommand);
+                        disconnect("Send failed.");
+                    }
 
-        }.execute();
+                };
+            }.execute();
+        }
     }
 
-    public void disconnect() {
+    public void disconnect(String reason) {
         if (mOut != null) {
             mOut.close();
             mOut = null;
+            Log.d("TCP", "Disconnected.");
+            mOnDisconnectedListener.onEvent(reason);
         }
+    }
+
+    void setOnDiconnectedListner(OnEventListener<String> oel) {
+        mOnDisconnectedListener = oel;
+    }
+
+    interface OnEventListener<ArgType> {
+        void onEvent(ArgType arg);
     }
 }
