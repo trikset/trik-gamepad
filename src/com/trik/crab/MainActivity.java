@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -128,9 +130,11 @@ public class MainActivity extends Activity implements SensorEventListener {
                         return false;
                     case MotionEvent.ACTION_DOWN:
                         mWheelEnabled = true;
+                        tvWheel.setBackgroundColor(Color.MAGENTA);
                         return true;
                     case MotionEvent.ACTION_UP:
                         mWheelEnabled = false;
+                        tvWheel.setBackgroundColor(Color.LTGRAY);
                         return true;
                     }
                 }
@@ -139,6 +143,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         {
             final View tvBaseControl = findViewById(R.id.tvBaseControl);
+            final View vCircle = findViewById(R.id.vCircle1);
+
             tvBaseControl.setOnTouchListener(new OnTouchListener() {
 
                 int mPrevLeft;
@@ -167,6 +173,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                         final float mMaxY = tvBaseControl.getHeight();
                         if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
                             return false;
+
+                        final RelativeLayout.LayoutParams lps =
+                                (RelativeLayout.LayoutParams) vCircle.getLayoutParams();
+                        lps.setMargins((int) (aX - vCircle.getWidth() / 2), (int) (aY - vCircle.getHeight() / 2), 0, 0);
+                        vCircle.setLayoutParams(lps);
+
                         final int rX = (int) (BOOST * (200 * aX / mMaxX - 100)) / SENSITIVITY * SENSITIVITY;
                         final int rY = -(int) (BOOST * (200 * aY / mMaxY - 100)) / SENSITIVITY * SENSITIVITY;
                         final int left = Math.max(-100, Math.min(rY + rX, 100));
@@ -193,6 +205,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
         {
             final View tvArmControl = findViewById(R.id.tvArmControl);
+            final View vCircle = findViewById(R.id.vCircle2);
+
             tvArmControl.setOnTouchListener(new OnTouchListener() {
 
                 int mPrevHand;
@@ -220,6 +234,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                         final float mMaxY = tvArmControl.getHeight();
                         if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
                             return false;
+
+                        final RelativeLayout.LayoutParams lps =
+                                (RelativeLayout.LayoutParams) vCircle.getLayoutParams();
+                        lps.setMargins((int) (aX - vCircle.getWidth() / 2), (int) (aY - vCircle.getHeight() / 2), 0, 0);
+                        vCircle.setLayoutParams(lps);
+
                         final int rX = (int) (200 * aX / mMaxX - 100) / SENSITIVITY * SENSITIVITY;
                         final int rY = -(int) (200 * aY / mMaxY - 100) / SENSITIVITY * SENSITIVITY;
                         final int arm = Math.max(-100, Math.min(rY, 100));

@@ -7,13 +7,25 @@
     android:orientation="horizontal"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/tvBaseControl"
+    <RelativeLayout
+        android:id="@+id/baseControl"
         android:layout_width="240dp"
-        android:layout_height="fill_parent"
-        android:background="@android:color/darker_gray"
-        android:text="Tap &amp; move finger in this zone to control device movement"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_height="fill_parent" >
+
+        <TextView
+            android:id="@+id/tvBaseControl"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@android:color/darker_gray"
+            android:text="Tap &amp; move finger in this zone to control device movement"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <View
+            android:id="@+id/vCircle1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circle" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/buttons"
@@ -24,7 +36,7 @@
         <TextView
             android:id="@+id/tvWheel"
             android:layout_width="fill_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:background="@android:color/darker_gray"
             android:text="Wheel" />
 
@@ -44,15 +56,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Beep" />
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvArmControl"
+    <RelativeLayout
+        android:id="@+id/armControls"
         android:layout_width="240dp"
-        android:layout_height="fill_parent"
-        android:background="@android:color/darker_gray"
-        android:text="Tap &amp; move in this zone to control arm&amp;hand"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_height="fill_parent" >
+
+        <TextView
+            android:id="@+id/tvArmControl"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@android:color/darker_gray"
+            android:text="Tap &amp; move in this zone to control arm&amp;hand"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <View
+            android:id="@+id/vCircle2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circle" />
+
+    </RelativeLayout>
 
 </LinearLayout>
