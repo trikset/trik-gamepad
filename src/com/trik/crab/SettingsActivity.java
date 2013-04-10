@@ -7,7 +7,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
-import com.trik.crab.R;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -16,7 +15,8 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case android.R.id.home:
+        case android.R.id.button1:
+            // case android.R.id.home:
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }
