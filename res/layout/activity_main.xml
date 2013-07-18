@@ -9,8 +9,9 @@
 
     <RelativeLayout
         android:id="@+id/baseControl"
-        android:layout_width="240dp"
-        android:layout_height="fill_parent" >
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.5" >
 
         <TextView
             android:id="@+id/tvBaseControl"
@@ -28,7 +29,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/buttons"
+        android:id="@+id/middleBlock"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:orientation="vertical" >
@@ -36,32 +37,43 @@
         <TextView
             android:id="@+id/tvWheel"
             android:layout_width="fill_parent"
-            android:layout_height="60dp"
+            android:layout_height="20pt"
             android:background="@android:color/darker_gray"
             android:text="Wheel" />
 
+        <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:padding="5dp" >
+
+            <Button
+                android:id="@+id/btnBeep"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Beep" />
+        </LinearLayout>
+
         <ToggleButton
             android:id="@+id/tglConnect"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
-            android:layout_marginTop="30dp"
             android:checked="false"
             android:text="ConnectTo"
             android:textOff="Connect..."
             android:textOn="Connected" />
-
-        <Button
-            android:id="@+id/btnBeep"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Beep" />
+                
     </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/armControls"
-        android:layout_width="240dp"
-        android:layout_height="fill_parent" >
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.5" >
 
         <TextView
             android:id="@+id/tvArmControl"
@@ -76,7 +88,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/circle" />
-
     </RelativeLayout>
 
 </LinearLayout>
