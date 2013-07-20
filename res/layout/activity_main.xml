@@ -8,21 +8,23 @@
     tools:context=".MainActivity" >
 
     <RelativeLayout
-        android:id="@+id/baseControl"
+        android:id="@+id/leftPad"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:background="@android:color/darker_gray"
+        android:gravity="center"
         android:layout_weight="0.5" >
 
         <TextView
             android:id="@+id/tvBaseControl"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@android:color/darker_gray"
-            android:text="Tap &amp; move finger in this zone to control device movement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Touch &amp; glide"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <View
-            android:id="@+id/vCircle1"
+            android:id="@+id/leftPadPointer"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/circle" />
@@ -32,59 +34,60 @@
         android:id="@+id/middleBlock"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
         android:orientation="vertical" >
 
         <TextView
             android:id="@+id/tvWheel"
             android:layout_width="fill_parent"
-            android:layout_height="20pt"
+            android:layout_height="18pt"
+            android:gravity="center"
             android:background="@android:color/darker_gray"
             android:text="Wheel" />
-
-        <LinearLayout
-            android:id="@+id/buttons"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginBottom="15dp"
-            android:layout_marginTop="15dp"
-            android:clipToPadding="false"
-            android:orientation="vertical"
-            android:padding="5dp" >
-
-            <Button
-                android:id="@+id/btnBeep"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Beep" />
-        </LinearLayout>
-
+        
         <ToggleButton
             android:id="@+id/tglConnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="10dp"
             android:checked="false"
             android:text="ConnectTo"
             android:textOff="Connect..."
             android:textOn="Connected" />
+        
+         <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+    	
+    	    	    	    
+    	    </LinearLayout>
+
                 
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/armControls"
+        android:id="@+id/rightPad"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="0.5" >
+        android:layout_weight="0.5" 
+        android:background="@android:color/darker_gray"
+        android:gravity="center">
 
         <TextView
             android:id="@+id/tvArmControl"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@android:color/darker_gray"
-            android:text="Tap &amp; move in this zone to control arm&amp;hand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:gravity="center"
+            android:text="Touch &amp; glide"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <View
-            android:id="@+id/vCircle2"
+            android:id="@+id/rightPadPointer"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/circle" />

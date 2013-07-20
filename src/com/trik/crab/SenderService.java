@@ -9,7 +9,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class SenderService {// extends Service {
+    interface OnEventListener<ArgType> {
+        void onEvent(ArgType arg);
+    }
+
     private PrintWriter             mOut;
+
     private OnEventListener<String> mOnDisconnectedListener;
 
     public static final int         SERVERPORT = 4444;
@@ -53,32 +58,6 @@ public class SenderService {// extends Service {
         return null;
     }
 
-    public void send(String command) {
-        if (mOut == null)
-            return;
-        synchronized (mOut) {
-            final String tempCommand = command;
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    mOut.println(tempCommand);
-                    Log.d("TCP", "Sent: " + tempCommand);
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void result) {
-                    if (mOut.checkError())
-                    {
-                        Log.d("TCP", "NotSent: " + tempCommand);
-                        disconnect("Send failed.");
-                    }
-
-                };
-            }.execute();
-        }
-    }
-
     public void disconnect(String reason) {
         if (mOut != null) {
             mOut.close();
@@ -88,11 +67,34 @@ public class SenderService {// extends Service {
         }
     }
 
-    void setOnDiconnectedListner(OnEventListener<String> oel) {
-        mOnDisconnectedListener = oel;
+    public void send(final String command) {
+        Log.d("TCP", "Sending '" + command + "'");
+
+        if (mOut == null)
+            return;
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                synchronized (mOut) {
+                    mOut.println(command);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                if (mOut.checkError())
+                {
+                    Log.e("TCP", "NotSent: " + command);
+                    disconnect("Send failed.");
+                }
+            };
+
+        }.execute();
     }
 
-    interface OnEventListener<ArgType> {
-        void onEvent(ArgType arg);
+    void setOnDiconnectedListner(OnEventListener<String> oel) {
+        mOnDisconnectedListener = oel;
     }
 }

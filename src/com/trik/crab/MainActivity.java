@@ -12,12 +12,13 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -38,43 +39,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            if (!mWheelEnabled)
-                return;
-            synchronized (this) {
-                processSensor(event.values);
-            }
-        } else {
-            Log.i("Sensor", "" + event.sensor.getType());
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(android.view.MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.menuSettings:
-            Intent settings = new Intent(this, SettingsActivity.class);
-            startActivity(settings);
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-    };
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_main);
         super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        recreateMagicButtons(3);
 
         {
             final ToggleButton tglConnect = (ToggleButton) findViewById(R.id.tglConnect);
@@ -83,7 +54,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 @Override
                 public void onEvent(String reason) {
                     tglConnect.setChecked(false);
-                    Toast.makeText(getBaseContext(), "Disconnected." + reason, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Disconnected." + reason, Toast.LENGTH_SHORT).show();
                 }
             };
 
@@ -100,7 +71,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         String addr = prefs.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
                         boolean connected = mSender.connect(addr);
                         tglConnect.setChecked(connected);
-                        Toast.makeText(getBaseContext(), "Connection " + (connected ? "established." : "error.")
+                        Toast.makeText(MainActivity.this, "Connection " + (connected ? "established." : "error.")
                                 , Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -108,15 +79,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             });
         }
 
-        {
-            final Button btnBeep = (Button) findViewById(R.id.btnBeep);
-            btnBeep.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mSender.send("beep");
-                }
-            });
-        }
         {
             final View tvWheel = findViewById(R.id.tvWheel);
             tvWheel.setOnTouchListener(new OnTouchListener() {
@@ -142,126 +104,60 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         {
-            final View tvBaseControl = findViewById(R.id.tvBaseControl);
-            final View vCircle = findViewById(R.id.vCircle1);
-
-            tvBaseControl.setOnTouchListener(new OnTouchListener() {
-
-                int mPrevLeft;
-                int mPrevRight;
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (v != tvBaseControl)
-                        return false;
-
-                    final int SENSITIVITY = 10;
-                    final float BOOST = 1.3f;
-                    switch (event.getAction()) {
-                    default:
-                        Log.e("TouchEvent", "Unknown:" + event.toString());
-                        return false;
-                    case MotionEvent.ACTION_UP:
-                        mSender.send("left 0");
-                        mSender.send("right 0");
-                        return true;
-                    case MotionEvent.ACTION_DOWN:
-                    case MotionEvent.ACTION_MOVE:
-                        final float aX = event.getX();
-                        final float aY = event.getY();
-                        final float mMaxX = tvBaseControl.getWidth();
-                        final float mMaxY = tvBaseControl.getHeight();
-                        if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
-                            return false;
-
-                        final RelativeLayout.LayoutParams lps =
-                                (RelativeLayout.LayoutParams) vCircle.getLayoutParams();
-                        lps.setMargins((int) (aX - vCircle.getWidth() / 2), (int) (aY - vCircle.getHeight() / 2), 0, 0);
-                        vCircle.setLayoutParams(lps);
-
-                        final int rX = (int) (BOOST * (200 * aX / mMaxX - 100)) / SENSITIVITY * SENSITIVITY;
-                        final int rY = -(int) (BOOST * (200 * aY / mMaxY - 100)) / SENSITIVITY * SENSITIVITY;
-                        final int left = Math.max(-100, Math.min(rY + rX, 100));
-                        final int right = Math.max(-100, Math.min(rY - rX, 100));
-
-                        if (left != mPrevLeft)
-                        {
-                            mPrevLeft = left;
-                            mSender.send("left " + left);
-                        }
-
-                        if (right != mPrevRight)
-                        {
-                            mPrevRight = right;
-                            mSender.send("right " + right);
-                        }
-
-                        return true;
-                    }
-
-                }
-
-            });
+            final View pad = findViewById(R.id.leftPad);
+            final View pointer = pad.findViewById(R.id.leftPadPointer);
+            pad.setOnTouchListener(new TouchPadListner(pad, "pad1", pointer, mSender));
         }
         {
-            final View tvArmControl = findViewById(R.id.tvArmControl);
-            final View vCircle = findViewById(R.id.vCircle2);
-
-            tvArmControl.setOnTouchListener(new OnTouchListener() {
-
-                int mPrevHand;
-                int mPrevArm;
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (v != tvArmControl)
-                        return false;
-
-                    final int SENSITIVITY = 8;
-                    switch (event.getAction()) {
-                    default:
-                        Log.e("TouchEvent", "Unknown:" + event.toString());
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        mSender.send("arm 0");
-                        mSender.send("hand 0");
-                        return true;
-                    case MotionEvent.ACTION_DOWN:
-                    case MotionEvent.ACTION_MOVE:
-                        final float aX = event.getX();
-                        final float aY = event.getY();
-                        final float mMaxX = tvArmControl.getWidth();
-                        final float mMaxY = tvArmControl.getHeight();
-                        if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
-                            return false;
-
-                        final RelativeLayout.LayoutParams lps =
-                                (RelativeLayout.LayoutParams) vCircle.getLayoutParams();
-                        lps.setMargins((int) (aX - vCircle.getWidth() / 2), (int) (aY - vCircle.getHeight() / 2), 0, 0);
-                        vCircle.setLayoutParams(lps);
-
-                        final int rX = (int) (200 * aX / mMaxX - 100) / SENSITIVITY * SENSITIVITY;
-                        final int rY = -(int) (200 * aY / mMaxY - 100) / SENSITIVITY * SENSITIVITY;
-                        final int arm = Math.max(-100, Math.min(rY, 100));
-                        final int hand = Math.max(-100, Math.min(rX, 100));
-
-                        if (hand != mPrevHand)
-                        {
-                            mPrevHand = hand;
-                            mSender.send("hand " + hand);
-                        }
-
-                        if (arm != mPrevArm)
-                        {
-                            mPrevArm = arm;
-                            mSender.send("arm " + arm);
-                        }
-
-                        return true;
-                    }
-                }
-            });
+            final View pad = findViewById(R.id.rightPad);
+            final View pointer = pad.findViewById(R.id.rightPadPointer);
+            pad.setOnTouchListener(new TouchPadListner(pad, "pad2", pointer, mSender));
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.menuSettings:
+            Intent settings = new Intent(this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            if (!mWheelEnabled)
+                return;
+            synchronized (this) {
+                processSensor(event.values);
+            }
+        } else {
+            Log.i("Sensor", "" + event.sensor.getType());
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        mSensorManager.unregisterListener(this);
+        super.onStop();
     }
 
     private void processSensor(float[] current) {
@@ -278,9 +174,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         if (Math.abs(angle) < 10 * WHEEL_BOOSTER_MULTIPLIER
-                || Math.abs(mAngle - angle - 50) < 5 * WHEEL_BOOSTER_MULTIPLIER) {
+                || Math.abs(mAngle - angle - 50) < 5 * WHEEL_BOOSTER_MULTIPLIER)
             return;
-        }
 
         mAngle = angle;
 
@@ -291,17 +186,23 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSender.send("right " + right);
     }
 
-    @Override
-    protected void onStop() {
-        mSensorManager.unregisterListener(this);
-        super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
-                SensorManager.SENSOR_DELAY_NORMAL);
+    private void recreateMagicButtons(int count) {
+        ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
+        buttonsView.removeAllViews();
+        for (int i = 0; i < count; ++i) {
+            final Button btn = new Button(MainActivity.this);
+            btn.setGravity(Gravity.CENTER);
+            final String name = i + 1 + "";
+            btn.setText(name);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View arg0) {
+                    mSender.send("button " + name + " down"); // TBD: "up" via
+                                                              // TouchListner
+                }
+            });
+            buttonsView.addView(btn);
+        }
     }
 
 }
