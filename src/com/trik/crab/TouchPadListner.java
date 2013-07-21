@@ -7,7 +7,7 @@ import android.view.View.OnTouchListener;
 import android.widget.RelativeLayout;
 
 final class TouchPadListner implements OnTouchListener {
-    final View          mCircle;
+    final View          mPointer;
     final View          mPad;
     int                 mPrevY;
     int                 mPrevX;
@@ -15,10 +15,10 @@ final class TouchPadListner implements OnTouchListener {
     final float         mCircleRadius;
     final SenderService mSender;
 
-    TouchPadListner(View pad, String padName, View circle, SenderService sender) {
-        mCircle = circle;
+    TouchPadListner(View pad, String padName, View pointer, SenderService sender) {
+        mPointer = pointer;
         mPad = pad;
-        mCircleRadius = circle.getWidth() / 2;
+        mCircleRadius = Math.max(mPointer.getWidth(), mPointer.getHeight()) / 2;
         mSender = sender;
         mPadName = padName;
     }
@@ -46,19 +46,19 @@ final class TouchPadListner implements OnTouchListener {
                 return false;
 
             final RelativeLayout.LayoutParams lps =
-                    (RelativeLayout.LayoutParams) mCircle.getLayoutParams();
+                    (RelativeLayout.LayoutParams) mPointer.getLayoutParams();
 
             lps.setMargins((int) (aX - mCircleRadius), (int) (aY - mCircleRadius), -(int) mCircleRadius,
                     -(int) mCircleRadius);
 
-            mCircle.setLayoutParams(lps);
+            mPointer.setLayoutParams(lps);
 
             final int SENSITIVITY = 4;
 
             final int rX = (int) (200 * aX / mMaxX - 100);
             final int rY = -(int) (200 * aY / mMaxY - 100);
-            final int curX = Math.max(-100, Math.min(rY, 100));
-            final int curY = Math.max(-100, Math.min(rX, 100));
+            final int curX = Math.max(-100, Math.min(rY, 100)); // ???
+            final int curY = Math.max(-100, Math.min(rX, 100)); // ???
 
             if (Math.abs(curY - mPrevX) > SENSITIVITY)
             {
