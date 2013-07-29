@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,11 +13,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -41,11 +39,11 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setContentView(R.layout.activity_main);
-        super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        recreateMagicButtons(3);
+        recreateMagicButtons(5);
 
         {
             final ToggleButton tglConnect = (ToggleButton) findViewById(R.id.tglConnect);
@@ -80,38 +78,22 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         {
-            final View tvWheel = findViewById(R.id.tvWheel);
-            tvWheel.setOnTouchListener(new OnTouchListener() {
-
+            final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
+            tglWheel.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (v != tvWheel)
-                        return false;
-                    switch (event.getAction()) {
-                    default:
-                        return false;
-                    case MotionEvent.ACTION_DOWN:
-                        mWheelEnabled = true;
-                        tvWheel.setBackgroundColor(Color.MAGENTA);
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        mWheelEnabled = false;
-                        tvWheel.setBackgroundColor(Color.LTGRAY);
-                        return true;
-                    }
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mWheelEnabled = isChecked;
                 }
             });
         }
 
         {
             final View pad = findViewById(R.id.leftPad);
-            final View pointer = pad.findViewById(R.id.leftPadPointer);
-            pad.setOnTouchListener(new TouchPadListner(pad, "pad1", pointer, mSender));
+            pad.setOnTouchListener(new TouchPadListener(pad, "pad 1", mSender));
         }
         {
             final View pad = findViewById(R.id.rightPad);
-            final View pointer = pad.findViewById(R.id.rightPadPointer);
-            pad.setOnTouchListener(new TouchPadListner(pad, "pad2", pointer, mSender));
+            pad.setOnTouchListener(new TouchPadListener(pad, "pad 2", mSender));
         }
     }
 
@@ -179,11 +161,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         mAngle = angle;
 
-        final int left = Math.max(-100, Math.min(70 + mAngle, 100));
-        final int right = Math.max(-100, Math.min(70 - mAngle, 100));
-
-        mSender.send("left " + left);
-        mSender.send("right " + right);
+        mSender.send("wheel " + mAngle);
     }
 
     private void recreateMagicButtons(int count) {
@@ -194,11 +172,13 @@ public class MainActivity extends Activity implements SensorEventListener {
             btn.setGravity(Gravity.CENTER);
             final String name = i + 1 + "";
             btn.setText(name);
+            btn.setPadding(10, 10, 10, 10);
+
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
-                    mSender.send("button " + name + " down"); // TBD: "up" via
-                                                              // TouchListner
+                    mSender.send("btn " + name + " down"); // TBD: "up" via
+                                                           // TouchListner
                 }
             });
             buttonsView.addView(btn);

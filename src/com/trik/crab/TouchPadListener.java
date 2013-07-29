@@ -4,21 +4,16 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.RelativeLayout;
 
-final class TouchPadListner implements OnTouchListener {
-    final View          mPointer;
+final class TouchPadListener implements OnTouchListener {
     final View          mPad;
     int                 mPrevY;
     int                 mPrevX;
     String              mPadName;
-    final float         mCircleRadius;
     final SenderService mSender;
 
-    TouchPadListner(View pad, String padName, View pointer, SenderService sender) {
-        mPointer = pointer;
+    TouchPadListener(View pad, String padName, SenderService sender) {
         mPad = pad;
-        mCircleRadius = Math.max(mPointer.getWidth(), mPointer.getHeight()) / 2;
         mSender = sender;
         mPadName = padName;
     }
@@ -45,31 +40,18 @@ final class TouchPadListner implements OnTouchListener {
             if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
                 return false;
 
-            final RelativeLayout.LayoutParams lps =
-                    (RelativeLayout.LayoutParams) mPointer.getLayoutParams();
-
-            lps.setMargins((int) (aX - mCircleRadius), (int) (aY - mCircleRadius), -(int) mCircleRadius,
-                    -(int) mCircleRadius);
-
-            mPointer.setLayoutParams(lps);
-
             final int SENSITIVITY = 4;
 
             final int rX = (int) (200 * aX / mMaxX - 100);
             final int rY = -(int) (200 * aY / mMaxY - 100);
-            final int curX = Math.max(-100, Math.min(rY, 100)); // ???
-            final int curY = Math.max(-100, Math.min(rX, 100)); // ???
+            final int curY = Math.max(-100, Math.min(rY, 100)); // ???
+            final int curX = Math.max(-100, Math.min(rX, 100)); // ???
 
-            if (Math.abs(curY - mPrevX) > SENSITIVITY)
+            if (Math.abs(curX - mPrevX) > SENSITIVITY || Math.abs(curY - mPrevY) > SENSITIVITY)
             {
-                mPrevX = curY;
-                mSender.send(mPadName + " x " + curY);
-            }
-
-            if (Math.abs(curX - mPrevY) > SENSITIVITY)
-            {
-                mPrevY = curX;
-                mSender.send(mPadName + " y " + curX);
+                mPrevX = curX;
+                mPrevY = curY;
+                mSender.send(mPadName + " " + curX + " " + curY);
             }
 
             return true;

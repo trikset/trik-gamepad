@@ -1,100 +1,74 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    android:keepScreenOn="true"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:keepScreenOn="true"
+    android:background="@android:color/black"
     android:orientation="horizontal"
+    android:baselineAligned="false"
     tools:context=".MainActivity" >
-
-    <RelativeLayout
-        android:id="@+id/leftPad"
-        android:layout_width="fill_parent"
+	<LinearLayout 
+	    android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:background="@android:color/darker_gray"
-        android:clipChildren="false"
-        android:layout_weight="0.5" >
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:text="Touch &amp; stroke"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <View
-            android:id="@+id/leftPadPointer"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:background="@drawable/circle" />
-
-    </RelativeLayout>
-
+        android:layout_weight="0.45">
+	    <com.trik.crab.SquareTouchPadLayout
+	        android:id="@+id/leftPad"
+	        android:layout_margin="10dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:background="@drawable/touchpad">
+    	</com.trik.crab.SquareTouchPadLayout>
+        <ToggleButton
+           android:id="@+id/tglConnect"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:checked="false"
+           android:text="ConnectTo"
+           android:textOff="Connect..."
+           android:textOn="Connected" />
+	</LinearLayout>
+	
+           
     <LinearLayout
-        android:id="@+id/middleBlock"
+       android:id="@+id/buttons"
+       android:layout_width="wrap_content"
+       android:layout_height="fill_parent"
+       android:orientation="vertical"
+       android:layout_marginTop="10dp"
+       android:layout_weight="0.1"
+       android:gravity="center_horizontal">
+
+    	    	    
+    </LinearLayout>
+
+
+    <LinearLayout  
+     	android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:gravity="center_horizontal"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical" >
+        android:layout_weight="0.45">
 
-        <TextView
-            android:id="@+id/tvWheel"
-            android:layout_width="fill_parent"
-            android:layout_height="18pt"
-            android:gravity="center"
-            android:background="@android:color/darker_gray"
-            android:text="Wheel" />
+	    <com.trik.crab.SquareTouchPadLayout
+	        android:id="@+id/rightPad"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_margin="10dp"
+	        android:background="@drawable/touchpad">
+	
+	    </com.trik.crab.SquareTouchPadLayout>
         
         <ToggleButton
-            android:id="@+id/tglConnect"
+            android:id="@+id/tglWheel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_margin="10dp"
             android:checked="false"
-            android:text="ConnectTo"
-            android:textOff="Connect..."
-            android:textOn="Connected" />
+            android:textOn="Wheel ON"
+            android:textOff="Wheel OFF"/>
         
-         <LinearLayout
-            android:id="@+id/buttons"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
-    	
-    	    	    	    
-    	    </LinearLayout>
-
-                
     </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/rightPad"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="0.5" 
-        android:background="@android:color/darker_gray"
-        android:clipChildren="false">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-	        android:layout_centerInParent="true"
-            android:text="Touch &amp; stroke"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <View
-            android:id="@+id/rightPadPointer"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/circle" />
-
-    </RelativeLayout>
 
 </LinearLayout>
