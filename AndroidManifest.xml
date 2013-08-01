@@ -11,8 +11,8 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/ic_launcher"
-        android:label="TrikHandy"
+        android:icon="@drawable/trik_icon"
+        android:label="TRIK Gamepad"
         android:theme="@style/AppTheme" >
        <!--  <service android:name=".SenderService" />  -->
         
@@ -29,10 +29,6 @@
         <activity
             android:name="com.trik.gamepad.SettingsActivity"
             android:label="@string/title_activity_settings" >
-          <!--   <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="android.preference.PreferenceActivity" />
--->
         </activity>        
     </application>
     
