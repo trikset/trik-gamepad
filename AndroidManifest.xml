@@ -3,7 +3,7 @@
     package="com.trik.crab"
     android:versionCode="1"
     android:versionName="1.0" >
-<uses-permission android:name="android.permission.INTERNET" />    
+    <uses-permission android:name="android.permission.INTERNET" />    
     <uses-sdk
         android:maxSdkVersion="18"
         android:minSdkVersion="10"
@@ -17,7 +17,7 @@
        <!--  <service android:name=".SenderService" />  -->
         
         <activity
-            android:name="com.trik.crab.MainActivity"
+            android:name="com.trik.gamepad.MainActivity"
             android:label="TrikHandy"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"  >
             <intent-filter>
@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.trik.crab.SettingsActivity"
+            android:name="com.trik.gamepad.SettingsActivity"
             android:label="@string/title_activity_settings" >
           <!--   <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

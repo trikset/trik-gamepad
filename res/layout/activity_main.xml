@@ -14,13 +14,12 @@
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_weight="0.45">
-	    <com.trik.crab.SquareTouchPadLayout
+	    <com.trik.gamepad.SquareTouchPadLayout
 	        android:id="@+id/leftPad"
 	        android:layout_margin="10dp"
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
-	        android:background="@drawable/touchpad">
-    	</com.trik.crab.SquareTouchPadLayout>
+	        android:background="@drawable/touchpad"/>
         <ToggleButton
            android:id="@+id/tglConnect"
            android:layout_width="wrap_content"
@@ -52,14 +51,13 @@
         android:gravity="center_horizontal"
         android:layout_weight="0.45">
 
-	    <com.trik.crab.SquareTouchPadLayout
+	    <com.trik.gamepad.SquareTouchPadLayout
 	        android:id="@+id/rightPad"
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
 	        android:layout_margin="10dp"
-	        android:background="@drawable/touchpad">
+	        android:background="@drawable/touchpad"/>
 	
-	    </com.trik.crab.SquareTouchPadLayout>
         
         <ToggleButton
             android:id="@+id/tglWheel"

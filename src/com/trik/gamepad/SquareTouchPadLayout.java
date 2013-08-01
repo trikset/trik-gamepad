@@ -1,4 +1,4 @@
-package com.trik.crab;
+package com.trik.gamepad;
 
 import android.content.Context;
 import android.util.AttributeSet;

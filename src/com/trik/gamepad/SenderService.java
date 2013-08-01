@@ -1,4 +1,4 @@
-package com.trik.crab;
+package com.trik.gamepad;
 
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
