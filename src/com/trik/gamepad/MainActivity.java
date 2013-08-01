@@ -20,7 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.trik.crab.R;
+import com.trik.gamepad.R;
 import com.trik.gamepad.SenderService.OnEventListener;
 
 public class MainActivity extends Activity implements SensorEventListener {

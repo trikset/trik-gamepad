@@ -1,6 +1,6 @@
 package com.trik.gamepad;
 
-import com.trik.crab.R;
+import com.trik.gamepad.R;
 
 import android.os.Bundle;
 import android.preference.Preference;
