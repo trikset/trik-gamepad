@@ -37,15 +37,13 @@ final class TouchPadListener implements OnTouchListener {
             final float mMaxX = mPad.getWidth();
             final float mMaxY = mPad.getHeight();
 
-            if (aX < 0 || aY < 0 || aX > mMaxX || aY > mMaxY)
-                return false;
+            final int SENSITIVITY = 3;
 
-            final int SENSITIVITY = 4;
-
-            final int rX = (int) (200 * aX / mMaxX - 100);
-            final int rY = -(int) (200 * aY / mMaxY - 100);
-            final int curY = Math.max(-100, Math.min(rY, 100)); // ???
-            final int curX = Math.max(-100, Math.min(rX, 100)); // ???
+            final float SCALE = 1.15F;
+            final int rX = (int) (200 * SCALE * (aX / mMaxX - 0.5));
+            final int rY = -(int) (200 * SCALE * (aY / mMaxY - 0.5));
+            final int curY = Math.max(-100, Math.min(rY, 100));
+            final int curX = Math.max(-100, Math.min(rX, 100));
 
             if (Math.abs(curX - mPrevX) > SENSITIVITY || Math.abs(curY - mPrevY) > SENSITIVITY)
             {
