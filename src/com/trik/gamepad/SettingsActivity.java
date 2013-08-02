@@ -1,7 +1,5 @@
 package com.trik.gamepad;
 
-import com.trik.gamepad.R;
-
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -29,17 +27,19 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_general);
-        OnPreferenceChangeListener listner = new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object value) {
-                preference.setSummary(value.toString());
-                return true;
-            }
-        };
+        {
+            OnPreferenceChangeListener listner = new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object value) {
+                    preference.setSummary(value.toString());
+                    return true;
+                }
+            };
 
-        Preference hostAddr = findPreference(SK_HOST_ADDRESS);
-        hostAddr.setOnPreferenceChangeListener(listner);
-        listner.onPreferenceChange(hostAddr, PreferenceManager.getDefaultSharedPreferences(hostAddr.getContext())
-                .getString(hostAddr.getKey(), ""));
+            Preference hostAddr = findPreference(SK_HOST_ADDRESS);
+            hostAddr.setOnPreferenceChangeListener(listner);
+            listner.onPreferenceChange(hostAddr, PreferenceManager.getDefaultSharedPreferences(hostAddr.getContext())
+                    .getString(hostAddr.getKey(), ""));
+        }
     }
 }

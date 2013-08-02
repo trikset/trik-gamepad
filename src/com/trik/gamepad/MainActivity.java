@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,7 +21,6 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.trik.gamepad.R;
 import com.trik.gamepad.SenderService.OnEventListener;
 
 public class MainActivity extends Activity implements SensorEventListener {
@@ -122,6 +122,15 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onResume();
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
+
+        {
+            // send current config
+            final float hsv[] = new float[3];
+            Color.colorToHSV(PreferenceManager.getDefaultSharedPreferences(this)
+                    .getInt("targetColor", 0), hsv);
+            final String hsvRepr = "H:" + hsv[0] + " S:" + hsv[1] + " V:" + hsv[2];
+            mSender.send("config targetColor=\"" + hsvRepr + "\"");
+        }
     }
 
     @Override
