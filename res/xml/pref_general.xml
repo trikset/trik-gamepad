@@ -8,6 +8,16 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Robot IP address" />
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="4444"
+        android:inputType="number"
+        android:key="hostPort"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Robot TCP port" />
+    
     <net.margaritov.preference.colorpicker.ColorPickerPreference
 	    android:key="targetColor"
 	    android:title="Target Color"

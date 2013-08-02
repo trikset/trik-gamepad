@@ -68,9 +68,19 @@ public class MainActivity extends Activity implements SensorEventListener {
                     } else {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                         String addr = prefs.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
-                        boolean connected = mSender.connect(addr);
+                        int portNumber = 4444;
+                        final String portStr = prefs.getString(SettingsActivity.SK_HOST_PORT, "4444");
+                        try {
+                            portNumber = Integer.parseInt(portStr);
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(MainActivity.this, "Port number '" + portStr + "' is incorrect.",
+                                    Toast.LENGTH_SHORT);
+                        }
+
+                        final boolean connected = mSender.connect(addr, portNumber);
                         tglConnect.setChecked(connected);
-                        Toast.makeText(MainActivity.this, "Connection " + (connected ? "established." : "error.")
+                        Toast.makeText(MainActivity.this,
+                                "Connection to " + addr + ":" + portNumber + (connected ? " established." : " error.")
                                 , Toast.LENGTH_SHORT).show();
                     }
                 }

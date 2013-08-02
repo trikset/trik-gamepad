@@ -17,9 +17,7 @@ public class SenderService {// extends Service {
 
     private OnEventListener<String> mOnDisconnectedListener;
 
-    public static final int         SERVERPORT = 4444;
-
-    public boolean connect(final String hostAddr) {
+    public boolean connect(final String hostAddr, final int hostPort) {
 
         mOut = null;
         try {
@@ -27,7 +25,7 @@ public class SenderService {// extends Service {
 
                 @Override
                 protected PrintWriter doInBackground(Void... params) {
-                    return connectToCar(hostAddr);
+                    return connectToCar(hostAddr, hostPort);
                 }
             }.execute().get();
         } catch (InterruptedException e) {
@@ -39,12 +37,12 @@ public class SenderService {// extends Service {
         return mOut != null;
     }
 
-    private PrintWriter connectToCar(String hostAddr) {
+    private PrintWriter connectToCar(String hostAddr, int hostPort) {
         try {
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket();
             socket.setTcpNoDelay(true);
-            socket.connect(new InetSocketAddress(hostAddr, SERVERPORT), 5000);
+            socket.connect(new InetSocketAddress(hostAddr, hostPort), 5000);
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
             } catch (Exception e) {

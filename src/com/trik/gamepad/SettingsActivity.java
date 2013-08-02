@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 public class SettingsActivity extends PreferenceActivity {
 
     public static final String SK_HOST_ADDRESS = "hostAddress";
+    public static final String SK_HOST_PORT    = "hostPort";
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -27,19 +27,17 @@ public class SettingsActivity extends PreferenceActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_general);
-        {
-            OnPreferenceChangeListener listner = new OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object value) {
-                    preference.setSummary(value.toString());
-                    return true;
-                }
-            };
-
-            Preference hostAddr = findPreference(SK_HOST_ADDRESS);
-            hostAddr.setOnPreferenceChangeListener(listner);
-            listner.onPreferenceChange(hostAddr, PreferenceManager.getDefaultSharedPreferences(hostAddr.getContext())
-                    .getString(hostAddr.getKey(), ""));
+        OnPreferenceChangeListener listner = new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object value) {
+                preference.setSummary(value.toString());
+                return true;
+            }
+        };
+        for (String prefKey : new String[] { SK_HOST_ADDRESS, SK_HOST_PORT }) {
+            Preference pref = findPreference(prefKey);
+            pref.setSummary(pref.getSharedPreferences().getString(prefKey, ""));
+            pref.setOnPreferenceChangeListener(listner);
         }
     }
 }
