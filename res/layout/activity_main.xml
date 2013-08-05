@@ -10,7 +10,6 @@
     tools:context=".MainActivity" >
 	<LinearLayout 
 	    android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_weight="0.45">
@@ -24,6 +23,7 @@
            android:id="@+id/tglConnect"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
+           android:layout_gravity="bottom|left"
            android:checked="false"
            android:text="ConnectTo"
            android:textOff="Connect..."
@@ -48,7 +48,6 @@
      	android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:gravity="center_horizontal"
         android:layout_weight="0.45">
 
 	    <com.trik.gamepad.SquareTouchPadLayout
@@ -63,6 +62,7 @@
             android:id="@+id/tglWheel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
             android:checked="false"
             android:textOn="Wheel ON"
             android:textOff="Wheel OFF"/>
