@@ -169,14 +169,15 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x) / Math.PI);
 
-        if (angle > 100) {
+        if (Math.abs(angle) < 10) {
+            angle = 0;
+        } else if (angle > 100) {
             angle = 100;
         } else if (angle < -100) {
             angle = -100;
         }
 
-        if (Math.abs(angle) < 10
-                || Math.abs(mAngle - angle) < 10)
+        if (Math.abs(mAngle - angle) < 7)
             return;
 
         mAngle = angle;
