@@ -5,10 +5,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Vibrator;
 import android.util.Log;
 
-public class SenderService {// extends Service {
+public class SenderService {
     interface OnEventListener<ArgType> {
         void onEvent(ArgType arg);
     }
@@ -16,6 +18,14 @@ public class SenderService {// extends Service {
     private PrintWriter             mOut;
 
     private OnEventListener<String> mOnDisconnectedListener;
+    private final Vibrator          mVibrator;
+
+    final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200, 100, 50, 50,
+                                        50, 50, 50 };
+
+    public SenderService(MainActivity mainActivity) {
+        mVibrator = (Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
+    }
 
     public boolean connect(final String hostAddr, final int hostPort) {
 
@@ -86,6 +96,9 @@ public class SenderService {// extends Service {
                 {
                     Log.e("TCP", "NotSent: " + command);
                     disconnect("Send failed.");
+                    mVibrator.vibrate(SOS, -1);
+                } else {
+                    mVibrator.vibrate(20);
                 }
             };
 

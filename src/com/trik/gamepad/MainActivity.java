@@ -25,11 +25,11 @@ import com.trik.gamepad.SenderService.OnEventListener;
 
 public class MainActivity extends Activity implements SensorEventListener {
     private SensorManager   mSensorManager;
-    private int             mAngle;                             // -100%
-                                                                 // ...
-                                                                 // +100%
+    private int             mAngle;               // -100%
+                                                   // ...
+                                                   // +100%
     private boolean         mWheelEnabled = false;
-    protected SenderService mSender       = new SenderService();
+    protected SenderService mSender;
 
     @Override
     public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -43,6 +43,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSender = new SenderService(this);
 
         recreateMagicButtons(5);
 
@@ -110,10 +111,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
-    }
+    };
 
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
@@ -125,7 +125,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         default:
             return super.onOptionsItemSelected(item);
         }
-    };
+    }
 
     @Override
     protected void onResume() {
@@ -148,9 +148,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             if (!mWheelEnabled)
                 return;
-            synchronized (this) {
-                processSensor(event.values);
-            }
+            processSensor(event.values);
         } else {
             Log.i("Sensor", "" + event.sensor.getType());
         }
@@ -166,6 +164,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         final float WHEEL_BOOSTER_MULTIPLIER = 1.5f;
         final float x = current[0];
         final float y = current[1];
+        if (x < 1e-6)
+            return;
 
         int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x) / Math.PI);
 
@@ -175,8 +175,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             angle = -100;
         }
 
-        if (Math.abs(angle) < 10 * WHEEL_BOOSTER_MULTIPLIER
-                || Math.abs(mAngle - angle - 50) < 5 * WHEEL_BOOSTER_MULTIPLIER)
+        if (Math.abs(angle) < 10
+                || Math.abs(mAngle - angle) < 10)
             return;
 
         mAngle = angle;
