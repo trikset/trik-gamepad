@@ -9,8 +9,13 @@ import android.view.MenuItem;
 
 public class SettingsActivity extends PreferenceActivity {
 
-    public static final String SK_HOST_ADDRESS = "hostAddress";
-    public static final String SK_HOST_PORT    = "hostPort";
+    public interface IPreferenceChangedListener {
+        void OnPreferenceChanged(Preference preference, Object value);
+    }
+
+    public static final String         SK_HOST_ADDRESS = "hostAddress";
+    public static final String         SK_HOST_PORT    = "hostPort";
+    private IPreferenceChangedListener mListener;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -31,6 +36,9 @@ public class SettingsActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object value) {
                 preference.setSummary(value.toString());
+                if (mListener != null) {
+                    mListener.OnPreferenceChanged(preference, value);
+                }
                 return true;
             }
         };
@@ -39,5 +47,9 @@ public class SettingsActivity extends PreferenceActivity {
             pref.setSummary(pref.getSharedPreferences().getString(prefKey, ""));
             pref.setOnPreferenceChangeListener(listner);
         }
+    }
+
+    public void setOnPreferenceChangeListener(IPreferenceChangedListener listner) {
+        mListener = listner;
     }
 }

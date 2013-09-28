@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.util.Log;
+import android.widget.Toast;
 
 public class SenderService {
     interface OnEventListener<ArgType> {
@@ -20,14 +21,21 @@ public class SenderService {
     private OnEventListener<String> mOnDisconnectedListener;
     private final Vibrator          mVibrator;
 
+    private String                  mHostAddr;
+
+    private int                     mHostPort;
+
+    private final MainActivity      mMainActivity;
+
     final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200, 100, 50, 50,
                                         50, 50, 50 };
 
     public SenderService(MainActivity mainActivity) {
+        mMainActivity = mainActivity;
         mVibrator = (Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
-    public boolean connect(final String hostAddr, final int hostPort) {
+    public boolean connect() {
 
         mOut = null;
         try {
@@ -35,7 +43,7 @@ public class SenderService {
 
                 @Override
                 protected PrintWriter doInBackground(Void... params) {
-                    return connectToCar(hostAddr, hostPort);
+                    return connectToCar();
                 }
             }.execute().get();
         } catch (InterruptedException e) {
@@ -47,12 +55,12 @@ public class SenderService {
         return mOut != null;
     }
 
-    private PrintWriter connectToCar(String hostAddr, int hostPort) {
+    private PrintWriter connectToCar() {
         try {
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket();
             socket.setTcpNoDelay(true);
-            socket.connect(new InetSocketAddress(hostAddr, hostPort), 5000);
+            socket.connect(new InetSocketAddress(mHostAddr, mHostPort), 5000);
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
             } catch (Exception e) {
@@ -78,8 +86,14 @@ public class SenderService {
     public void send(final String command) {
         Log.d("TCP", "Sending '" + command + "'");
 
-        if (mOut == null)
-            return;
+        if (mOut == null) {
+            final Boolean connected = connect();
+            Toast.makeText(mMainActivity,
+                    "Connection to " + mHostAddr + ":" + mHostPort + (connected ? " established." : " error."),
+                    Toast.LENGTH_SHORT).show();
+            if (!connected)
+                return;
+        }
 
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -107,5 +121,10 @@ public class SenderService {
 
     void setOnDiconnectedListner(OnEventListener<String> oel) {
         mOnDisconnectedListener = oel;
+    }
+
+    public void setTarget(final String hostAddr, final int hostPort) {
+        mHostAddr = hostAddr;
+        mHostPort = hostPort;
     }
 }
