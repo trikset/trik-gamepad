@@ -124,6 +124,10 @@ public class SenderService {
     }
 
     public void setTarget(final String hostAddr, final int hostPort) {
+        if (mHostAddr != hostAddr || mHostPort != hostPort) {
+            disconnect("Target changed.");
+        }
+
         mHostAddr = hostAddr;
         mHostPort = hostPort;
     }

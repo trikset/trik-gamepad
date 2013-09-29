@@ -1,72 +1,65 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:keepScreenOn="true"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@android:color/black"
-    android:orientation="horizontal"
-    android:baselineAligned="false"
-    tools:context=".MainActivity" >
-	<LinearLayout 
-	    android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_weight="0.45">
-	    <com.trik.gamepad.SquareTouchPadLayout
-	        android:id="@+id/leftPad"
-	        android:layout_margin="10dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:background="@drawable/touchpad"/>
-        <ToggleButton
-           android:id="@+id/tglConnect"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_gravity="bottom|left"
-           android:checked="false"
-           android:text="ConnectTo"
-           android:textOff="Connect..."
-           android:textOn="Connected" />
-	</LinearLayout>
-	
-           
+    android:layout_height="fill_parent" 
+    tools:context=".MainActivity">
+    
     <LinearLayout
-       android:id="@+id/buttons"
-       android:layout_width="wrap_content"
-       android:layout_height="fill_parent"
-       android:orientation="vertical"
-       android:layout_marginTop="10dp"
-       android:layout_weight="0.1"
-       android:gravity="center_horizontal">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal">
 
-    	    	    
+        <com.trik.gamepad.SquareTouchPadLayout
+            android:id="@+id/leftPad"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="10dp"
+            android:layout_weight="0.45"
+            android:background="@drawable/touchpad" >
+        </com.trik.gamepad.SquareTouchPadLayout>
+
+        <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="0.3in"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="0.1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <com.trik.gamepad.SquareTouchPadLayout
+            android:id="@+id/rightPad"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="10dp"
+            android:layout_weight="0.45"
+            android:background="@drawable/touchpad" >
+        </com.trik.gamepad.SquareTouchPadLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="0.3in"
+        android:layout_height="0.3in"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/ic_menu_manage" />
 
-    <LinearLayout  
-     	android:orientation="vertical"
+    <ToggleButton
+        android:id="@+id/tglWheel"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_weight="0.45">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:checked="false"
+        android:textOff="Wheel"
+        android:textOn="Wheel" />
 
-	    <com.trik.gamepad.SquareTouchPadLayout
-	        android:id="@+id/rightPad"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:layout_margin="10dp"
-	        android:background="@drawable/touchpad"/>
-	
-        
-        <ToggleButton
-            android:id="@+id/tglWheel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:checked="false"
-            android:textOn="Wheel ON"
-            android:textOff="Wheel OFF"/>
-        
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

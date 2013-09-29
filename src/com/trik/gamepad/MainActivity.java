@@ -22,12 +22,13 @@ import android.widget.ToggleButton;
 import com.trik.gamepad.SenderService.OnEventListener;
 
 public class MainActivity extends Activity implements SensorEventListener {
-    private SensorManager   mSensorManager;
-    private int             mAngle;               // -100%
-                                                   // ...
-                                                   // +100%
-    private boolean         mWheelEnabled = false;
-    protected SenderService mSender;
+    private SensorManager                                      mSensorManager;
+    private int                                                mAngle;                    // -100%
+                                                                                           // ...
+                                                                                           // +100%
+    private boolean                                            mWheelEnabled = false;
+    protected SenderService                                    mSender;
+    private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
     @Override
     public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -65,7 +66,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         {
-            final Button btnSettings = (Button) findViewById(R.id.tglConnect);
+            final Button btnSettings = (Button) findViewById(R.id.btnSettings);
             btnSettings.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -83,27 +84,26 @@ public class MainActivity extends Activity implements SensorEventListener {
             final View pad = findViewById(R.id.rightPad);
             pad.setOnTouchListener(new TouchPadListener(pad, "pad 2", mSender));
         }
-
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        OnPreferenceChange();
-    };
-
-    protected void OnPreferenceChange() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String addr = prefs.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
-        int portNumber = 4444;
-        final String portStr = prefs.getString(SettingsActivity.SK_HOST_PORT, "4444");
-        try {
-            portNumber = Integer.parseInt(portStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(MainActivity.this, "Port number '" + portStr + "' is incorrect.",
-                    Toast.LENGTH_SHORT).show();
+        {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                    String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
+                    int portNumber = 4444;
+                    final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
+                    try {
+                        portNumber = Integer.parseInt(portStr);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(MainActivity.this, "Port number '" + portStr + "' is incorrect.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    mSender.setTarget(addr, portNumber);
+                }
+            };
+            mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsActivity.SK_HOST_ADDRESS);
+            prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
-        mSender.setTarget(addr, portNumber);
     }
 
     @Override
