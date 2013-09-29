@@ -4,6 +4,7 @@
     android:keepScreenOn="true"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
+    android:background="@android:color/darker_gray"
     tools:context=".MainActivity">
     
     <LinearLayout
@@ -50,7 +51,7 @@
         android:layout_margin="0dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:background="@drawable/ic_menu_manage" />
+        android:background="@drawable/btn_settings" />
 
     <ToggleButton
         android:id="@+id/tglWheel"
