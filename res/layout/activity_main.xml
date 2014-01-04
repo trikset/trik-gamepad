@@ -4,7 +4,6 @@
     android:keepScreenOn="true"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
-    android:background="@android:color/darker_gray"
     tools:context=".MainActivity">
     
     <LinearLayout
@@ -12,7 +11,8 @@
         android:layout_height="wrap_content"
         android:background="@android:color/black"
         android:layout_alignParentTop="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <com.trik.gamepad.SquareTouchPadLayout
             android:id="@+id/leftPad"
