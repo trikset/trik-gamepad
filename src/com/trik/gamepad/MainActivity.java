@@ -152,6 +152,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                     {
                         String videoStreamURI = "http://" + addr + ":" + (portNumber * 2 + 1);
                         videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, videoStreamURI);
+                        // cvlc -vvv video.mp4 --sout
+                        // '#transcode{vcodec=h264,vb=100}:standard{access=http,mux=ts{use-key-frames},dst=:9090}'
                         Toast.makeText(MainActivity.this, "Starting video from '" + videoStreamURI + "'.",
                                 Toast.LENGTH_LONG).show();
                         mVideo.setVideoURI(Uri.parse(videoStreamURI));
