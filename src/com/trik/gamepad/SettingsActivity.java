@@ -12,6 +12,7 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String SK_HOST_ADDRESS = "hostAddress";
     public static final String SK_HOST_PORT    = "hostPort";
     public static final String SK_SHOW_PADS    = "showPads";
+    public static final String SK_VIDEO_URI    = "videoURI";
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

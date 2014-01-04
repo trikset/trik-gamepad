@@ -30,4 +30,14 @@
         android:title="Show arrows"
         android:defaultValue="true"
         android:summary="Uncheck to hide arrow pads"/>
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="http://www.youtube.com/watch?v=rxHukDCrI2Q"
+        android:inputType="text"
+        android:key="videoURI"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="URI for video stream to play" />
+    
 </PreferenceScreen>

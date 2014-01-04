@@ -11,6 +11,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -21,6 +26,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.VideoView;
 
 import com.trik.gamepad.SenderService.OnEventListener;
 
@@ -32,6 +38,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private boolean                                            mWheelEnabled = false;
     protected SenderService                                    mSender;
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
+    private VideoView                                          mVideo;
 
     @Override
     public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -79,6 +86,37 @@ public class MainActivity extends Activity implements SensorEventListener {
             });
         }
 
+        {
+            mVideo = (VideoView) findViewById(R.id.video);
+            mVideo.setOnErrorListener(new OnErrorListener() {
+
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    // TODO Auto-generated method stub
+                    return false;
+                }
+            });
+
+            mVideo.setOnCompletionListener(new OnCompletionListener() {
+
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    // TODO Auto-generated method stub
+
+                }
+            });
+
+            mVideo.setOnPreparedListener(new OnPreparedListener() {
+
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mVideo.start();
+                }
+            });
+
+            // video starts playing after URI is read from prefs later
+        }
+
         final View pad1 = findViewById(R.id.leftPad);
         pad1.setOnTouchListener(new TouchPadListener(pad1, "pad 1", mSender));
 
@@ -110,11 +148,21 @@ public class MainActivity extends Activity implements SensorEventListener {
                         pad2.setBackgroundDrawable(padImage);
 
                     }
+
+                    {
+                        String videoStreamURI = "http://" + addr + ":" + (portNumber * 2 + 1);
+                        videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, videoStreamURI);
+                        Toast.makeText(MainActivity.this, "Starting video from '" + videoStreamURI + "'.",
+                                Toast.LENGTH_LONG).show();
+                        mVideo.setVideoURI(Uri.parse(videoStreamURI));
+                    }
+
                 }
             };
             mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsActivity.SK_HOST_ADDRESS);
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
+
     }
 
     @Override
@@ -122,7 +170,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onResume();
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
-
+        mVideo.resume(); // or .start() ???
         {
             // send current config
             // final float hsv[] = new float[3];
@@ -147,6 +195,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     protected void onStop() {
+        mVideo.stopPlayback();
         mSensorManager.unregisterListener(this);
         super.onStop();
     }

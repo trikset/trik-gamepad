@@ -5,11 +5,18 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
     tools:context=".MainActivity">
-    
+
+    <VideoView
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false" />
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/black"
+        android:background="@android:color/transparent"
         android:layout_alignParentTop="true"
         android:orientation="horizontal"
         android:baselineAligned="false">
@@ -20,7 +27,7 @@
             android:layout_height="fill_parent"
             android:layout_margin="10dp"
             android:layout_weight="0.45"
-            android:background="@drawable/touchpad" >
+            android:background="@drawable/oxygen_actions_transform_move_icon" >
         </com.trik.gamepad.SquareTouchPadLayout>
 
         <LinearLayout
@@ -39,7 +46,7 @@
             android:layout_height="fill_parent"
             android:layout_margin="10dp"
             android:layout_weight="0.45"
-            android:background="@drawable/touchpad" >
+            android:background="@drawable/oxygen_actions_transform_move_icon" >
         </com.trik.gamepad.SquareTouchPadLayout>
     </LinearLayout>
 
@@ -47,11 +54,12 @@
         android:id="@+id/btnSettings"
         android:layout_width="0.3in"
         android:layout_height="0.3in"
-        android:padding="0dp"
-        android:layout_margin="0dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:background="@drawable/btn_settings" />
+        android:layout_margin="0dp"
+        android:background="@drawable/btn_settings"
+        android:focusableInTouchMode="false"
+        android:padding="0dp" />
 
     <ToggleButton
         android:id="@+id/tglWheel"
