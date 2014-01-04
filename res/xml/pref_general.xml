@@ -25,4 +25,9 @@
 	    android:defaultValue="@color/favouriteBall"     
 	    alphaSlider="false"
 	/>
+    <CheckBoxPreference android:capitalize="words"
+        android:key="showPads"
+        android:title="Show arrows"
+        android:defaultValue="true"
+        android:summary="Uncheck to hide arrow pads"/>
 </PreferenceScreen>

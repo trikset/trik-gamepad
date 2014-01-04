@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -76,14 +79,12 @@ public class MainActivity extends Activity implements SensorEventListener {
             });
         }
 
-        {
-            final View pad = findViewById(R.id.leftPad);
-            pad.setOnTouchListener(new TouchPadListener(pad, "pad 1", mSender));
-        }
-        {
-            final View pad = findViewById(R.id.rightPad);
-            pad.setOnTouchListener(new TouchPadListener(pad, "pad 2", mSender));
-        }
+        final View pad1 = findViewById(R.id.leftPad);
+        pad1.setOnTouchListener(new TouchPadListener(pad1, "pad 1", mSender));
+
+        final View pad2 = findViewById(R.id.rightPad);
+        pad2.setOnTouchListener(new TouchPadListener(pad2, "pad 2", mSender));
+
         {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -99,6 +100,16 @@ public class MainActivity extends Activity implements SensorEventListener {
                                 Toast.LENGTH_SHORT).show();
                     }
                     mSender.setTarget(addr, portNumber);
+
+                    {
+                        final Boolean showPads = sharedPreferences.getBoolean(SettingsActivity.SK_SHOW_PADS, true);
+                        final Drawable padImage =
+                                showPads ? getResources().getDrawable(R.drawable.touchpad)
+                                        : new ColorDrawable(Color.TRANSPARENT);
+                        pad1.setBackgroundDrawable(padImage);
+                        pad2.setBackgroundDrawable(padImage);
+
+                    }
                 }
             };
             mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsActivity.SK_HOST_ADDRESS);
