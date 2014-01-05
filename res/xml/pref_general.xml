@@ -1,15 +1,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <EditTextPreference
-        android:capitalize="words"
         android:defaultValue="192.168.1.150"
-        android:inputType="text"
+        android:inputType="textUri"
         android:key="hostAddress"
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Robot IP address" />
     <EditTextPreference
-        android:capitalize="words"
         android:defaultValue="4444"
         android:inputType="number"
         android:key="hostPort"
@@ -31,9 +29,8 @@
         android:defaultValue="true"
         android:summary="Uncheck to hide arrow pads"/>
     <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="http://www.youtube.com/watch?v=rxHukDCrI2Q"
-        android:inputType="text"
+        android:defaultValue=""
+        android:inputType="textUri"
         android:key="videoURI"
         android:maxLines="1"
         android:selectAllOnFocus="true"
