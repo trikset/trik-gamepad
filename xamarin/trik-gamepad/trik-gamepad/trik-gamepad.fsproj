@@ -51,30 +51,20 @@
     <Reference Include="System.Core" />
     <Reference Include="FSharp.Core" />
     <Reference Include="Mono.Android" />
+    <Reference Include="Mono.Android.Support.v4" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.fs" />
     <Compile Include="Resources\Resource.designer.fs" />
+    <Compile Include="SquareTouchPadLayout.fs" />
+    <Compile Include="SenderService.fs" />
+    <Compile Include="TouchPadListener.fs" />
+    <Compile Include="SettingsActivity.fs" />
     <Compile Include="MainActivity.fs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
-    <None Include="..\..\..\adt\res\values\colors.xml">
-      <Link>Resources\values\colors.xml</Link>
-    </None>
-    <None Include="..\..\..\adt\res\values\strings.xml">
-      <Link>Resources\values\strings.xml</Link>
-    </None>
-    <None Include="..\..\..\adt\res\values\strings_activity_settings.xml">
-      <Link>Resources\values\strings_activity_settings.xml</Link>
-    </None>
-    <None Include="..\..\..\adt\res\values\styles.xml">
-      <Link>Resources\values\styles.xml</Link>
-    </None>
-    <None Include="..\..\..\adt\res\xml\pref_general.xml">
-      <Link>Resources\xml\pref_general.xml</Link>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.FSharp.targets" />
   <ItemGroup>
@@ -87,11 +77,26 @@
     <AndroidResource Include="..\..\..\adt\res\drawable\trik_icon.png">
       <Link>Resources\drawable\trik_icon.png</Link>
     </AndroidResource>
-    <AndroidResource Include="..\..\..\adt\res\layout\activity_main.xml">
-      <Link>Resources\layout\activity_main.xml</Link>
+    <AndroidResource Include="..\..\..\adt\res\values\strings.xml">
+      <Link>Resources\values\strings.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\values\strings_activity_settings.xml">
+      <Link>Resources\values\strings_activity_settings.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\values\styles.xml">
+      <Link>Resources\values\styles.xml</Link>
     </AndroidResource>
     <AndroidResource Include="..\..\..\adt\res\drawable\btn_settings.xml">
       <Link>Resources\drawable\btn_settings.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\values\colors.xml">
+      <Link>Resources\values\colors.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\xml\pref_general.xml">
+      <Link>Resources\xml\pref_general.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\layout\activity_main.xml">
+      <Link>Resources\layout\activity_main.xml</Link>
     </AndroidResource>
   </ItemGroup>
 </Project>
