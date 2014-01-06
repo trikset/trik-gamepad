@@ -99,7 +99,11 @@ public class MainActivity extends Activity implements SensorEventListener {
             mVideo.setOnCompletionListener(new OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    toast("End of video stream encountered.");
+                    Log.e("VIDEO", "End of video stream encountered.");
+
+                    // AKA keep-alive
+                    // mVideo.stopPlayback();
+                    // mVideo.start();
                 }
             });
 
