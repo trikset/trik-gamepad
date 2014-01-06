@@ -8,7 +8,7 @@
     <ProjectGuid>{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{F278D4AB-4730-4720-B08E-FE5E31564D9E};{4925A630-B079-445D-BCD4-3A9C94FE9307}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>trikgamepad</RootNamespace>
+    <RootNamespace>trik.gamepad</RootNamespace>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
@@ -17,6 +17,8 @@
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AssemblyName>trik-gamepad</AssemblyName>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+    <newfilesearch>OnLoad</newfilesearch>
+    <TargetFrameworkVersion>v4.0.3</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,28 +53,13 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Resources\Resource.designer.fs" />
     <Compile Include="Properties\AssemblyInfo.fs" />
+    <Compile Include="Resources\Resource.designer.fs" />
     <Compile Include="MainActivity.fs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
-    <None Include="..\..\..\adt\res\drawable\btn_settings.xml">
-      <Link>Resources\drawable\btn_settings.xml</Link>
-    </None>
-    <None Include="..\..\..\adt\res\drawable\ic_menu_manage.png">
-      <Link>Resources\drawable\ic_menu_manage.png</Link>
-    </None>
-    <None Include="..\..\..\adt\res\drawable\oxygen_actions_transform_move_icon.png">
-      <Link>Resources\drawable\oxygen_actions_transform_move_icon.png</Link>
-    </None>
-    <None Include="..\..\..\adt\res\drawable\trik_icon.png">
-      <Link>Resources\drawable\trik_icon.png</Link>
-    </None>
-    <None Include="..\..\..\adt\res\layout\activity_main.xml">
-      <Link>Resources\layout\activity_main.xml</Link>
-    </None>
     <None Include="..\..\..\adt\res\values\colors.xml">
       <Link>Resources\values\colors.xml</Link>
     </None>
@@ -89,10 +76,22 @@
       <Link>Resources\xml\pref_general.xml</Link>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\layout\Main.axml" />
-    <AndroidResource Include="Resources\values\Strings.xml" />
-    <AndroidResource Include="Resources\drawable\Icon.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.FSharp.targets" />
+  <ItemGroup>
+    <AndroidResource Include="..\..\..\adt\res\drawable\ic_menu_manage.png">
+      <Link>Resources\drawable\ic_menu_manage.png</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\drawable\oxygen_actions_transform_move_icon.png">
+      <Link>Resources\drawable\oxygen_actions_transform_move_icon.png</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\drawable\trik_icon.png">
+      <Link>Resources\drawable\trik_icon.png</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\layout\activity_main.xml">
+      <Link>Resources\layout\activity_main.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\drawable\btn_settings.xml">
+      <Link>Resources\drawable\btn_settings.xml</Link>
+    </AndroidResource>
+  </ItemGroup>
 </Project>

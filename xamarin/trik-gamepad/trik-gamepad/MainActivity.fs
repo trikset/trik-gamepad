@@ -1,4 +1,4 @@
-namespace trikgamepad
+namespace trik.gamepad
 
 open System
 
@@ -20,10 +20,10 @@ type MainActivity () =
         base.OnCreate (bundle)
 
         // Set our view from the "main" layout resource
-        this.SetContentView (Resource_Layout.Main)
+        this.SetContentView (Resource_Layout.activity_main)
 
         // Get our button from the layout resource, and attach an event to it
-        let button = this.FindViewById<Button>(Resource_Id.myButton)
+        let button = this.FindViewById<Button>(Resource_Id.tglWheel)
         button.Click.Add (fun args -> 
             button.Text <- sprintf "%d clicks!" count
             count <- count + 1

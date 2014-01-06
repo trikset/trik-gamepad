@@ -1,4 +1,4 @@
-namespace trik-gamepad
+namespace trik.gamepad
 module AssemblyInfo =
 
   open System.Reflection
