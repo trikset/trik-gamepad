@@ -56,9 +56,38 @@
     <Compile Include="MainActivity.fs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
+    <None Include="..\..\..\adt\res\drawable\btn_settings.xml">
+      <Link>Resources\drawable\btn_settings.xml</Link>
+    </None>
+    <None Include="..\..\..\adt\res\drawable\ic_menu_manage.png">
+      <Link>Resources\drawable\ic_menu_manage.png</Link>
+    </None>
+    <None Include="..\..\..\adt\res\drawable\oxygen_actions_transform_move_icon.png">
+      <Link>Resources\drawable\oxygen_actions_transform_move_icon.png</Link>
+    </None>
+    <None Include="..\..\..\adt\res\drawable\trik_icon.png">
+      <Link>Resources\drawable\trik_icon.png</Link>
+    </None>
+    <None Include="..\..\..\adt\res\layout\activity_main.xml">
+      <Link>Resources\layout\activity_main.xml</Link>
+    </None>
+    <None Include="..\..\..\adt\res\values\colors.xml">
+      <Link>Resources\values\colors.xml</Link>
+    </None>
+    <None Include="..\..\..\adt\res\values\strings.xml">
+      <Link>Resources\values\strings.xml</Link>
+    </None>
+    <None Include="..\..\..\adt\res\values\strings_activity_settings.xml">
+      <Link>Resources\values\strings_activity_settings.xml</Link>
+    </None>
+    <None Include="..\..\..\adt\res\values\styles.xml">
+      <Link>Resources\values\styles.xml</Link>
+    </None>
+    <None Include="..\..\..\adt\res\xml\pref_general.xml">
+      <Link>Resources\xml\pref_general.xml</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\Main.axml" />
