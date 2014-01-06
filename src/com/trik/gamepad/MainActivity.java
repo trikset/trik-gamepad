@@ -92,18 +92,20 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    return false;
+                    final String errorStr = "What = " + what + ", extra = " + extra;
+                    Log.e("VIDEO", errorStr);
+                    toast("Error playing video stream " + errorStr);
+                    // mVideo.stopPlayback();
+                    // mVideo.setBackgroundColor(Color.TRANSPARENT);
+                    return true;
                 }
             });
 
             mVideo.setOnCompletionListener(new OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    Log.e("VIDEO", "End of video stream encountered.");
-
-                    // AKA keep-alive
-                    // mVideo.stopPlayback();
-                    // mVideo.start();
+                    Log.i("VIDEO", "End of video stream encountered.");
+                    mVideo.resume(); // TODO: Keep-alive instead of this hack
                 }
             });
 
@@ -112,6 +114,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     // TODO: Stretch/scale video
+                    mp.setLooping(true); // TODO: Doesn't work :(
                     mVideo.start();
                 }
             });
@@ -155,17 +158,21 @@ public class MainActivity extends Activity implements SensorEventListener {
                     }
 
                     {
-                        String videoStreamURI = "http://" + addr + ":" + (portNumber * 2 + 1);
-                        videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, videoStreamURI);
+                        final String videoStreamURI =
+                                sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "");
                         // --no-sout-audio --sout
                         // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
-                        // works only with vcodec=mp4v :(
-                        //
+                        // works only with vcodec=mp4v without audio :(
+
                         // http://developer.android.com/reference/android/media/MediaPlayer.html
                         // http://developer.android.com/guide/appendix/media-formats.html
-                        toast("Starting video from '" + videoStreamURI + "'.");
-                        mVideo.setVideoURI(Uri.parse(videoStreamURI));
 
+                        final Uri mVideoURI = videoStreamURI == null ? null : Uri.parse(videoStreamURI);
+
+                        if (mVideoURI != null) {
+                            toast("Starting video from '" + videoStreamURI + "'.");
+                            mVideo.setVideoURI(mVideoURI);
+                        }
                     }
 
                 }
@@ -181,7 +188,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onResume();
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        mVideo.resume(); // or .start() ???
+        mVideo.resume();
         {
             // send current config
             // final float hsv[] = new float[3];
