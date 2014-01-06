@@ -60,7 +60,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             mSender.setOnDiconnectedListner(new OnEventListener<String>() {
                 @Override
                 public void onEvent(String reason) {
-                    Toast.makeText(MainActivity.this, "Disconnected." + reason, Toast.LENGTH_SHORT).show();
+                    toast("Disconnected." + reason);
                 }
             });
         }
@@ -92,17 +92,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    // TODO Auto-generated method stub
                     return false;
                 }
             });
 
             mVideo.setOnCompletionListener(new OnCompletionListener() {
-
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    // TODO Auto-generated method stub
-
+                    toast("End of video stream encountered.");
                 }
             });
 
@@ -110,6 +107,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 @Override
                 public void onPrepared(MediaPlayer mp) {
+                    // TODO: Stretch/scale video
                     mVideo.start();
                 }
             });
@@ -117,6 +115,10 @@ public class MainActivity extends Activity implements SensorEventListener {
             // video starts playing after URI is read from prefs later
         }
 
+        {
+            final View controlsOverlay = findViewById(R.id.controlsOverlay);
+            controlsOverlay.bringToFront();
+        }
         final View pad1 = findViewById(R.id.leftPad);
         pad1.setOnTouchListener(new TouchPadListener(pad1, "pad 1", mSender));
 
@@ -134,8 +136,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     try {
                         portNumber = Integer.parseInt(portStr);
                     } catch (NumberFormatException e) {
-                        Toast.makeText(MainActivity.this, "Port number '" + portStr + "' is incorrect.",
-                                Toast.LENGTH_SHORT).show();
+                        toast("Port number '" + portStr + "' is incorrect.");
                     }
                     mSender.setTarget(addr, portNumber);
 
@@ -152,11 +153,15 @@ public class MainActivity extends Activity implements SensorEventListener {
                     {
                         String videoStreamURI = "http://" + addr + ":" + (portNumber * 2 + 1);
                         videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, videoStreamURI);
-                        // cvlc -vvv video.mp4 --sout
-                        // '#transcode{vcodec=h264,vb=100}:standard{access=http,mux=ts{use-key-frames},dst=:9090}'
-                        Toast.makeText(MainActivity.this, "Starting video from '" + videoStreamURI + "'.",
-                                Toast.LENGTH_LONG).show();
+                        // --no-sout-audio --sout
+                        // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
+                        // works only with vcodec=mp4v :(
+                        //
+                        // http://developer.android.com/reference/android/media/MediaPlayer.html
+                        // http://developer.android.com/guide/appendix/media-formats.html
+                        toast("Starting video from '" + videoStreamURI + "'.");
                         mVideo.setVideoURI(Uri.parse(videoStreamURI));
+
                     }
 
                 }
@@ -246,6 +251,16 @@ public class MainActivity extends Activity implements SensorEventListener {
             });
             buttonsView.addView(btn);
         }
+    }
+
+    void toast(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG)
+                        .show();
+            }
+        });
     }
 
 }
