@@ -143,7 +143,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     {
                         final Boolean showPads = sharedPreferences.getBoolean(SettingsActivity.SK_SHOW_PADS, true);
                         final Drawable padImage =
-                                showPads ? getResources().getDrawable(R.drawable.touchpad)
+                                showPads ? getResources().getDrawable(R.drawable.oxygen_actions_transform_move_icon)
                                         : new ColorDrawable(Color.TRANSPARENT);
                         pad1.setBackgroundDrawable(padImage);
                         pad2.setBackgroundDrawable(padImage);
