@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "trik-gamepad", "trik-gamepad\trik-gamepad.fsproj", "{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = trik-gamepad\trik-gamepad.fsproj
+	EndGlobalSection
+EndGlobal
