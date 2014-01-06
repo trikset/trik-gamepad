@@ -15,14 +15,14 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Robot TCP port" />
-    
+   <!-- 
     <net.margaritov.preference.colorpicker.ColorPickerPreference
 	    android:key="targetColor"
 	    android:title="Target Color"
 	    android:summary="Choose color for target to follow"
 	    android:defaultValue="@color/favouriteBall"     
 	    alphaSlider="false"
-	/>
+	/> -->
     <CheckBoxPreference android:capitalize="words"
         android:key="showPads"
         android:title="Show arrows"
