@@ -5,19 +5,9 @@ open Android.App
 open Android.Util
 open System.Net
 
-(*package com.trik.gamepad;
-
-import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.concurrent.ExecutionException;
-
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Vibrator;
-import android.util.Log;
-import android.widget.Toast;
-*)
+[<assembly: UsesPermission("android.permission.INTERNET")>]
+[<assembly: UsesPermission("android.permission.VIBRATE")>]
+do()
 
 type SenderService (mainActivity: Activity) = 
     let mutable _stream = None

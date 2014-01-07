@@ -1,9 +1,11 @@
-namespace trik.gamepad
+namespace com.trik.gamepad
 module AssemblyInfo =
 
   open System.Reflection
   open System.Runtime.CompilerServices
   open Android.App
+
+  [<assembly: Application(Theme="@style/AppTheme")>]
 
   // Information about this assembly is defined by the following attributes. 
   // Change them to the values specific to your project.

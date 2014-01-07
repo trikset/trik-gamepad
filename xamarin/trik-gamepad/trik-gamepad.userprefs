@@ -2,27 +2,25 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="trik-gamepad\Properties\AndroidManifest.xml">
     <Files>
-      <File FileName="trik-gamepad\TouchPadListener.fs" Line="1" Column="15" />
-      <File FileName="trik-gamepad\SquareTouchPadLayout.fs" Line="2" Column="1" />
-      <File FileName="trik-gamepad\SenderService.fs" Line="1" Column="27" />
-      <File FileName="trik-gamepad\SettingsActivity.fs" Line="4" Column="1" />
-      <File FileName="trik-gamepad\MainActivity.fs" Line="3" Column="5" />
-      <File FileName="trik-gamepad\Properties\AndroidManifest.xml" Line="7" Column="12" />
-      <File FileName="trik-gamepad\Properties\AssemblyInfo.fs" Line="1" Column="1" />
+      <File FileName="trik-gamepad\SenderService.fs" Line="10" Column="1" />
+      <File FileName="trik-gamepad\MainActivity.fs" Line="1" Column="17" />
+      <File FileName="trik-gamepad\Properties\AssemblyInfo.fs" Line="8" Column="51" />
+      <File FileName="trik-gamepad\Properties\AndroidManifest.xml" Line="5" Column="12" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="trik-gamepad" expanded="True" selected="True">
             <Node name="Properties" expanded="True" />
-            <Node name="Resources" expanded="True" />
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="C:\TRIK\src\trik-gamepad\xamarin\trik-gamepad\trik-gamepad\SquareTouchPadLayout.fs" line="18" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
