@@ -8,7 +8,7 @@
     <ProjectGuid>{7CE77CFA-CFF4-46A1-B94B-920BFC0F00F9}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{F278D4AB-4730-4720-B08E-FE5E31564D9E};{4925A630-B079-445D-BCD4-3A9C94FE9307}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>trik.gamepad</RootNamespace>
+    <RootNamespace>com.trik.gamepad</RootNamespace>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
@@ -16,9 +16,9 @@
     <AndroidResgenFile>Resources\Resource.designer.fs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AssemblyName>trik-gamepad</AssemblyName>
-    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <newfilesearch>OnLoad</newfilesearch>
     <TargetFrameworkVersion>v4.0.3</TargetFrameworkVersion>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

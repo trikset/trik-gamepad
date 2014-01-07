@@ -1,4 +1,4 @@
-namespace trik.gamepad
+namespace com.trik.gamepad
 
 open System
 
@@ -10,8 +10,8 @@ open Android.Views
 open Android.Widget
 open Android.Hardware
 open Android.Util
-
-[<Activity (Label = "trik-gamepad", MainLauncher = true)>]
+open Android.Graphics
+[<Activity (Label = "Trik Gamepad", MainLauncher = true, Theme = "@android:style/Theme.NoTitleBar.Fullscreen" )>]
 type MainActivity () as self =
   
     inherit Activity ()
@@ -63,14 +63,14 @@ type MainActivity () as self =
  
         _video <- Some <| this.FindViewById<VideoView>(Resource_Id.video);
         _video.Value.Error.Add <| fun e ->
-                let errorStr = sprintf "What = %d, extra = %d" e.What e.Extra
+                let errorStr = sprintf "What = %A, extra = %A" e.What e.Extra
                 Log.Error("VIDEO", errorStr) |> ignore
                 toast("Error playing video stream " + errorStr);
                 // mVideo.stopPlayback();
                 // mVideo.setBackgroundColor(Color.TRANSPARENT);
        
         _video.Value.Completion.Add <| fun e ->
-                Log.i("VIDEO", "End of video stream encountered.")
+                Log.Info("VIDEO", "End of video stream encountered.") |> ignore
                 _video.Value.Resume() // TODO: Keep-alive instead of this hack
            
 
@@ -102,12 +102,14 @@ type MainActivity () as self =
             let (s,r) = Int32.TryParse(portStr)
             if not s then toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber
             else r
-            |> fun p -> _sender.SetTarget(addr, p)
+            |> fun p -> _sender.Value.SetTarget(addr, p)
 
             let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
-            let padImage = if showPads then this.Resources.Drawable 
-                                                 Resource_Drawable.oxygen_actions_transform_move_icon
-                           else new ColorDrawable(Color.TRANSPARENT)
+            let padImage = 
+                if showPads then
+                   this.Resources.GetDrawable Resource_Drawable.oxygen_actions_transform_move_icon
+                else 
+                    upcast new Drawables.ColorDrawable(Color.Transparent)
             pad1.SetBackgroundDrawable padImage
             pad2.SetBackgroundDrawable padImage
             let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
@@ -118,21 +120,19 @@ type MainActivity () as self =
                     // http://developer.android.com/reference/android/media/MediaPlayer.html
                     // http://developer.android.com/guide/appendix/media-formats.html
 
-            let  videoURI = Uri.Parse videoStreamURI
-
-            if videoURI <> null then 
+            if videoStreamURI <> "" then 
                 toast <| "Starting video from '" + videoStreamURI + "'."
-                _video.VideoURI mVideoURI
+                _video.Value.SetVideoURI <| Android.Net.Uri.Parse videoStreamURI
    
         h <| new SharedPreferencesOnSharedPreferenceChangeEventArgs(SettingsActivity.SK_HOST_ADDRESS)
-        prefs.SharedPreferenceChange.Add h
+        //TODO: prefs.RegisterOnSharedPreferenceChangeListener
 
       
     override this.OnResume() = 
         base.OnResume()
         _sensorManager.Value.RegisterListener(this:>ISensorEventListener, 
                                               _sensorManager.Value.GetDefaultSensor SensorType.All,
-                                              SensorDelay.Normal) |> ignore 
+                                              SensorDelay.Game) |> ignore 
         _video.Value.Resume()
             // send current config
             // final float hsv[] = new float[3];

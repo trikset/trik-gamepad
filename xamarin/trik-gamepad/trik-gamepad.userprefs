@@ -1,27 +1,21 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="trik-gamepad\SettingsActivity.fs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="trik-gamepad\Properties\AndroidManifest.xml">
     <Files>
-      <File FileName="trik-gamepad\MainActivity.fs" Line="10" Column="20" />
-      <File FileName="trik-gamepad\SettingsActivity.fs" Line="25" Column="41" />
-      <File FileName="..\..\adt\res\xml\pref_general.xml" Line="26" Column="44" />
-      <File FileName="..\..\adt\res\layout\activity_main.xml" Line="1" Column="1" />
-      <File FileName="..\..\adt\res\values\colors.xml" Line="1" Column="1" />
-      <File FileName="..\..\adt\res\values\strings.xml" Line="1" Column="1" />
-      <File FileName="..\..\adt\res\values\strings_activity_settings.xml" Line="1" Column="1" />
-      <File FileName="..\..\adt\res\values\styles.xml" Line="14" Column="5" />
+      <File FileName="trik-gamepad\TouchPadListener.fs" Line="1" Column="15" />
+      <File FileName="trik-gamepad\SquareTouchPadLayout.fs" Line="2" Column="1" />
+      <File FileName="trik-gamepad\SenderService.fs" Line="1" Column="27" />
+      <File FileName="trik-gamepad\SettingsActivity.fs" Line="4" Column="1" />
+      <File FileName="trik-gamepad\MainActivity.fs" Line="3" Column="5" />
+      <File FileName="trik-gamepad\Properties\AndroidManifest.xml" Line="7" Column="12" />
+      <File FileName="trik-gamepad\Properties\AssemblyInfo.fs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="trik-gamepad" expanded="True">
-            <Node name="References" expanded="True" />
-            <Node name="Resources" expanded="True">
-              <Node name="layout" expanded="True" />
-              <Node name="values" expanded="True">
-                <Node name="colors.xml" selected="True" />
-              </Node>
-            </Node>
+          <Node name="trik-gamepad" expanded="True" selected="True">
+            <Node name="Properties" expanded="True" />
+            <Node name="Resources" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -31,5 +25,4 @@
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.trik-gamepad AndroidDeviceId-Debug="6b514153" />
 </Properties>

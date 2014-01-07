@@ -1,4 +1,4 @@
-namespace trik.gamepad
+namespace com.trik.gamepad
 open System
 open Android.Util
 open Android.Views
