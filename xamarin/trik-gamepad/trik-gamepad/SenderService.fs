@@ -21,37 +21,35 @@ let create (context:Context) =
     let vibrator : Android.OS.Vibrator = downcast context.GetSystemService Context.VibratorService
 
     fun (host, port) ->  
-    MailboxProcessor.Start(fun input ->
-        let rec reconnect () =
+    MailboxProcessor.Start <| fun input ->
+        let rec reconnect k =
             async { 
                 try 
                     let socket = new Net.Sockets.TcpClient(host, port, NoDelay = true, SendTimeout = 5000)
-                    return! transmitter <| new IO.StreamWriter(socket.GetStream(), AutoFlush = true)
+                    return! k <| new IO.StreamWriter(socket.GetStream(), AutoFlush = true)
                 with e ->
                     toast <| sprintf "Connection to '%s:%d' failed. %s" host port e.Message 
                     do! Async.Sleep 1000
-                    return! reconnect () 
+                    return! reconnect k 
                 } 
         and transmitter stream =
             let rec loop() = async {
+                let send (s:string) (stream:IO.StreamWriter) = 
+                        stream.WriteLine s 
+                        vibrator.Vibrate 10L
+                        loop()
+
                 let! cmd = input.Receive()
                 match cmd with 
                     | Send s ->
                         try 
-                            stream.WriteLine s 
-                            vibrator.Vibrate 10L
-                            return! loop()
+                            return! send s stream
                         with
-                            e -> Log.Error("TCP", "Failed: {0}, Touble : {1} ", s, e.Message) |> ignore
+                            e -> Log.Error("TCP", "Failed: {0}, Trouble : {1} ", s, e.Message) |> ignore
                                  toast "Disconnected."
                                  vibrator.Vibrate(SOS, -1)
-                                 return! reconnect ()              
-                        
+                                 return! reconnect (send s)
             }
             loop()
-        reconnect ()
-        )
-
-
-             
-    
+        reconnect transmitter
+ 

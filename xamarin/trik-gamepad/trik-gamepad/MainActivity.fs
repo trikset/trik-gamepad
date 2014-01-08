@@ -18,8 +18,11 @@ type MainActivity () as self =
     let mutable _sensorManager: SensorManager option = None
     let mutable _wheelEnabled = false
     let mutable _angle = 0
-    let mutable _video: VideoView option = None
+    let mutable _video: VideoView = null
     let mutable _send = fun _ -> ()
+    let mutable _pad1: View = null
+    let mutable _pad2: View = null
+    let mutable _transmitter: MailboxProcessor<_> option = None
 
     let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Long).Show())
     let WHEEL_BOOSTER_MULTIPLIER =  1.5 * 200.0 / Math.PI
@@ -58,23 +61,23 @@ type MainActivity () as self =
         btnSettings.Click.Add <| fun _ -> this.StartActivity typeof<SettingsActivity>
 
  
-        _video <- Some <| this.FindViewById<VideoView>(Resource_Id.video);
-        _video.Value.Error.Add <| fun e ->
+        _video <- this.FindViewById<VideoView>(Resource_Id.video)
+        _video.Error.Add <| fun e ->
                 let errorStr = sprintf "What = %A, extra = %A" e.What e.Extra
                 Log.Error("VIDEO", errorStr) |> ignore
-                toast("Error playing video stream " + errorStr);
-                // mVideo.stopPlayback();
-                // mVideo.setBackgroundColor(Color.TRANSPARENT);
+                toast("Error playing video stream " + errorStr)
+                // mVideo.stopPlayback()
+                // mVideo.setBackgroundColor(Color.TRANSPARENT)
        
-        _video.Value.Completion.Add <| fun e ->
+        _video.Completion.Add <| fun e ->
                 Log.Info("VIDEO", "End of video stream encountered.") |> ignore
-                _video.Value.Resume() // TODO: Keep-alive instead of this hack
+                _video.Resume() // TODO: Keep-alive instead of this hack
            
 
-        _video.Value.Prepared.Add <| fun e -> 
+        _video.Prepared.Add <| fun e -> 
                 // TODO: Stretch/scale video
                 //e.Looping <- true // TODO: Doesn't work :(
-                _video.Value.Start()
+                _video.Start()
           
         // video starts playing after URI is read from prefs later
    
@@ -85,53 +88,22 @@ type MainActivity () as self =
             let l = new TouchPadListener (pad, name)
             l.Activated.Add _send
             fun (e:View.TouchEventArgs) -> l.OnTouch(pad, e.Event) |> ignore
-        let pad1 = this.FindViewById<_>(Resource_Id.leftPad)
-        pad1.Touch.Add <| createHandler (pad1, "pad 1")
+        _pad1 <- this.FindViewById<_>(Resource_Id.leftPad)
+        _pad1.Touch.Add <| createHandler (_pad1, "pad 1")
 
-        let pad2 = this.FindViewById<_>(Resource_Id.rightPad)
-        pad2.Touch.Add <| createHandler (pad2, "pad 2")
+        _pad2 <- this.FindViewById<_>(Resource_Id.rightPad)
+        _pad2.Touch.Add <| createHandler (_pad2, "pad 2")
 
-        let prefs = Android.Preferences.PreferenceManager.GetDefaultSharedPreferences 
-                        this.BaseContext
-        let h evt  =
-            let addr = prefs.GetString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
-            let portNumber = 4444;
-            let portStr = prefs.GetString(SettingsActivity.SK_HOST_PORT, "4444");
-            let (s,r) = Int32.TryParse(portStr)
-            if not s then toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber
-            else r
-            |> fun p -> _send <- let x = Transmitter.create this (addr, p) in x.Post << Transmitter.Message.Send
-
-            let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
-            let padImage = 
-                if showPads then
-                   this.Resources.GetDrawable Resource_Drawable.oxygen_actions_transform_move_icon
-                else 
-                    upcast new Drawables.ColorDrawable(Color.Transparent)
-            pad1.SetBackgroundDrawable padImage
-            pad2.SetBackgroundDrawable padImage
-            let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
-                    // --no-sout-audio --sout
-                    // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
-                    // works only with vcodec=mp4v without audio :(
-
-                    // http://developer.android.com/reference/android/media/MediaPlayer.html
-                    // http://developer.android.com/guide/appendix/media-formats.html
-
-            if videoStreamURI <> "" then 
-                toast <| "Starting video from '" + videoStreamURI + "'."
-                _video.Value.SetVideoURI <| Android.Net.Uri.Parse videoStreamURI
-   
-        h <| new SharedPreferencesOnSharedPreferenceChangeEventArgs(SettingsActivity.SK_HOST_ADDRESS)
-        //TODO: prefs.RegisterOnSharedPreferenceChangeListener
-
+        let prefs = Android.Preferences.PreferenceManager.GetDefaultSharedPreferences Application.Context
+        prefs.RegisterOnSharedPreferenceChangeListener this
+        (this:>ISharedPreferencesOnSharedPreferenceChangeListener).OnSharedPreferenceChanged(prefs, null)
       
     override this.OnResume() = 
         base.OnResume()
         _sensorManager.Value.RegisterListener(this:>ISensorEventListener, 
                                               _sensorManager.Value.GetDefaultSensor SensorType.All,
                                               SensorDelay.Game) |> ignore 
-        _video.Value.Resume()
+        _video.Resume()
             // send current config
             // final float hsv[] = new float[3];
             // Color.colorToHSV(PreferenceManager.getDefaultSharedPreferences(this)
@@ -141,11 +113,9 @@ type MainActivity () as self =
             // mSender.send("config targetColor=\"" + hsvRepr + "\"");
         
     override this.OnStop() = 
-        _video.Value.StopPlayback()
-        _sensorManager.Value.UnregisterListener(this:>ISensorEventListener)
+        _video.StopPlayback()
+        _sensorManager.Value.UnregisterListener(this)
         base.OnStop()
-
-
     
     member this.RecreateMagicButtons(count) = 
         let buttonsView = this.FindViewById<ViewGroup>(Resource_Id.buttons)
@@ -160,11 +130,42 @@ type MainActivity () as self =
     interface ISensorEventListener with
         member x.OnAccuracyChanged (sensor, accuracy) = ()
         member x.OnSensorChanged (event) = 
-            if event.Sensor.Type = SensorType.Accelerometer then
-                if _wheelEnabled then 
-                    processSensor event.Values
+            if _wheelEnabled && event.Sensor.Type = SensorType.Accelerometer then
+                processSensor event.Values
+    
+    interface ISharedPreferencesOnSharedPreferenceChangeListener with
+        member this.OnSharedPreferenceChanged (prefs, _) =  
+            let addr = prefs.GetString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
+            let portNumber = 4444;
+            let portStr = prefs.GetString(SettingsActivity.SK_HOST_PORT, "4444");
+            let (s,r) = Int32.TryParse(portStr)
+            if not s then toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber
+            else r
+            |> fun p -> 
+                    if _transmitter.IsSome then
+                        (_transmitter.Value :> IDisposable).Dispose()
+                    _transmitter <- Some <| Transmitter.create this (addr, p) 
+                    _send <-  _transmitter.Value.Post << Transmitter.Message.Send
 
-            else
-                Log.Info("Sensor", event.Sensor.Type.ToString()) |> ignore
-        
+            let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
+            let padImage = 
+                if showPads then
+                   this.Resources.GetDrawable Resource_Drawable.oxygen_actions_transform_move_icon
+                else 
+                    upcast new Drawables.ColorDrawable(Color.Transparent)
+            _pad1.SetBackgroundDrawable padImage
+            _pad2.SetBackgroundDrawable padImage
+            let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
+                    // --no-sout-audio --sout
+                    // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
+                    // works only with vcodec=mp4v without audio :(
 
+                    // http://developer.android.com/reference/android/media/MediaPlayer.html
+                    // http://developer.android.com/guide/appendix/media-formats.html
+
+            if videoStreamURI <> "" then 
+                toast <| "Starting video from '" + videoStreamURI + "'."
+                _video.SetVideoURI <| Android.Net.Uri.Parse videoStreamURI
+    
+    interface IJavaObject with
+        member this.Handle = this.Handle

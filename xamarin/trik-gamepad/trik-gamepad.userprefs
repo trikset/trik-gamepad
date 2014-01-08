@@ -1,17 +1,19 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="trik-gamepad\Properties\AndroidManifest.xml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="trik-gamepad\SenderService.fs">
     <Files>
-      <File FileName="trik-gamepad\SenderService.fs" Line="10" Column="1" />
-      <File FileName="trik-gamepad\MainActivity.fs" Line="1" Column="17" />
-      <File FileName="trik-gamepad\Properties\AssemblyInfo.fs" Line="8" Column="51" />
+      <File FileName="trik-gamepad\SenderService.fs" Line="52" Column="11" />
+      <File FileName="trik-gamepad\MainActivity.fs" Line="26" Column="61" />
+      <File FileName="trik-gamepad\Properties\AssemblyInfo.fs" Line="1" Column="15" />
       <File FileName="trik-gamepad\Properties\AndroidManifest.xml" Line="5" Column="12" />
+      <File FileName="trik-gamepad\TouchPadListener.fs" Line="39" Column="27" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="trik-gamepad" expanded="True" selected="True">
+          <Node name="trik-gamepad" expanded="True">
             <Node name="Properties" expanded="True" />
+            <Node name="SenderService.fs" selected="True" />
           </Node>
         </State>
       </Pad>
