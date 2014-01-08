@@ -4,13 +4,14 @@ open Android.Util
 open Android.Views
 
 
-type TouchPadListener (pad:View, padName:string, sender:SenderService) =
+type TouchPadListener (pad:View, padName:string) =
 
+    let activated = new Event<_>()
     let mutable prevX = 0
     let mutable prevY = 0
     let onTouch (event:MotionEvent) = 
         match event.Action with 
-            | MotionEventActions.Up -> sender.Send(padName + " up")
+            | MotionEventActions.Up -> activated.Trigger (padName + " up")
             | MotionEventActions.Down
             | MotionEventActions.Move ->
                 let aX = event.GetX()  
@@ -28,12 +29,13 @@ type TouchPadListener (pad:View, padName:string, sender:SenderService) =
                 if (Math.Abs(curX - prevX) > SENSITIVITY || Math.Abs(curY - prevY) > SENSITIVITY) then
                     prevX <- curX
                     prevY <- curY
-                    sender.Send(padName + " " + curX.ToString() + " " + curY.ToString())
+                    activated.Trigger(padName + " " + curX.ToString() + " " + curY.ToString())
             | _ -> Log.Error("TouchEvent", "Unknown: {0}", event.ToString()) |> ignore
     
     member x.OnTouch(v:View, event:MotionEvent) = 
         if (v <> pad) then false 
         else onTouch event; true
-
+    [<CLIEvent>]
+    member x.Activated = activated.Publish
                 
  

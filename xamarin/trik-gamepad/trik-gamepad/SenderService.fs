@@ -1,74 +1,57 @@
-namespace com.trik.gamepad
+module com.trik.gamepad.Transmitter
 open Android.Widget
 open Android.Content
 open Android.App
 open Android.Util
-open System.Net
+open System
 
 [<assembly: UsesPermission("android.permission.INTERNET")>]
 [<assembly: UsesPermission("android.permission.VIBRATE")>]
 do()
+let private SOS = [| 0L; 50L; 50L; 50L; 50L; 50L; 
+            100L; 200L; 50L; 200L; 50L; 200L;
+            100L;  50L; 50L; 50L; 50L; 50L|]
 
-type SenderService (mainActivity: Activity) = 
-    let mutable _stream = None
-    let SOS = [| 0L; 50L; 50L; 50L; 50L; 50L; 
-                100L; 200L; 50L; 200L; 50L; 200L;
-                100L;  50L; 50L; 50L; 50L; 50L|]
+type Message = Send of string 
 
-    let vibrator : Android.OS.Vibrator = downcast mainActivity.GetSystemService Context.VibratorService
-    let onDisconnect = new Event<_>()
+let create (context:Context) =
+    let handler = new Android.OS.Handler(context.MainLooper)
+    let toast (msg : string) =  handler.Post(Toast.MakeText(context, msg, ToastLength.Long).Show) |> ignore
 
-    let toast (msg : string) = Toast.MakeText(mainActivity, msg, ToastLength.Long).Show()
+    let vibrator : Android.OS.Vibrator = downcast context.GetSystemService Context.VibratorService
 
-    [<CLIEvent>]
-    member x.Disconnected = onDisconnect.Publish
+    fun (host, port) ->  
+    MailboxProcessor.Start(fun input ->
+        let rec reconnect () =
+            async { 
+                try 
+                    let socket = new Net.Sockets.TcpClient(host, port, NoDelay = true, SendTimeout = 5000)
+                    return! transmitter <| new IO.StreamWriter(socket.GetStream(), AutoFlush = true)
+                with e ->
+                    toast <| sprintf "Connection to '%s:%d' failed. %s" host port e.Message 
+                    do! Async.Sleep 1000
+                    return! reconnect () 
+                } 
+        and transmitter stream =
+            let rec loop() = async {
+                let! cmd = input.Receive()
+                match cmd with 
+                    | Send s ->
+                        try 
+                            stream.WriteLine s 
+                            vibrator.Vibrate 10L
+                            return! loop()
+                        with
+                            e -> Log.Error("TCP", "Failed: {0}, Touble : {1} ", s, e.Message) |> ignore
+                                 toast "Disconnected."
+                                 vibrator.Vibrate(SOS, -1)
+                                 return! reconnect ()              
+                        
+            }
+            loop()
+        reconnect ()
+        )
 
-    member val Host  = "" with get, set
-    member val Port = 4444 with get, set
 
-    member x.Connect () =
-        let connect()=
-            Log.Info ("TCP Client", "C: Connecting...") |> ignore
-            let socket = new Sockets.TcpClient()
-            socket.NoDelay <- true
-            socket.SendTimeout <- 5000
-            try
-                socket.Connect(x.Host, x.Port)
-                Some <| new System.IO.StreamWriter(socket.GetStream(), AutoFlush = true)
-            with 
-                e -> Log.Error("TCP", "Stream: {0}", e.ToString()) |> ignore
-                     socket.Close() 
-                     None
-         
-        _stream <- async { return connect()} |> Async.RunSynchronously
-        let connected = _stream.IsSome
-        toast <| "Connection to " + x.Host + ":" + string x.Port +  if connected then " established." else " error."
-        connected       
+             
     
-    member this.Disconnect (reason : string) = 
-        if _stream.IsSome then
-            _stream.Value.Close()
-            _stream <- None
-            Log.Debug("TCP", "Disconnected.")  |> ignore
-            onDisconnect.Trigger(this, reason)
-   
-    member x.Send (command : string) = 
-        Log.Debug("TCP", "Sending '" + command + "'") |> ignore
-        let connected = _stream.IsSome || x.Connect()
-        if connected then
-            async {
-                    try 
-                        _stream.Value.WriteLine command 
-                        vibrator.Vibrate 10L
-                    with
-                    e ->    Log.Error("TCP", "NotSent: {0}, Touble : {1} ", command, e.Message) |> ignore
-                            x.Disconnect "Send failed."
-                            vibrator.Vibrate(SOS, -1)
-             } |> Async.RunSynchronously
-
-    
-    member x.SetTarget (host, port) = 
-        if x.Host <> host || x.Port <> port then
-            x.Disconnect "Target changed"
-        x.Host <- host
-        x.Port <- port

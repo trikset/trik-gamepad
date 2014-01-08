@@ -18,8 +18,8 @@ type MainActivity () as self =
     let mutable _sensorManager: SensorManager option = None
     let mutable _wheelEnabled = false
     let mutable _angle = 0
-    let mutable _sender: SenderService option = None
     let mutable _video: VideoView option = None
+    let mutable _send = fun _ -> ()
 
     let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Long).Show())
     let WHEEL_BOOSTER_MULTIPLIER =  1.5 * 200.0 / Math.PI
@@ -36,7 +36,7 @@ type MainActivity () as self =
 
             if (Math.Abs(_angle - angle) >= 7) then
                 _angle <- angle
-                _sender.Value.Send("wheel " + string angle)
+                _send <| "wheel " + string angle
        
     override this.OnCreate (bundle) =
 
@@ -47,12 +47,9 @@ type MainActivity () as self =
         this.RequestedOrientation <- PM.ScreenOrientation.Landscape
 
         _sensorManager <- Some <| downcast this.GetSystemService(Context.SensorService)
-        _sender <- Some <| new SenderService(this)
 
         this.RecreateMagicButtons 5
 
-
-        _sender.Value.Disconnected.Add <| fun e -> toast("Disconnected." + e.ToString())
 
         let tglWheel = this.FindViewById<ToggleButton> Resource_Id.tglWheel
         tglWheel.CheckedChange.Add(fun x -> lock this <| fun () -> _wheelEnabled <- x.IsChecked)
@@ -84,14 +81,15 @@ type MainActivity () as self =
 
         this.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
 
-        let createHandler (pad, name, sender) = 
-            let l = new TouchPadListener (pad, name, sender)
+        let createHandler (pad, name) = 
+            let l = new TouchPadListener (pad, name)
+            l.Activated.Add _send
             fun (e:View.TouchEventArgs) -> l.OnTouch(pad, e.Event) |> ignore
         let pad1 = this.FindViewById<_>(Resource_Id.leftPad)
-        pad1.Touch.Add <| createHandler (pad1, "pad 1", _sender.Value)
+        pad1.Touch.Add <| createHandler (pad1, "pad 1")
 
         let pad2 = this.FindViewById<_>(Resource_Id.rightPad)
-        pad2.Touch.Add <| createHandler (pad2, "pad 2", _sender.Value)
+        pad2.Touch.Add <| createHandler (pad2, "pad 2")
 
         let prefs = Android.Preferences.PreferenceManager.GetDefaultSharedPreferences 
                         this.BaseContext
@@ -102,7 +100,7 @@ type MainActivity () as self =
             let (s,r) = Int32.TryParse(portStr)
             if not s then toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber
             else r
-            |> fun p -> _sender.Value.SetTarget(addr, p)
+            |> fun p -> _send <- let x = Transmitter.create this (addr, p) in x.Post << Transmitter.Message.Send
 
             let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
             let padImage = 
@@ -156,8 +154,8 @@ type MainActivity () as self =
             let name = string i
             let btn = new Button(this, Gravity = GravityFlags.Center, Text = name)
             btn.SetPadding(10, 10, 10, 10)
-            btn.Click.Add <| fun e -> _sender.Value.Send("btn " + name + " down") // TBD: "up"                                                                 
-            buttonsView.AddView(btn);
+            btn.Click.Add <| fun e -> _send <| "btn " + name + " down" // TBD: "up"                                                                 
+            buttonsView.AddView(btn)
         
     interface ISensorEventListener with
         member x.OnAccuracyChanged (sensor, accuracy) = ()
