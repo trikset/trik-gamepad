@@ -27,12 +27,13 @@ public class SenderService {
 
     private final MainActivity      mMainActivity;
 
-    final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200, 100, 50, 50,
-                                        50, 50, 50 };
+    final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50,
+            100, 200, 50, 200, 50, 200, 100, 50, 50, 50, 50, 50 };
 
-    public SenderService(MainActivity mainActivity) {
+    public SenderService(final MainActivity mainActivity) {
         mMainActivity = mainActivity;
-        mVibrator = (Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
+        mVibrator = (Vibrator) mainActivity
+                .getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     public boolean connect() {
@@ -42,13 +43,13 @@ public class SenderService {
             mOut = new AsyncTask<Void, Void, PrintWriter>() {
 
                 @Override
-                protected PrintWriter doInBackground(Void... params) {
+                protected PrintWriter doInBackground(final Void... params) {
                     return connectToCar();
                 }
             }.execute().get();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
             e.printStackTrace();
         }
 
@@ -63,18 +64,18 @@ public class SenderService {
             socket.connect(new InetSocketAddress(mHostAddr, mHostPort), 5000);
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 Log.e("TCP", "GetStream: Error", e);
                 socket.close();
                 socket = null;
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Log.e("TCP", "Connect: Error", e);
         }
         return null;
     }
 
-    public void disconnect(String reason) {
+    public void disconnect(final String reason) {
         if (mOut != null) {
             mOut.close();
             mOut = null;
@@ -84,12 +85,14 @@ public class SenderService {
     }
 
     public void send(final String command) {
-        Log.d("TCP", "Sending '" + command + "'");
+        Log.d("TCP", "Sending '" + command + '\'');
 
         if (mOut == null) {
             final Boolean connected = connect();
-            Toast.makeText(mMainActivity,
-                    "Connection to " + mHostAddr + ":" + mHostPort + (connected ? " established." : " error."),
+            Toast.makeText(
+                    mMainActivity,
+                    "Connection to " + mHostAddr + ':' + mHostPort
+                            + (connected ? " established." : " error."),
                     Toast.LENGTH_SHORT).show();
             if (!connected)
                 return;
@@ -97,7 +100,7 @@ public class SenderService {
 
         new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Void doInBackground(final Void... params) {
                 synchronized (mOut) {
                     mOut.println(command);
                 }
@@ -105,9 +108,8 @@ public class SenderService {
             }
 
             @Override
-            protected void onPostExecute(Void result) {
-                if (mOut.checkError())
-                {
+            protected void onPostExecute(final Void result) {
+                if (mOut.checkError()) {
                     Log.e("TCP", "NotSent: " + command);
                     disconnect("Send failed.");
                     mVibrator.vibrate(SOS, -1);
@@ -119,12 +121,12 @@ public class SenderService {
         }.execute();
     }
 
-    void setOnDiconnectedListner(OnEventListener<String> oel) {
+    void setOnDiconnectedListner(final OnEventListener<String> oel) {
         mOnDisconnectedListener = oel;
     }
 
     public void setTarget(final String hostAddr, final int hostPort) {
-        if (mHostAddr != hostAddr || mHostPort != hostPort) {
+        if (!mHostAddr.equalsIgnoreCase(hostAddr) || mHostPort != hostPort) {
             disconnect("Target changed.");
         }
 

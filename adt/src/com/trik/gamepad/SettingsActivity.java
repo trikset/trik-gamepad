@@ -15,29 +15,32 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String SK_VIDEO_URI    = "videoURI";
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.button1:
             // case android.R.id.home:
             NavUtils.navigateUpFromSameTask(this);
             return true;
+        default:
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_general);
-        OnPreferenceChangeListener listner = new OnPreferenceChangeListener() {
+        final OnPreferenceChangeListener listner = new OnPreferenceChangeListener() {
             @Override
-            public boolean onPreferenceChange(Preference preference, Object value) {
+            public boolean onPreferenceChange(final Preference preference,
+                    final Object value) {
                 preference.setSummary(value.toString());
                 return true;
             }
         };
-        for (String prefKey : new String[] { SK_HOST_ADDRESS, SK_HOST_PORT }) {
-            Preference pref = findPreference(prefKey);
+        for (final String prefKey : new String[] { SK_HOST_ADDRESS,
+                SK_HOST_PORT }) {
+            final Preference pref = findPreference(prefKey);
             pref.setSummary(pref.getSharedPreferences().getString(prefKey, ""));
             pref.setOnPreferenceChangeListener(listner);
         }

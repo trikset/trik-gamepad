@@ -35,19 +35,19 @@ public class MainActivity extends Activity implements SensorEventListener {
     private int                                                mAngle;                    // -100%
                                                                                            // ...
                                                                                            // +100%
-    private boolean                                            mWheelEnabled = false;
+    private boolean                                            mWheelEnabled;
     protected SenderService                                    mSender;
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
     private VideoView                                          mVideo;
 
     @Override
-    public void onAccuracyChanged(Sensor arg0, int arg1) {
+    public void onAccuracyChanged(final Sensor arg0, final int arg1) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         {
             mSender.setOnDiconnectedListner(new OnEventListener<String>() {
                 @Override
-                public void onEvent(String reason) {
+                public void onEvent(final String reason) {
                     toast("Disconnected." + reason);
                 }
             });
@@ -69,7 +69,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
             tglWheel.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                public void onCheckedChanged(final CompoundButton buttonView,
+                        final boolean isChecked) {
                     mWheelEnabled = isChecked;
                 }
             });
@@ -79,8 +80,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             final Button btnSettings = (Button) findViewById(R.id.btnSettings);
             btnSettings.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
+                public void onClick(final View v) {
+                    final Intent settings = new Intent(MainActivity.this,
+                            SettingsActivity.class);
                     startActivity(settings);
                 }
             });
@@ -91,8 +93,10 @@ public class MainActivity extends Activity implements SensorEventListener {
             mVideo.setOnErrorListener(new OnErrorListener() {
 
                 @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    final String errorStr = "What = " + what + ", extra = " + extra;
+                public boolean onError(final MediaPlayer mp, final int what,
+                        final int extra) {
+                    final String errorStr = "What = " + what + ", extra = "
+                            + extra;
                     Log.e("VIDEO", errorStr);
                     toast("Error playing video stream " + errorStr);
                     // mVideo.stopPlayback();
@@ -103,7 +107,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             mVideo.setOnCompletionListener(new OnCompletionListener() {
                 @Override
-                public void onCompletion(MediaPlayer mp) {
+                public void onCompletion(final MediaPlayer mp) {
                     Log.i("VIDEO", "End of video stream encountered.");
                     mVideo.resume(); // TODO: Keep-alive instead of this hack
                 }
@@ -112,7 +116,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             mVideo.setOnPreparedListener(new OnPreparedListener() {
 
                 @Override
-                public void onPrepared(MediaPlayer mp) {
+                public void onPrepared(final MediaPlayer mp) {
                     // TODO: Stretch/scale video
                     mp.setLooping(true); // TODO: Doesn't work :(
                     mVideo.start();
@@ -133,33 +137,40 @@ public class MainActivity extends Activity implements SensorEventListener {
         pad2.setOnTouchListener(new TouchPadListener(pad2, "pad 2", mSender));
 
         {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            final SharedPreferences prefs = PreferenceManager
+                    .getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                    String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
+                public void onSharedPreferenceChanged(
+                        final SharedPreferences sharedPreferences,
+                        final String key) {
+                    final String addr = sharedPreferences.getString(
+                            SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
                     int portNumber = 4444;
-                    final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
+                    final String portStr = sharedPreferences.getString(
+                            SettingsActivity.SK_HOST_PORT, "4444");
                     try {
                         portNumber = Integer.parseInt(portStr);
-                    } catch (NumberFormatException e) {
+                    } catch (final NumberFormatException e) {
                         toast("Port number '" + portStr + "' is incorrect.");
                     }
                     mSender.setTarget(addr, portNumber);
 
                     {
-                        final Boolean showPads = sharedPreferences.getBoolean(SettingsActivity.SK_SHOW_PADS, true);
-                        final Drawable padImage =
-                                showPads ? getResources().getDrawable(R.drawable.oxygen_actions_transform_move_icon)
-                                        : new ColorDrawable(Color.TRANSPARENT);
+                        final Boolean showPads = sharedPreferences.getBoolean(
+                                SettingsActivity.SK_SHOW_PADS, true);
+                        final Drawable padImage = showPads ? getResources()
+                                .getDrawable(
+                                        R.drawable.oxygen_actions_transform_move_icon)
+                                : new ColorDrawable(Color.TRANSPARENT);
                         pad1.setBackgroundDrawable(padImage);
                         pad2.setBackgroundDrawable(padImage);
 
                     }
 
                     {
-                        final String videoStreamURI =
-                                sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "");
+                        final String videoStreamURI = sharedPreferences
+                                .getString(SettingsActivity.SK_VIDEO_URI, "");
                         // --no-sout-audio --sout
                         // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
                         // works only with vcodec=mp4v without audio :(
@@ -167,17 +178,20 @@ public class MainActivity extends Activity implements SensorEventListener {
                         // http://developer.android.com/reference/android/media/MediaPlayer.html
                         // http://developer.android.com/guide/appendix/media-formats.html
 
-                        final Uri mVideoURI = videoStreamURI == null ? null : Uri.parse(videoStreamURI);
+                        final Uri mVideoURI = videoStreamURI == null ? null
+                                : Uri.parse(videoStreamURI);
 
                         if (mVideoURI != null) {
-                            toast("Starting video from '" + videoStreamURI + "'.");
+                            toast("Starting video from '" + videoStreamURI
+                                    + "'.");
                             mVideo.setVideoURI(mVideoURI);
                         }
                     }
 
                 }
             };
-            mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsActivity.SK_HOST_ADDRESS);
+            mSharedPreferencesListener.onSharedPreferenceChanged(prefs,
+                    SettingsActivity.SK_HOST_ADDRESS);
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
 
@@ -186,7 +200,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
         mVideo.resume();
         {
@@ -201,7 +216,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
+    public void onSensorChanged(final SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             if (!mWheelEnabled)
                 return;
@@ -218,7 +233,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onStop();
     }
 
-    private void processSensor(float[] current) {
+    private void processSensor(final float[] current) {
         final float WHEEL_BOOSTER_MULTIPLIER = 1.5f;
         final float x = current[0];
         final float y = current[1];
@@ -243,8 +258,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSender.send("wheel " + mAngle);
     }
 
-    private void recreateMagicButtons(int count) {
-        ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
+    private void recreateMagicButtons(final int count) {
+        final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
         buttonsView.removeAllViews();
         for (int i = 0; i < count; ++i) {
             final Button btn = new Button(MainActivity.this);
@@ -255,7 +270,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View arg0) {
+                public void onClick(final View arg0) {
                     mSender.send("btn " + name + " down"); // TBD: "up" via
                                                            // TouchListner
                 }

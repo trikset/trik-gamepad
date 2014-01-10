@@ -12,14 +12,15 @@ final class TouchPadListener implements OnTouchListener {
     String              mPadName;
     final SenderService mSender;
 
-    TouchPadListener(View pad, String padName, SenderService sender) {
+    TouchPadListener(final View pad, final String padName,
+            final SenderService sender) {
         mPad = pad;
         mSender = sender;
         mPadName = padName;
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouch(final View v, final MotionEvent event) {
         if (v != mPad)
             return false;
 
@@ -39,17 +40,17 @@ final class TouchPadListener implements OnTouchListener {
 
             final int SENSITIVITY = 3;
 
-            final float SCALE = 1.15F;
-            final int rX = (int) (200 * SCALE * (aX / mMaxX - 0.5));
-            final int rY = -(int) (200 * SCALE * (aY / mMaxY - 0.5));
+            final float SCALE = 1.15f;
+            final int rX = (int) (200 * SCALE * (aX / mMaxX - 0.5f));
+            final int rY = -(int) (200 * SCALE * (aY / mMaxY - 0.5f));
             final int curY = Math.max(-100, Math.min(rY, 100));
             final int curX = Math.max(-100, Math.min(rX, 100));
 
-            if (Math.abs(curX - mPrevX) > SENSITIVITY || Math.abs(curY - mPrevY) > SENSITIVITY)
-            {
+            if (Math.abs(curX - mPrevX) > SENSITIVITY
+                    || Math.abs(curY - mPrevY) > SENSITIVITY) {
                 mPrevX = curX;
                 mPrevY = curY;
-                mSender.send(mPadName + " " + curX + " " + curY);
+                mSender.send(mPadName + ' ' + curX + ' ' + curY);
             }
 
             return true;
