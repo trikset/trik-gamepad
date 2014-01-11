@@ -57,10 +57,10 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.fs" />
     <Compile Include="Resources\Resource.designer.fs" />
+    <Compile Include="SquareTouchPadlayout.fs" />
     <Compile Include="SenderService.fs" />
     <Compile Include="SettingsActivity.fs" />
     <Compile Include="MainActivity.fs" />
-    <Compile Include="SquareTouchPadlayout.fs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AboutAssets.txt" />

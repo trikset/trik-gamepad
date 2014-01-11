@@ -21,6 +21,7 @@ type MainActivity () as self =
     let mutable _video: VideoView = null
     let mutable _send = fun _ -> ()
     let mutable _transmitter: MailboxProcessor<_> option = None
+    let _pads = [Resource_Id.leftPad; Resource_Id.rightPad] 
 
     let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Long).Show())
     let WHEEL_BOOSTER_MULTIPLIER =  1.5 * 200.0 / Math.PI
@@ -82,7 +83,7 @@ type MainActivity () as self =
 
         this.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
 
-        [Resource_Id.leftPad; Resource_Id.rightPad] |> List.iteri  (fun i id ->  
+        _pads |> List.iteri  (fun i id ->  
             (this.FindViewById<SquareTouchPadLayout> id).PadAction.Add <| fun ((mea:MotionEventActions, (x,y)) as event) ->
             let send a b = _send <| sprintf "pad %d %O %O" (i+1) a b
             match mea with
@@ -145,13 +146,17 @@ type MainActivity () as self =
                     _send <-  _transmitter.Value.Post << Transmitter.Message.Send
 
             let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
-            let padImage = 
-                if showPads then
-                   this.Resources.GetDrawable Resource_Drawable.oxygen_actions_transform_move_icon
-                else 
-                    upcast new Drawables.ColorDrawable(Color.Transparent)
-            _pad1.SetBackgroundDrawable padImage
-            _pad2.SetBackgroundDrawable padImage
+
+            _pads |> List.iter (
+                let padImage = 
+                    if showPads then
+                       this.Resources.GetDrawable
+                         Resource_Drawable.oxygen_actions_transform_move_icon
+                    else 
+                        upcast new Drawables.ColorDrawable(Color.Transparent)
+                fun p -> 
+                (this.FindViewById<SquareTouchPadLayout> p).SetBackgroundDrawable padImage)
+         
             let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
                     // --no-sout-audio --sout
                     // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
