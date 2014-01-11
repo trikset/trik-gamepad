@@ -233,10 +233,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onStop();
     }
 
-    private void processSensor(final float[] current) {
-        final float WHEEL_BOOSTER_MULTIPLIER = 1.5f;
-        final float x = current[0];
-        final float y = current[1];
+    private void processSensor(final float[] values) {
+        final double WHEEL_BOOSTER_MULTIPLIER = 1.5;
+        final double x = values[0];
+        final double y = values[1];
         if (x < 1e-6)
             return;
 

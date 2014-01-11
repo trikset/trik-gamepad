@@ -33,16 +33,16 @@ final class TouchPadListener implements OnTouchListener {
             return true;
         case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_MOVE:
-            final float aX = event.getX();
-            final float aY = event.getY();
-            final float mMaxX = mPad.getWidth();
-            final float mMaxY = mPad.getHeight();
+            final double aX = event.getX();
+            final double aY = event.getY();
+            final double mMaxX = mPad.getWidth();
+            final double mMaxY = mPad.getHeight();
 
             final int SENSITIVITY = 3;
 
-            final float SCALE = 1.15f;
-            final int rX = (int) (200 * SCALE * (aX / mMaxX - 0.5f));
-            final int rY = -(int) (200 * SCALE * (aY / mMaxY - 0.5f));
+            final double SCALE = 1.15;
+            final int rX = (int) (200 * SCALE * (aX / mMaxX - 0.5));
+            final int rY = -(int) (200 * SCALE * (aY / mMaxY - 0.5));
             final int curY = Math.max(-100, Math.min(rY, 100));
             final int curX = Math.max(-100, Math.min(rX, 100));
 
