@@ -126,7 +126,7 @@ public class SenderService {
     }
 
     public void setTarget(final String hostAddr, final int hostPort) {
-        if (!mHostAddr.equalsIgnoreCase(hostAddr) || mHostPort != hostPort) {
+        if (!hostAddr.equalsIgnoreCase(mHostAddr) || mHostPort != hostPort) {
             disconnect("Target changed.");
         }
 
