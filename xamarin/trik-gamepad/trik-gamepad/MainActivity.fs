@@ -20,8 +20,6 @@ type MainActivity () as self =
     let mutable _angle = 0
     let mutable _video: VideoView = null
     let mutable _send = fun _ -> ()
-    let mutable _pad1: View = null
-    let mutable _pad2: View = null
     let mutable _transmitter: MailboxProcessor<_> option = None
 
     let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Long).Show())
@@ -84,15 +82,14 @@ type MainActivity () as self =
 
         this.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
 
-        let createHandler (pad, name) = 
-            let l = new TouchPadListener (pad, name)
-            l.Activated.Add _send
-            fun (e:View.TouchEventArgs) -> l.OnTouch(pad, e.Event) |> ignore
-        _pad1 <- this.FindViewById<_>(Resource_Id.leftPad)
-        _pad1.Touch.Add <| createHandler (_pad1, "pad 1")
-
-        _pad2 <- this.FindViewById<_>(Resource_Id.rightPad)
-        _pad2.Touch.Add <| createHandler (_pad2, "pad 2")
+        [Resource_Id.leftPad; Resource_Id.rightPad] |> List.iteri  (fun i id ->  
+            (this.FindViewById<SquareTouchPadLayout> id).PadAction.Add <| fun ((mea:MotionEventActions, (x,y)) as event) ->
+            let send a b = _send <| sprintf "pad %d %O %O" (i+1) a b
+            match mea with
+                MotionEventActions.Down | MotionEventActions.Move -> send x y 
+                | MotionEventActions.Up -> send "up" ""
+                | _ -> ()
+        )
 
         let prefs = Android.Preferences.PreferenceManager.GetDefaultSharedPreferences Application.Context
         prefs.RegisterOnSharedPreferenceChangeListener this
