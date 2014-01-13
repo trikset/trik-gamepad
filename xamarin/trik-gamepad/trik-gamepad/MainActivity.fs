@@ -19,8 +19,8 @@ type MainActivity () as self =
     let mutable _wheelEnabled = false
     let mutable _angle = 0
     let mutable _video: VideoView = null
-    let mutable _send = fun _ -> ()
-    let mutable _transmitter: MailboxProcessor<_> option = None
+    let _transmitter = Transmitter.create self
+    let _send = _transmitter.Post << Transmitter.Message.Send
     let _pads = [Resource_Id.leftPad; Resource_Id.rightPad] 
 
     let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Long).Show())
@@ -84,13 +84,14 @@ type MainActivity () as self =
         this.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
 
         _pads |> List.iteri  (fun i id ->  
-            (this.FindViewById<SquareTouchPadLayout> id).PadAction.Add <| fun ((mea:MotionEventActions, (x,y)) as event) ->
             let send a b = _send <| sprintf "pad %d %O %O" (i+1) a b
-            match mea with
-                MotionEventActions.Down | MotionEventActions.Move -> send x y 
-                | MotionEventActions.Up -> send "up" ""
-                | _ -> ()
-        )
+            (this.FindViewById<SquareTouchPadLayout> id).PadActivity.Add 
+            <| fun ((mea:MotionEventActions, (x,y)) as event) ->
+                match mea with
+                    MotionEventActions.Down | MotionEventActions.Move -> send x y 
+                    | MotionEventActions.Up -> send "up" ""
+                    | _ -> ()
+            )
 
         let prefs = Android.Preferences.PreferenceManager.GetDefaultSharedPreferences Application.Context
         prefs.RegisterOnSharedPreferenceChangeListener this
@@ -137,13 +138,10 @@ type MainActivity () as self =
             let portNumber = 4444;
             let portStr = prefs.GetString(SettingsActivity.SK_HOST_PORT, "4444");
             let (s,r) = Int32.TryParse(portStr)
-            if not s then toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber
-            else r
-            |> fun p -> 
-                    if _transmitter.IsSome then
-                        (_transmitter.Value :> IDisposable).Dispose()
-                    _transmitter <- Some <| Transmitter.create this (addr, p) 
-                    _send <-  _transmitter.Value.Post << Transmitter.Message.Send
+            let p = if  s then r 
+                    else (toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber)
+    
+            _transmitter.Post <| Transmitter.Connect(addr, p) 
 
             let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
 
