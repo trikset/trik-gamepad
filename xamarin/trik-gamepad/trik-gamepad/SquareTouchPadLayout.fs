@@ -31,12 +31,13 @@ type SquareTouchPadLayout(context, attrs, defStyle) as self =
                 if (mea = MotionEventActions.Down || Math.Abs(curX - prevX) > SENSITIVITY || Math.Abs(curY - prevY) > SENSITIVITY) then
                     prevX <- curX
                     prevY <- curY
-                    event.Trigger (MotionEventActions.Down, (prevX, prevY))
+                    event.Trigger (mea, (prevX, prevY))
             | _ -> Android.Util.Log.Error("TouchEvent", "Unknown: {0}", event) |> ignore   
    
     new(context:Context, attrs) =  new SquareTouchPadLayout(context, attrs, 0)       
 
-    member this.PadAction =  event.Publish
+    [<CLIEvent>]
+    member this.PadActivity =  event.Publish
 
     override this.OnMeasure(widthMeasureSpec, heightMeasureSpec) =
         //base.OnMeasure(widthMeasureSpec, heightMeasureSpec)
