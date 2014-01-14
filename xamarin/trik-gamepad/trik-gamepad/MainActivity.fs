@@ -17,7 +17,7 @@ type MainActivity () as self =
     inherit Activity ()
     let mutable _sensorManager: SensorManager option = None
     let mutable _wheelEnabled = false
-    let mutable _angle = 0
+    let mutable _angle_ = 0
     let mutable _video: VideoView = null
     let _transmitter = Transmitter.create self
     let _send = _transmitter.Post << Transmitter.Message.Send
@@ -30,37 +30,64 @@ type MainActivity () as self =
         let y = current.[1]
         if x > 1e-4f && y > 1e-4f then 
             let angle = int  <|  WHEEL_BOOSTER_MULTIPLIER  * Math.Atan2(float y, float x)
-
             let angle = if Math.Abs(angle) < 10 then 0
                         elif angle > 100 then 100 
                         elif angle < -100 then -100
                         else angle
+            if (Math.Abs(_angle_ - angle) >= 5) then
+                self.Angle <- angle
+    
+    let onPreferenceChanged (prefs:ISharedPreferences) =
+        let addr = prefs.GetString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
+        let portNumber = 4444;
+        let portStr = prefs.GetString(SettingsActivity.SK_HOST_PORT, "4444");
+        let (s,r) = Int32.TryParse(portStr)
+        let p = if  s then r 
+                else (toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber)
 
-            if (Math.Abs(_angle - angle) >= 7) then
-                _angle <- angle
-                _send <| "wheel " + string angle
-       
-    override this.OnCreate (bundle) =
+        _transmitter.Post <| Transmitter.Connect(addr, p) 
 
-        base.OnCreate (bundle)
+        let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
 
-        // Set our view from the "main" layout resource
-        this.SetContentView (Resource_Layout.activity_main)
-        this.RequestedOrientation <- PM.ScreenOrientation.Landscape
+        _pads |> List.iter (
+            let padImage = 
+                if showPads then
+                   self.Resources.GetDrawable
+                     Resource_Drawable.oxygen_actions_transform_move_icon
+                else 
+                    upcast new Drawables.ColorDrawable(Color.Transparent)
+            fun p -> 
+            (self.FindViewById<SquareTouchPadLayout> p).SetBackgroundDrawable padImage)
+     
+        let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
+                // --no-sout-audio --sout
+                // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
+                // works only with vcodec=mp4v without audio :(
 
-        _sensorManager <- Some <| downcast this.GetSystemService(Context.SensorService)
+                // http://developer.android.com/reference/android/media/MediaPlayer.html
+                // http://developer.android.com/guide/appendix/media-formats.html
 
-        this.RecreateMagicButtons 5
+        if videoStreamURI <> "" then 
+            toast <| "Starting video from '" + videoStreamURI + "'."
+            _video.SetVideoURI <| Android.Net.Uri.Parse videoStreamURI
+
+    let onCreate () = 
+        self.SetContentView (Resource_Layout.activity_main)
+        self.RequestedOrientation <- PM.ScreenOrientation.Landscape
+
+        _sensorManager <- Some <| downcast self.GetSystemService(Context.SensorService)
+
+        self.RecreateMagicButtons 5
 
 
-        let tglWheel = this.FindViewById<ToggleButton> Resource_Id.tglWheel
-        tglWheel.CheckedChange.Add(fun x -> lock this <| fun () -> _wheelEnabled <- x.IsChecked)
+        let tglWheel = self.FindViewById<ToggleButton> Resource_Id.tglWheel
+        tglWheel.CheckedChange.Add(fun x -> _wheelEnabled <- x.IsChecked)
 
-        let btnSettings = this.FindViewById<Button>(Resource_Id.btnSettings)
-        btnSettings.Click.Add <| fun _ -> this.StartActivity typeof<SettingsActivity>
+        let btnSettings = self.FindViewById<Button>(Resource_Id.btnSettings)
+        btnSettings.Click.Add <| fun _ -> self.StartActivity typeof<SettingsActivity>
 
  
-        _video <- this.FindViewById<VideoView>(Resource_Id.video)
+        _video <- self.FindViewById<VideoView>(Resource_Id.video)
         _video.Error.Add <| fun e ->
                 let errorStr = sprintf "What = %A, extra = %A" e.What e.Extra
                 Log.Error("VIDEO", errorStr) |> ignore
@@ -81,11 +108,11 @@ type MainActivity () as self =
         // video starts playing after URI is read from prefs later
    
 
-        this.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
+        self.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
 
         _pads |> List.iteri  (fun i id ->  
             let send a b = _send <| sprintf "pad %d %O %O" (i+1) a b
-            (this.FindViewById<SquareTouchPadLayout> id).PadActivity.Add 
+            (self.FindViewById<SquareTouchPadLayout> id).PadActivity.Add 
             <| fun ((mea:MotionEventActions, (x,y)) as event) ->
                 match mea with
                     MotionEventActions.Down | MotionEventActions.Move -> send x y 
@@ -93,10 +120,16 @@ type MainActivity () as self =
                     | _ -> ()
             )
 
+    member this.Angle with get() = _angle_ 
+                      and  set v = _angle_ <- v; _send <| "wheel " + string v
+     
+    override this.OnCreate (bundle) =
+        base.OnCreate (bundle)
+        onCreate()
         let prefs = Android.Preferences.PreferenceManager.GetDefaultSharedPreferences Application.Context
         prefs.RegisterOnSharedPreferenceChangeListener this
-        (this:>ISharedPreferencesOnSharedPreferenceChangeListener).OnSharedPreferenceChanged(prefs, null)
-      
+        onPreferenceChanged prefs
+ 
     override this.OnResume() = 
         base.OnResume()
         _sensorManager.Value.RegisterListener(this:>ISensorEventListener, 
@@ -133,39 +166,7 @@ type MainActivity () as self =
                 processSensor event.Values
     
     interface ISharedPreferencesOnSharedPreferenceChangeListener with
-        member this.OnSharedPreferenceChanged (prefs, _) =  
-            let addr = prefs.GetString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
-            let portNumber = 4444;
-            let portStr = prefs.GetString(SettingsActivity.SK_HOST_PORT, "4444");
-            let (s,r) = Int32.TryParse(portStr)
-            let p = if  s then r 
-                    else (toast <| sprintf "Incorrect port number '%s'." portStr ; portNumber)
-    
-            _transmitter.Post <| Transmitter.Connect(addr, p) 
-
-            let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
-
-            _pads |> List.iter (
-                let padImage = 
-                    if showPads then
-                       this.Resources.GetDrawable
-                         Resource_Drawable.oxygen_actions_transform_move_icon
-                    else 
-                        upcast new Drawables.ColorDrawable(Color.Transparent)
-                fun p -> 
-                (this.FindViewById<SquareTouchPadLayout> p).SetBackgroundDrawable padImage)
-         
-            let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
-                    // --no-sout-audio --sout
-                    // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
-                    // works only with vcodec=mp4v without audio :(
-
-                    // http://developer.android.com/reference/android/media/MediaPlayer.html
-                    // http://developer.android.com/guide/appendix/media-formats.html
-
-            if videoStreamURI <> "" then 
-                toast <| "Starting video from '" + videoStreamURI + "'."
-                _video.SetVideoURI <| Android.Net.Uri.Parse videoStreamURI
-    
+        member this.OnSharedPreferenceChanged (prefs, _) = onPreferenceChanged prefs  
+  
     interface IJavaObject with
         member this.Handle = this.Handle
