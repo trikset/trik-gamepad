@@ -27,6 +27,8 @@ public class SenderService {
 
     private final MainActivity      mMainActivity;
 
+    private long                    mLastConnectionAttemptTimestamp;
+
     final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50,
             100, 200, 50, 200, 50, 200, 100, 50, 50, 50, 50, 50 };
 
@@ -57,11 +59,18 @@ public class SenderService {
     }
 
     private PrintWriter connectToCar() {
+        final long currentTime = System.currentTimeMillis();
+        final long elapsed = currentTime - mLastConnectionAttemptTimestamp;
+        final int TIMEOUT = 5000;
+        final int DELAY = 5000;
+
+        if (elapsed < TIMEOUT + DELAY)
+            return null;
         try {
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket();
             socket.setTcpNoDelay(true);
-            socket.connect(new InetSocketAddress(mHostAddr, mHostPort), 5000);
+            socket.connect(new InetSocketAddress(mHostAddr, mHostPort), TIMEOUT);
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
             } catch (final Exception e) {
@@ -71,6 +80,7 @@ public class SenderService {
             }
         } catch (final Exception e) {
             Log.e("TCP", "Connect: Error", e);
+            mLastConnectionAttemptTimestamp = currentTime;
         }
         return null;
     }

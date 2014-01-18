@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
@@ -261,12 +262,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     private void recreateMagicButtons(final int count) {
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
         buttonsView.removeAllViews();
-        for (int i = 0; i < count; ++i) {
+        for (int num = 1; num <= count; ++num) {
             final Button btn = new Button(MainActivity.this);
             btn.setGravity(Gravity.CENTER);
-            final String name = i + 1 + "";
+            btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                    LayoutParams.WRAP_CONTENT));
+            final String name = "" + num + "";
             btn.setText(name);
             btn.setPadding(10, 10, 10, 10);
+            btn.setBackgroundResource(R.drawable.button_shape);
 
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
