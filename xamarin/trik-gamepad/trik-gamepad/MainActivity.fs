@@ -18,8 +18,8 @@ type MainActivity () as self =
     let mutable _sensorManager: SensorManager option = None
     let mutable _wheelEnabled = false
     let mutable _angle_ = 0
-    let mutable _video: VideoView = null
-    let _transmitter = Transmitter.create self
+    let _videoStream = new MjpegStream()
+    let _transmitter = Transmitter.create ()
     let _send = _transmitter.Post << Transmitter.Message.Send
     let _pads = [Resource_Id.leftPad; Resource_Id.rightPad] 
 
@@ -68,8 +68,11 @@ type MainActivity () as self =
                 // http://developer.android.com/guide/appendix/media-formats.html
 
         if videoStreamURI <> "" then 
-            toast <| "Starting video from '" + videoStreamURI + "'."
-            _video.SetVideoURI <| Android.Net.Uri.Parse videoStreamURI
+            _videoStream.Uri <- videoStreamURI
+            match _videoStream.StartAsync() 
+              with None -> "ok" | Some s -> s
+            |> sprintf "Starting video from '%s'...%s." videoStreamURI
+            |> toast 
 
     let onCreate () = 
         self.SetContentView (Resource_Layout.activity_main)
@@ -83,35 +86,36 @@ type MainActivity () as self =
         let tglWheel = self.FindViewById<ToggleButton> Resource_Id.tglWheel
         tglWheel.CheckedChange.Add(fun x -> _wheelEnabled <- x.IsChecked)
 
-        let btnSettings = self.FindViewById<Button>(Resource_Id.btnSettings)
+        let btnSettings = self.FindViewById<Button> Resource_Id.btnSettings
         btnSettings.Click.Add <| fun _ -> self.StartActivity typeof<SettingsActivity>
 
- 
-        _video <- self.FindViewById<VideoView>(Resource_Id.video)
-        _video.Error.Add <| fun e ->
-                let errorStr = sprintf "What = %A, extra = %A" e.What e.Extra
-                Log.Error("VIDEO", errorStr) |> ignore
-                toast("Error playing video stream " + errorStr)
-                // mVideo.stopPlayback()
-                // mVideo.setBackgroundColor(Color.TRANSPARENT)
-       
-        _video.Completion.Add <| fun e ->
-                Log.Info("VIDEO", "End of video stream encountered.") |> ignore
-                _video.Resume() // TODO: Keep-alive instead of this hack
-           
+        //let mainLayout = self.FindViewById<_> Resource_Id.main
+        //let cnt = ref 0
 
-        _video.Prepared.Add <| fun e -> 
-                // TODO: Stretch/scale video
-                //e.Looping <- true // TODO: Doesn't work :(
-                _video.Start()
-          
-        // video starts playing after URI is read from prefs later
-   
+
+        let surfaceHolder = (self.FindViewById<SurfaceView> Resource_Id.video).Holder
+        _videoStream.FrameReady.Add <| fun frameData -> 
+                async {
+                    let! bmp = Async.AwaitTask <| Android.Graphics.BitmapFactory.DecodeByteArrayAsync(frameData, 0, frameData.Length)
+                    let canvas = surfaceHolder.LockCanvas()
+                    return 
+                        try
+                            canvas.DrawBitmap(bmp, new Android.Graphics.Matrix(), null)
+                        finally
+                            surfaceHolder.UnlockCanvasAndPost canvas
+                    
+                } |> Async.RunSynchronously
+
+            
+
+        _videoStream.Error.Add <| fun e -> toast e.Message
 
         self.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
 
+        let vibrator = self.GetSystemService(Context.VibratorService):?>Vibrator
+
         _pads |> List.iteri  (fun i id ->  
-            let send a b = _send <| sprintf "pad %d %O %O" (i+1) a b
+            let send a b =  vibrator.Vibrate 10L; _send <| sprintf "pad %d %O %O" (i+1) a b
             (self.FindViewById<SquareTouchPadLayout> id).PadActivity.Add 
             <| fun ((mea:MotionEventActions, (x,y)) as event) ->
                 match mea with
@@ -135,17 +139,10 @@ type MainActivity () as self =
         _sensorManager.Value.RegisterListener(this:>ISensorEventListener, 
                                               _sensorManager.Value.GetDefaultSensor SensorType.All,
                                               SensorDelay.Game) |> ignore 
-        _video.Resume()
-            // send current config
-            // final float hsv[] = new float[3];
-            // Color.colorToHSV(PreferenceManager.getDefaultSharedPreferences(this)
-            // .getInt("targetColor", 0), hsv);
-            // final String hsvRepr = "H:" + hsv[0] + " S:" + hsv[1] + " V:" +
-            // hsv[2];
-            // mSender.send("config targetColor=\"" + hsvRepr + "\"");
-        
+        _videoStream.StartAsync() |> ignore 
+            
     override this.OnStop() = 
-        _video.StopPlayback()
+        _videoStream.StopAsync()
         _sensorManager.Value.UnregisterListener(this)
         base.OnStop()
     
@@ -155,7 +152,7 @@ type MainActivity () as self =
         for i in 1..count do
             let name = string i
             let btn = new Button(this, Gravity = GravityFlags.Center, Text = name)
-            btn.SetPadding(10, 10, 10, 10)
+            btn.SetBackgroundResource Resource_Drawable.button_shape 
             btn.Click.Add <| fun e -> _send <| "btn " + name + " down" // TBD: "up"                                                                 
             buttonsView.AddView(btn)
         
