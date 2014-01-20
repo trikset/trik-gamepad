@@ -23,7 +23,7 @@ type MainActivity () as self =
     let _send = _transmitter.Post << Transmitter.Message.Send
     let _pads = [Resource_Id.leftPad; Resource_Id.rightPad] 
 
-    let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Long).Show())
+    let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Short).Show())
     let WHEEL_BOOSTER_MULTIPLIER =  1.5 * 200.0 / Math.PI
     let processSensor (current:Collections.Generic.IList<_>) =         
         let x = current.[0]
@@ -34,8 +34,7 @@ type MainActivity () as self =
                         elif angle > 100 then 100 
                         elif angle < -100 then -100
                         else angle
-            if (Math.Abs(_angle_ - angle) >= 5) then
-                self.Angle <- angle
+            self.Angle <- angle
     
     let onPreferenceChanged (prefs:ISharedPreferences) =
         let addr = prefs.GetString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
@@ -67,18 +66,14 @@ type MainActivity () as self =
                 // http://developer.android.com/reference/android/media/MediaPlayer.html
                 // http://developer.android.com/guide/appendix/media-formats.html
 
-        if videoStreamURI <> "" then 
-            _videoStream.Uri <- videoStreamURI
-            match _videoStream.StartAsync() 
-              with None -> "ok" | Some s -> s
-            |> sprintf "Starting video from '%s'...%s." videoStreamURI
-            |> toast 
+        _videoStream.Uri <- videoStreamURI
+             
 
     let onCreate () = 
-        self.SetContentView (Resource_Layout.activity_main)
+        self.SetContentView Resource_Layout.activity_main
         self.RequestedOrientation <- PM.ScreenOrientation.Landscape
 
-        _sensorManager <- Some <| downcast self.GetSystemService(Context.SensorService)
+        _sensorManager <- Some <| downcast self.GetSystemService Context.SensorService
 
         self.RecreateMagicButtons 5
 
@@ -92,27 +87,63 @@ type MainActivity () as self =
         //let mainLayout = self.FindViewById<_> Resource_Id.main
         //let cnt = ref 0
 
+        let surface = self.FindViewById<SurfaceView> Resource_Id.video
+        let surfaceHolder = surface.Holder
+        surfaceHolder.AddCallback self
+        //surfaceHolder.SetType SurfaceType.PushBuffers 
+        surfaceHolder.SetSizeFromLayout()
 
-        let surfaceHolder = (self.FindViewById<SurfaceView> Resource_Id.video).Holder
-        _videoStream.FrameReady.Add <| fun frameData -> 
-                async {
-                    let! bmp = Async.AwaitTask <| Android.Graphics.BitmapFactory.DecodeByteArrayAsync(frameData, 0, frameData.Length)
-                    let canvas = surfaceHolder.LockCanvas()
-                    return 
-                        try
-                            canvas.DrawBitmap(bmp, new Android.Graphics.Matrix(), null)
-                        finally
-                            surfaceHolder.UnlockCanvasAndPost canvas
+        let paint = new Paint(PaintFlags.AntiAlias, Color = Color.Red, TextSize = 40.0f)
+        let cnt = ref 0
+        let skipped = ref 0
+        let prev = ref DateTime.Now
+        let text = ref ""
                     
-                } |> Async.RunSynchronously
+        let rec render () =
+            async {
+                
+                let! bmp = Async.AwaitEvent _videoStream.FrameReady
+                let! bmp = Async.AwaitTask bmp
+                incr cnt
+                if !cnt % 10 = 0 then 
+                    let now = System.DateTime.Now 
+                    let elapsed:TimeSpan = now - !prev
+                    prev := now
+                    text := sprintf "FPS: %.1f Skipped: %d" (10000.0 / (float <| elapsed.TotalMilliseconds)) !skipped
+
+                lock (surfaceHolder) <|  fun () ->
+                    let canvas = surfaceHolder.LockCanvas()
+                    try 
+                        if canvas = null  then incr skipped else
+                        let (ch,cw) = float32 canvas.Height, float32 canvas.Width
+                        let (ih,iw) = float32 bmp.Height, float32 bmp.Width
+                        let scale = Math.Min(ch/ih, cw/iw)
+                        let m = canvas.Matrix
+                        m.PostScale(scale, scale) |> ignore
+                        //let h = scale * ih
+                        //let w = scale * iw 
+                        //m.PostTranslate((ch - h)/2.0f, (cw - w)/2.0f) |> ignore
+                        //canvas.DrawColor Color.Black 
+                        
+                        if bmp = null then incr skipped else
+                            canvas.DrawBitmap(bmp, m, null)
+
+                        canvas.DrawText(!text, cw/2.0f, ch/2.0f, paint)
+                
+                    finally 
+                        if canvas <> null then
+                            surfaceHolder.UnlockCanvasAndPost canvas
+                return! render ()    
+             }
+        render ()  |> Async.Start
 
             
-
+        _videoStream.Completed.Add <| fun () -> (toast "Restarting video.."; _videoStream.StartAsync () |> ignore)
         _videoStream.Error.Add <| fun e -> toast e.Message
 
-        self.FindViewById<_>(Resource_Id.controlsOverlay).BringToFront()
+        (self.FindViewById<_> Resource_Id.controlsOverlay).BringToFront()
 
-        let vibrator = self.GetSystemService(Context.VibratorService):?>Vibrator
+        let vibrator:Vibrator = downcast self.GetSystemService Context.VibratorService
 
         _pads |> List.iteri  (fun i id ->  
             let send a b =  vibrator.Vibrate 10L; _send <| sprintf "pad %d %O %O" (i+1) a b
@@ -125,7 +156,9 @@ type MainActivity () as self =
             )
 
     member this.Angle with get() = _angle_ 
-                      and  set v = _angle_ <- v; _send <| "wheel " + string v
+                      and  set v = if Math.Abs(_angle_ - v) > 5 then
+                                     _angle_ <- v
+                                     _send <| "wheel " + v.ToString()
      
     override this.OnCreate (bundle) =
         base.OnCreate (bundle)
@@ -139,10 +172,8 @@ type MainActivity () as self =
         _sensorManager.Value.RegisterListener(this:>ISensorEventListener, 
                                               _sensorManager.Value.GetDefaultSensor SensorType.All,
                                               SensorDelay.Game) |> ignore 
-        _videoStream.StartAsync() |> ignore 
             
     override this.OnStop() = 
-        _videoStream.StopAsync()
         _sensorManager.Value.UnregisterListener(this)
         base.OnStop()
     
@@ -167,3 +198,12 @@ type MainActivity () as self =
   
     interface IJavaObject with
         member this.Handle = this.Handle
+    
+    interface ISurfaceHolderCallback with
+        member this.SurfaceCreated holder = 
+            toast "Starting video "
+            _videoStream.StartAsync () |> ignore 
+        member this.SurfaceDestroyed holder = 
+            toast "Stopping video"
+            _videoStream.StopAsync () 
+        member this.SurfaceChanged (holder, format, width, height) = ()
