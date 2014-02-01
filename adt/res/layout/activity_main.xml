@@ -38,7 +38,8 @@
             android:layout_height="fill_parent"
             android:layout_margin="10dp"
             android:layout_weight="0.45"
-            android:src="@drawable/oxygen_actions_transform_move_icon"/>
+            android:src="@drawable/oxygen_actions_transform_move_icon"
+            android:background="@drawable/touchpad_shape"/>
         
         <com.trik.gamepad.SquareTouchPadLayout
             android:id="@+id/rightPad"
@@ -46,7 +47,8 @@
             android:layout_height="fill_parent"
             android:layout_margin="10dp"
             android:layout_weight="0.45"
-            android:src="@drawable/oxygen_actions_transform_move_icon"/>
+            android:src="@drawable/oxygen_actions_transform_move_icon"
+            android:background="@drawable/touchpad_shape"/>
         
     </LinearLayout>
 

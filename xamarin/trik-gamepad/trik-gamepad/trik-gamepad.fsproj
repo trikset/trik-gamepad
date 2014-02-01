@@ -108,5 +108,8 @@
     <AndroidResource Include="..\..\..\adt\res\drawable\steering_wheel.png">
       <Link>Resources\drawable\steering_wheel.png</Link>
     </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\drawable\touchpad_shape.xml">
+      <Link>Resources\drawable\touchpad_shape.xml</Link>
+    </AndroidResource>
   </ItemGroup>
 </Project>

@@ -34,7 +34,8 @@ type SquareTouchPadLayout(context, attrs, defStyle) as self =
                     event.Trigger (mea, (prevX, prevY))
             | _ -> Android.Util.Log.Error("TouchEvent", "Unknown: {0}", event) |> ignore   
    
-    new(context:Context, attrs) =  new SquareTouchPadLayout(context, attrs, 0)       
+    new(context:Context, attrs) =  new SquareTouchPadLayout(context, attrs, 0)
+                                                  
 
     [<CLIEvent>]
     member this.PadActivity =  event.Publish
