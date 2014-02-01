@@ -25,7 +25,7 @@ type SquareTouchPadLayout(context, attrs, defStyle) as self =
                     200.0 * SCALE * (float z / maxZ - 0.5) |> int
                     |> max -100 |> min 100 
 
-                let curY = normalize aY maxY
+                let curY = - normalize aY maxY
                 let curX = normalize aX maxX
 
                 if (mea = MotionEventActions.Down || Math.Abs(curX - prevX) > SENSITIVITY || Math.Abs(curY - prevY) > SENSITIVITY) then
