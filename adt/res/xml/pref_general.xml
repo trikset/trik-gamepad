@@ -23,13 +23,22 @@
 	    android:defaultValue="@color/favouriteBall"     
 	    alphaSlider="false"
 	/> -->
-    <EditTextPreference android:capitalize="words"
+    <EditTextPreference
         android:key="showPads"
         android:title="Arrows transparancy"
         android:defaultValue="50"
         android:hint="0..100%"
         android:inputType="number"
         android:summary="50 for transparent, 100 for invisible"/>
+    
+    <EditTextPreference 
+        android:key="wheelSens"
+        android:title="Wheel sensitivity"
+        android:defaultValue="5"
+        android:hint="1..100"
+        android:inputType="number"
+        android:summary="5..10 as usual, 1 for very sensitive"/>
+
     <EditTextPreference
         android:defaultValue=""
         android:inputType="textUri"

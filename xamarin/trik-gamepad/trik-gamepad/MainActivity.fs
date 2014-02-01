@@ -18,20 +18,23 @@ type MainActivity () as self =
     let mutable _sensorManager: SensorManager option = None
     let mutable _wheelEnabled = false
     let mutable _angle_ = 0
+    let _wheelSensitivity = ref 5
+    
     let _videoStream = new MjpegStream()
     let _transmitter = Transmitter.create ()
     let _send = _transmitter.Post << Transmitter.Message.Send
     let _pads = [Resource_Id.leftPad; Resource_Id.rightPad] 
-
     let toast (msg:string) =  self.RunOnUiThread(fun () -> Toast.MakeText(self, msg, ToastLength.Short).Show())
     let WHEEL_BOOSTER_MULTIPLIER =  1.5 * 200.0 / Math.PI
+
+    let accelPrecision = 0.001f
     let processSensor (current:Collections.Generic.IList<_>) =         
         let x = current.[0]
         let y = current.[1]
-        if x > 1e-4f && y > 1e-4f then 
-            let angle = int  <|  WHEEL_BOOSTER_MULTIPLIER  * Math.Atan2(float y, float x)
-            let angle = if Math.Abs(angle) < 10 then 0
-                        elif angle > 100 then 100 
+        if x > accelPrecision && y > accelPrecision then 
+            let angle = int  <|  WHEEL_BOOSTER_MULTIPLIER  * Math.Atan2(float y, float x) 
+            let angle =  angle / !_wheelSensitivity * !_wheelSensitivity
+            let angle = if angle >  100 then 100 
                         elif angle < -100 then -100
                         else angle
             self.Angle <- angle
@@ -56,6 +59,10 @@ type MainActivity () as self =
                     let pad = self.FindViewById<SquareTouchPadLayout> p 
                     pad.SetAlpha alpha)
              
+        let defWheelSensitivity = 5
+        let (ok, res) = Int32.TryParse <| prefs.GetString(SettingsActivity.SK_WHEEL_SENSITIVITY, string defWheelSensitivity)
+        _wheelSensitivity := if res <= 0 || res > 100 then defWheelSensitivity else res
+          
         let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "")
                 // --no-sout-audio --sout
                 // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
@@ -77,7 +84,7 @@ type MainActivity () as self =
 
 
         let tglWheel = self.FindViewById<ToggleButton> Resource_Id.tglWheel
-        tglWheel.CheckedChange.Add(fun x -> _wheelEnabled <- x.IsChecked)
+        tglWheel.CheckedChange.Add(fun x -> _wheelEnabled <- x.IsChecked; _angle_ <- -1000)
 
         let btnSettings = self.FindViewById<Button> Resource_Id.btnSettings
         btnSettings.Click.Add <| fun _ -> self.StartActivity typeof<SettingsActivity>
@@ -154,7 +161,7 @@ type MainActivity () as self =
             )
 
     member this.Angle with get() = _angle_ 
-                      and  set v = if Math.Abs(_angle_ - v) > 5 then
+                      and  set v = if _angle_ <> v then
                                      _angle_ <- v
                                      _send <| "wheel " + v.ToString()
      

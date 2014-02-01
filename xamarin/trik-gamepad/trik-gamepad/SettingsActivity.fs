@@ -11,6 +11,7 @@ type SettingsActivity() =
     static member val SK_HOST_PORT    = "hostPort"
     static member val SK_SHOW_PADS    = "showPads"
     static member val SK_VIDEO_URI    = "videoURI"
+    static member val SK_WHEEL_SENSITIVITY = "wheelSens"
 
     override this.OnCreate savedInstanceState =
         base.OnCreate savedInstanceState
