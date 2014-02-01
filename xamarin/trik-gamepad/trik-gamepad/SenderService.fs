@@ -18,21 +18,26 @@ type Message = Send of string | Connect of (string * int) | Shutdown
 let create ()  =
     let invalidState got expected = invalidOp "%A instead of %A." got expected
     MailboxProcessor.Start <| fun input ->        
-        let rec reconnect ((host, port) as target) last = async {
+        let rec reconnect ((host:string, port) as target) last = async {
                 try 
-                    let socket = new Net.Sockets.TcpClient(host, port, NoDelay = true, SendTimeout = 5000)
-                    return! transmit last (target, new IO.StreamWriter(socket.GetStream(), AutoFlush = true))
-                with e ->
-                    let rec loop attempts last = async { 
-                        let! cmd = input.TryReceive 30
+                    let client = new Net.Sockets.TcpClient(NoDelay = true, SendTimeout = 5000)
+                    if client.ConnectAsync(host, port).Wait 5000
+                    then
+                        return! transmit last (target, new IO.StreamWriter(client.GetStream(), AutoFlush = true))
+                    else
+                        failwith "Connection timeout"
+                    with e ->
+                    let rec loop attempts last =
+                        if attempts = 0 then (target, last) else  
+                        let cmd = input.TryReceive 30 |> Async.RunSynchronously
                         match cmd with
-                        | None -> return! loop (attempts - 1) last
-                        | Some (Connect target) -> return (target, last)
-                        | Some Shutdown -> return (target, cmd) 
-                        | Some (Send s) -> return! loop (attempts - 1) cmd
-                    }
+                        | None -> loop (attempts - 1) last
+                        | Some (Connect target) -> (target, last)
+                        | Some Shutdown -> (target, cmd) 
+                        | Some (Send s) -> loop (attempts - 1) cmd
+                    
                     Log.Error("TCP", "Failed: {0}, Trouble : {1} ", target, e.Message) |> ignore
-                    let! (target, last) = loop 30 last
+                    let (target, last) = loop 30 last
                     return! reconnect target last 
                 } 
         and transmit last (target,(stream:IO.StreamWriter) as arg) = async {                
