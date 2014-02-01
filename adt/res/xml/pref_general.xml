@@ -23,11 +23,13 @@
 	    android:defaultValue="@color/favouriteBall"     
 	    alphaSlider="false"
 	/> -->
-    <CheckBoxPreference android:capitalize="words"
+    <EditTextPreference android:capitalize="words"
         android:key="showPads"
-        android:title="Show arrows"
-        android:defaultValue="true"
-        android:summary="Uncheck to hide arrow pads"/>
+        android:title="Arrows transparancy"
+        android:defaultValue="50"
+        android:hint="0..100%"
+        android:inputType="number"
+        android:summary="50 for transparent, 100 for invisible"/>
     <EditTextPreference
         android:defaultValue=""
         android:inputType="textUri"

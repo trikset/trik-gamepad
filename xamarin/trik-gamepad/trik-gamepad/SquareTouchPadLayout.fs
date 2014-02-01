@@ -5,7 +5,7 @@ open Android.Views
 open System
 
 type SquareTouchPadLayout(context, attrs, defStyle) as self =
-    inherit View(context, attrs, defStyle)
+    inherit ImageView(context, attrs, defStyle)
     let event = new Event<_>() 
     let mutable prevX = -100
     let mutable prevY = prevX
@@ -47,4 +47,7 @@ type SquareTouchPadLayout(context, attrs, defStyle) as self =
         this.SetMeasuredDimension(size, size)
 
     override this.SuggestedMinimumWidth =  this.SuggestedMinimumHeight
-    override this.SuggestedMinimumHeight =  List.max [100 ; this.Background.MinimumWidth; this.Background.MinimumHeight] 
+    override this.SuggestedMinimumHeight =  List.max <| 100:: if this.Background <> null then
+                                                                 [this.Background.MinimumWidth
+                                                                  this.Background.MinimumHeight]
+                                                              else []

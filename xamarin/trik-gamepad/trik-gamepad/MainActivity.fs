@@ -46,19 +46,17 @@ type MainActivity () as self =
 
         _transmitter.Post <| Transmitter.Connect(addr, p) 
 
-        let showPads = prefs.GetBoolean(SettingsActivity.SK_SHOW_PADS, true)
-
-        _pads |> List.iter (
-            let padImage = 
-                if showPads then
-                   self.Resources.GetDrawable
-                     Resource_Drawable.oxygen_actions_transform_move_icon
-                else 
-                    upcast new Drawables.ColorDrawable(Color.Transparent)
-            fun p -> 
-            (self.FindViewById<SquareTouchPadLayout> p).SetBackgroundDrawable padImage)
-     
-        let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "");
+        let alphaMax = 0xFF
+        let (ok, alpha) = Int32.TryParse <| prefs.GetString(SettingsActivity.SK_SHOW_PADS, "50")
+        let alpha = if ok then alpha * alphaMax / 100 else alphaMax / 2 
+                    |> min alphaMax |> max 0
+                      
+        
+        _pads |> List.iter ( fun p -> 
+                    let pad = self.FindViewById<SquareTouchPadLayout> p 
+                    pad.SetAlpha alpha)
+             
+        let videoStreamURI = prefs.GetString(SettingsActivity.SK_VIDEO_URI, "")
                 // --no-sout-audio --sout
                 // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
                 // works only with vcodec=mp4v without audio :(
