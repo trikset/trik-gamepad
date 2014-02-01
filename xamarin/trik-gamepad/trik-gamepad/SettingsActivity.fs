@@ -3,7 +3,7 @@ open Android.Preferences
 open Android.App
 open Android.Content
 
-[<Activity(Label="@string/title_activity_settings")>]
+[<Activity(Label="@string/title_activity_settings", ScreenOrientation=PM.ScreenOrientation.FullSensor)>]
 type SettingsActivity() =
     inherit PreferenceActivity()
         
@@ -14,5 +14,4 @@ type SettingsActivity() =
 
     override this.OnCreate savedInstanceState =
         base.OnCreate savedInstanceState
-        this.RequestedOrientation <- PM.ScreenOrientation.FullSensor
         this.AddPreferencesFromResource Resource_Xml.pref_general
