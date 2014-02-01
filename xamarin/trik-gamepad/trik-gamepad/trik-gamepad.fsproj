@@ -102,5 +102,11 @@
     <AndroidResource Include="..\..\..\adt\res\drawable\button_shape.xml">
       <Link>Resources\drawable\button_shape.xml</Link>
     </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\drawable\btn_wheel.xml">
+      <Link>Resources\drawable\btn_wheel.xml</Link>
+    </AndroidResource>
+    <AndroidResource Include="..\..\..\adt\res\drawable\steering_wheel.png">
+      <Link>Resources\drawable\steering_wheel.png</Link>
+    </AndroidResource>
   </ItemGroup>
 </Project>

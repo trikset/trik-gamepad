@@ -38,17 +38,16 @@
             android:layout_height="fill_parent"
             android:layout_margin="10dp"
             android:layout_weight="0.45"
-            android:background="@drawable/oxygen_actions_transform_move_icon" >
-        </com.trik.gamepad.SquareTouchPadLayout>
-
+            android:src="@drawable/oxygen_actions_transform_move_icon"/>
+        
         <com.trik.gamepad.SquareTouchPadLayout
             android:id="@+id/rightPad"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_margin="10dp"
             android:layout_weight="0.45"
-            android:background="@drawable/oxygen_actions_transform_move_icon" >
-        </com.trik.gamepad.SquareTouchPadLayout>
+            android:src="@drawable/oxygen_actions_transform_move_icon"/>
+        
     </LinearLayout>
 
     
@@ -80,12 +79,16 @@
 
         <ToggleButton
             android:id="@+id/tglWheel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:background="@drawable/btn_wheel"
+            android:layout_width="0.3in"
+            android:layout_height="0.3in"
+            android:layout_margin="0dp"
+            android:padding="0dp" 
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:checked="false"
-            android:textOff="Wheel"
-            android:textOn="Wheel" />
+            android:focusableInTouchMode="false"
+            android:textOff=""
+            android:textOn="" />
     
 </RelativeLayout>
