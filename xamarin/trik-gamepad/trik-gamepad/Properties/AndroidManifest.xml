@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.trik.gamepad" android:versionName="2 beta" android:versionCode="8">
-	<uses-sdk android:maxSdkVersion="19" android:minSdkVersion="10" android:targetSdkVersion="14" />
+	<uses-sdk android:maxSdkVersion="19" android:minSdkVersion="10" android:targetSdkVersion="15" />
 	<application android:icon="@drawable/trik_icon" android:label="TRIK Gamepad" />
 </manifest>

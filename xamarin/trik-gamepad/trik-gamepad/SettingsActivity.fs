@@ -14,4 +14,5 @@ type SettingsActivity() =
 
     override this.OnCreate savedInstanceState =
         base.OnCreate savedInstanceState
+        this.RequestedOrientation <- PM.ScreenOrientation.FullSensor
         this.AddPreferencesFromResource Resource_Xml.pref_general
