@@ -80,20 +80,22 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         {
             final View pad = findViewById(R.id.leftPad);
-            pad.setOnTouchListener(new TouchPadListener(pad, "pad 1", mSender));
+            pad.setOnTouchListener(new LeftPadListener(pad, mSender));
         }
         {
-            final View pad = findViewById(R.id.rightPad);
-            pad.setOnTouchListener(new TouchPadListener(pad, "pad 2", mSender));
+            // @TODO: We don't care for second pad yet.
+            // final View pad = findViewById(R.id.rightPad);
+            // pad.setOnTouchListener(new LeftPadListener(pad, "pad 2",
+            // mSender));
         }
         {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                    String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
-                    int portNumber = 4444;
-                    final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
+                    String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.0.103");
+                    int portNumber = 8888;
+                    final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "8888");
                     try {
                         portNumber = Integer.parseInt(portStr);
                     } catch (NumberFormatException e) {
