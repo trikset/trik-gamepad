@@ -25,12 +25,13 @@
 
         <LinearLayout
             android:id="@+id/buttons"
-            android:layout_width="0.3in"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_marginTop="10dp"
             android:layout_weight="0.1"
             android:gravity="center_horizontal"
             android:orientation="vertical" >
+
         </LinearLayout>
 
         <com.trik.gamepad.SquareTouchPadLayout

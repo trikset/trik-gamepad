@@ -14,8 +14,10 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -175,6 +177,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             btn.setText(name);
             btn.setPadding(10, 10, 10, 10);
 
+            LinearLayout.LayoutParams layoutParams =
+                    new LinearLayout.LayoutParams(100, LayoutParams.WRAP_CONTENT);
+
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
@@ -182,7 +187,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                                                            // TouchListner
                 }
             });
-            buttonsView.addView(btn);
+
+            buttonsView.addView(btn, layoutParams);
         }
     }
 
