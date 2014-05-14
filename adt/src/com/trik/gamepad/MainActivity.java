@@ -39,6 +39,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private boolean                                            mWheelEnabled;
     protected SenderService                                    mSender;
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
+
     private VideoView                                          mVideo;
 
     @Override
@@ -90,7 +91,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         {
-            mVideo = (VideoView) findViewById(R.id.video);
+
+            // TODO: mVideo = (VideoView) findViewById(R.id.video);
             mVideo.setOnErrorListener(new OnErrorListener() {
 
                 @Override
@@ -199,21 +201,20 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     @Override
+    protected void onPause() {
+        mVideo.stopPlayback();
+        mSensorManager.unregisterListener(this);
+        mSender.disconnect("Inactive gamepad");
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this,
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
         mVideo.resume();
-        {
-            // send current config
-            // final float hsv[] = new float[3];
-            // Color.colorToHSV(PreferenceManager.getDefaultSharedPreferences(this)
-            // .getInt("targetColor", 0), hsv);
-            // final String hsvRepr = "H:" + hsv[0] + " S:" + hsv[1] + " V:" +
-            // hsv[2];
-            // mSender.send("config targetColor=\"" + hsvRepr + "\"");
-        }
     }
 
     @Override
@@ -225,14 +226,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         } else {
             Log.i("Sensor", "" + event.sensor.getType());
         }
-    }
-
-    @Override
-    protected void onStop() {
-        mVideo.stopPlayback();
-        mSensorManager.unregisterListener(this);
-        super.onStop();
-    }
+    };
 
     private void processSensor(final float[] values) {
         final double WHEEL_BOOSTER_MULTIPLIER = 1.5;
