@@ -4,17 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -27,7 +21,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import android.widget.VideoView;
 
 import com.trik.gamepad.SenderService.OnEventListener;
 
@@ -39,8 +32,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private boolean                                            mWheelEnabled;
     protected SenderService                                    mSender;
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
-
-    private VideoView                                          mVideo;
+    protected int                                              mWheelStep = 7;
 
     @Override
     public void onAccuracyChanged(final Sensor arg0, final int arg1) {
@@ -91,45 +83,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         {
-
-            // TODO: mVideo = (VideoView) findViewById(R.id.video);
-            mVideo.setOnErrorListener(new OnErrorListener() {
-
-                @Override
-                public boolean onError(final MediaPlayer mp, final int what,
-                        final int extra) {
-                    final String errorStr = "What = " + what + ", extra = "
-                            + extra;
-                    Log.e("VIDEO", errorStr);
-                    toast("Error playing video stream " + errorStr);
-                    // mVideo.stopPlayback();
-                    // mVideo.setBackgroundColor(Color.TRANSPARENT);
-                    return true;
-                }
-            });
-
-            mVideo.setOnCompletionListener(new OnCompletionListener() {
-                @Override
-                public void onCompletion(final MediaPlayer mp) {
-                    Log.i("VIDEO", "End of video stream encountered.");
-                    mVideo.resume(); // TODO: Keep-alive instead of this hack
-                }
-            });
-
-            mVideo.setOnPreparedListener(new OnPreparedListener() {
-
-                @Override
-                public void onPrepared(final MediaPlayer mp) {
-                    // TODO: Stretch/scale video
-                    mp.setLooping(true); // TODO: Doesn't work :(
-                    mVideo.start();
-                }
-            });
-
-            // video starts playing after URI is read from prefs later
-        }
-
-        {
             final View controlsOverlay = findViewById(R.id.controlsOverlay);
             controlsOverlay.bringToFront();
         }
@@ -140,6 +93,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         pad2.setOnTouchListener(new TouchPadListener(pad2, "pad 2", mSender));
 
         {
+            final Drawable padImage = getResources().getDrawable(
+                    R.drawable.oxygen_actions_transform_move_icon);
+
             final SharedPreferences prefs = PreferenceManager
                     .getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -148,7 +104,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         final SharedPreferences sharedPreferences,
                         final String key) {
                     final String addr = sharedPreferences.getString(
-                            SettingsActivity.SK_HOST_ADDRESS, "127.0.0.1");
+                            SettingsActivity.SK_HOST_ADDRESS, "192.168.1.1");
                     int portNumber = 4444;
                     final String portStr = sharedPreferences.getString(
                             SettingsActivity.SK_HOST_PORT, "4444");
@@ -160,12 +116,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                     mSender.setTarget(addr, portNumber);
 
                     {
-                        final Boolean showPads = sharedPreferences.getBoolean(
-                                SettingsActivity.SK_SHOW_PADS, true);
-                        final Drawable padImage = showPads ? getResources()
-                                .getDrawable(
-                                        R.drawable.oxygen_actions_transform_move_icon)
-                                : new ColorDrawable(Color.TRANSPARENT);
+                        final Integer defAlpha = 200;
+                        final int padsAlpha = Integer.getInteger(
+                                sharedPreferences.getString(
+                                        SettingsActivity.SK_SHOW_PADS,
+                                        defAlpha.toString()), defAlpha);
+                        padImage.setAlpha(Math.max(0, Math.min(255, padsAlpha)));
+
                         pad1.setBackgroundDrawable(padImage);
                         pad2.setBackgroundDrawable(padImage);
 
@@ -181,14 +138,23 @@ public class MainActivity extends Activity implements SensorEventListener {
                         // http://developer.android.com/reference/android/media/MediaPlayer.html
                         // http://developer.android.com/guide/appendix/media-formats.html
 
-                        final Uri mVideoURI = videoStreamURI == null ? null
-                                : Uri.parse(videoStreamURI);
+                        final Uri mVideoURI = videoStreamURI == null
+                                || "".equals(videoStreamURI) ? null : Uri
+                                .parse(videoStreamURI);
 
                         if (mVideoURI != null) {
                             toast("Starting video from '" + videoStreamURI
                                     + "'.");
-                            mVideo.setVideoURI(mVideoURI);
+
                         }
+                    }
+
+                    {
+                        mWheelStep = Integer
+                                .getInteger(sharedPreferences.getString(
+                                        SettingsActivity.SK_WHEEL_STEP,
+                                        String.valueOf(mWheelStep)), mWheelStep);
+                        mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
                 }
@@ -202,7 +168,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     protected void onPause() {
-        mVideo.stopPlayback();
         mSensorManager.unregisterListener(this);
         mSender.disconnect("Inactive gamepad");
         super.onPause();
@@ -214,7 +179,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSensorManager.registerListener(this,
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
-        mVideo.resume();
     }
 
     @Override
@@ -235,7 +199,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (x < 1e-6)
             return;
 
-        int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan(y / x) / Math.PI);
+        int angle = (int) (200 * WHEEL_BOOSTER_MULTIPLIER * Math.atan2(y, x) / Math.PI);
 
         if (Math.abs(angle) < 10) {
             angle = 0;
@@ -245,7 +209,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             angle = -100;
         }
 
-        if (Math.abs(mAngle - angle) < 7)
+        if (Math.abs(mAngle - angle) < mWheelStep)
             return;
 
         mAngle = angle;

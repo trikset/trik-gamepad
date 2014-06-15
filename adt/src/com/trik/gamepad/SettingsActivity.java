@@ -13,6 +13,7 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String SK_HOST_PORT    = "hostPort";
     public static final String SK_SHOW_PADS    = "showPads";
     public static final String SK_VIDEO_URI    = "videoURI";
+    public static final String SK_WHEEL_STEP   = "wheelSens";
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
