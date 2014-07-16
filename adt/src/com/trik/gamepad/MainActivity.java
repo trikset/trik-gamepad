@@ -1,5 +1,7 @@
 package com.trik.gamepad;
 
+import java.net.URI;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -10,7 +12,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -23,17 +24,26 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.demo.mjpeg.MjpegView;
 import com.trik.gamepad.SenderService.OnEventListener;
 
 public class MainActivity extends Activity implements SensorEventListener {
+
+    public static final String                                 TAG        = "MainActivity";
+
     private SensorManager                                      mSensorManager;
-    private int                                                mAngle;                    // -100%
-                                                                                           // ...
-                                                                                           // +100%
+    private int                                                mAngle;                     // -100%
+    // ...
+    // +100%
     private boolean                                            mWheelEnabled;
     protected SenderService                                    mSender;
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
+
     protected int                                              mWheelStep = 7;
+
+    private MjpegView                                          mVideo;
+
+    protected URI                                              mVideoURI;
 
     @SuppressWarnings("deprecation")
     @TargetApi(16)
@@ -46,7 +56,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         } else {
             pad.setBackgroundDrawable(image);
         }
-    }
+    };
 
     @Override
     public void onAccuracyChanged(final Sensor arg0, final int arg1) {
@@ -61,6 +71,14 @@ public class MainActivity extends Activity implements SensorEventListener {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSender = new SenderService(this);
+
+        {
+            // requestWindowFeature(Window.FEATURE_NO_TITLE);
+            // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            // WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            mVideo = (MjpegView) findViewById(R.id.video);
+
+        }
 
         recreateMagicButtons(5);
 
@@ -140,8 +158,11 @@ public class MainActivity extends Activity implements SensorEventListener {
                     }
 
                     {
-                        final String videoStreamURI = sharedPreferences
-                                .getString(SettingsActivity.SK_VIDEO_URI, "");
+                        // "http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=320x240";
+
+                        String videoStreamURI = sharedPreferences.getString(
+                                SettingsActivity.SK_VIDEO_URI, "");
+
                         // --no-sout-audio --sout
                         // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
                         // works only with vcodec=mp4v without audio :(
@@ -149,15 +170,10 @@ public class MainActivity extends Activity implements SensorEventListener {
                         // http://developer.android.com/reference/android/media/MediaPlayer.html
                         // http://developer.android.com/guide/appendix/media-formats.html
 
-                        final Uri mVideoURI = videoStreamURI == null
-                                || "".equals(videoStreamURI) ? null : Uri
-                                .parse(videoStreamURI);
+                        mVideoURI = videoStreamURI == null
+                                || "".equals(videoStreamURI) ? null : URI
+                                .create(videoStreamURI);
 
-                        if (mVideoURI != null) {
-                            toast("Starting video from '" + videoStreamURI
-                                    + "'.");
-
-                        }
                     }
 
                     {
@@ -181,12 +197,16 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected void onPause() {
         mSensorManager.unregisterListener(this);
         mSender.disconnect("Inactive gamepad");
+        mVideo.stopPlayback();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (mVideoURI != null) {
+            new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+        }
         mSensorManager.registerListener(this,
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
