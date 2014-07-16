@@ -1,5 +1,6 @@
 package com.trik.gamepad;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,6 +34,19 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected SenderService                                    mSender;
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
     protected int                                              mWheelStep = 7;
+
+    @SuppressWarnings("deprecation")
+    @TargetApi(16)
+    private void createPad(final Drawable image, int id, String strId) {
+        final View pad = findViewById(id);
+        pad.setOnTouchListener(new TouchPadListener(pad, "pad " + strId,
+                mSender));
+        if (android.os.Build.VERSION.SDK_INT >= 16) {
+            pad.setBackground(image);
+        } else {
+            pad.setBackgroundDrawable(image);
+        }
+    }
 
     @Override
     public void onAccuracyChanged(final Sensor arg0, final int arg1) {
@@ -86,15 +100,15 @@ public class MainActivity extends Activity implements SensorEventListener {
             final View controlsOverlay = findViewById(R.id.controlsOverlay);
             controlsOverlay.bringToFront();
         }
-        final View pad1 = findViewById(R.id.leftPad);
-        pad1.setOnTouchListener(new TouchPadListener(pad1, "pad 1", mSender));
 
-        final View pad2 = findViewById(R.id.rightPad);
-        pad2.setOnTouchListener(new TouchPadListener(pad2, "pad 2", mSender));
+        final Drawable padImage = getResources().getDrawable(
+                R.drawable.oxygen_actions_transform_move_icon);
+        {
+            createPad(padImage, R.id.leftPad, "1");
+            createPad(padImage, R.id.rightPad, "2");
+        }
 
         {
-            final Drawable padImage = getResources().getDrawable(
-                    R.drawable.oxygen_actions_transform_move_icon);
 
             final SharedPreferences prefs = PreferenceManager
                     .getDefaultSharedPreferences(getBaseContext());
@@ -122,9 +136,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                                         SettingsActivity.SK_SHOW_PADS,
                                         defAlpha.toString()), defAlpha);
                         padImage.setAlpha(Math.max(0, Math.min(255, padsAlpha)));
-
-                        pad1.setBackgroundDrawable(padImage);
-                        pad2.setBackgroundDrawable(padImage);
 
                     }
 
