@@ -1,6 +1,7 @@
 package com.trik.gamepad;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -76,6 +77,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
             // WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mVideo = (MjpegView) findViewById(R.id.video);
+            mVideo.setOverlayPosition(MjpegView.POSITION_UPPER_RIGHT);
 
         }
 
@@ -169,9 +171,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                         // http://developer.android.com/reference/android/media/MediaPlayer.html
                         // http://developer.android.com/guide/appendix/media-formats.html
 
-                        mVideoURI = videoStreamURI == null
-                                || "".equals(videoStreamURI) ? null : URI
-                                .create(videoStreamURI);
+                        try {
+                            mVideoURI = videoStreamURI == null
+                                    || "".equals(videoStreamURI) ? null
+                                    : new URI(videoStreamURI);
+                        } catch (URISyntaxException e) {
+                            toast("Illegal video stream URI\n" + e.getReason());
+                        }
 
                     }
 
