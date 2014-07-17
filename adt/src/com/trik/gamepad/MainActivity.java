@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,6 +18,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
@@ -47,14 +47,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
-    private void createPad(final Drawable image, int id, String strId) {
-        final View pad = findViewById(id);
-        pad.setOnTouchListener(new TouchPadListener(pad, "pad " + strId,
-                mSender));
+    private void createPad(int id, String strId) {
+        final SquareTouchPadLayout pad = (SquareTouchPadLayout) findViewById(id);
+        pad.setPadName("pad " + strId);
+        pad.setSender(mSender);
         // if (android.os.Build.VERSION.SDK_INT >= 16) {
         // pad.setBackground(image);
         // } else {
-        pad.setBackgroundDrawable(image);
+        // pad.setBackgroundDrawable(image);
         // }
     };
 
@@ -96,8 +96,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
             tglWheel.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(final CompoundButton buttonView,
-                        final boolean isChecked) {
+                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
                     mWheelEnabled = isChecked;
                 }
             });
@@ -108,8 +107,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             btnSettings.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    final Intent settings = new Intent(MainActivity.this,
-                            SettingsActivity.class);
+                    final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
                     startActivity(settings);
                 }
             });
@@ -120,27 +118,20 @@ public class MainActivity extends Activity implements SensorEventListener {
             controlsOverlay.bringToFront();
         }
 
-        final Drawable padImage = getResources().getDrawable(
-                R.drawable.oxygen_actions_transform_move_icon);
         {
-            createPad(padImage, R.id.leftPad, "1");
-            createPad(padImage, R.id.rightPad, "2");
+            createPad(R.id.leftPad, "1");
+            createPad(R.id.rightPad, "2");
         }
 
         {
 
-            final SharedPreferences prefs = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
-                public void onSharedPreferenceChanged(
-                        final SharedPreferences sharedPreferences,
-                        final String key) {
-                    final String addr = sharedPreferences.getString(
-                            SettingsActivity.SK_HOST_ADDRESS, "192.168.1.1");
+                public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+                    final String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.1.1");
                     int portNumber = 4444;
-                    final String portStr = sharedPreferences.getString(
-                            SettingsActivity.SK_HOST_PORT, "4444");
+                    final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
                     try {
                         portNumber = Integer.parseInt(portStr);
                     } catch (final NumberFormatException e) {
@@ -151,18 +142,19 @@ public class MainActivity extends Activity implements SensorEventListener {
                     {
                         final Integer defAlpha = 200;
                         final int padsAlpha = Integer.getInteger(
-                                sharedPreferences.getString(
-                                        SettingsActivity.SK_SHOW_PADS,
-                                        defAlpha.toString()), defAlpha);
-                        padImage.setAlpha(Math.max(0, Math.min(255, padsAlpha)));
+                                sharedPreferences.getString(SettingsActivity.SK_SHOW_PADS, defAlpha.toString()),
+                                defAlpha);
+                        final float alpha = Math.max(0, Math.min(255, padsAlpha)) / 255.0f;
+                        AlphaAnimation alphaUp = new AlphaAnimation(alpha, alpha);
+                        alphaUp.setFillAfter(true);
+                        findViewById(R.id.controlsOverlay).startAnimation(alphaUp);
 
                     }
 
                     {
                         // "http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=320x240";
 
-                        String videoStreamURI = sharedPreferences.getString(
-                                SettingsActivity.SK_VIDEO_URI, "");
+                        String videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "");
 
                         // --no-sout-audio --sout
                         // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
@@ -172,9 +164,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                         // http://developer.android.com/guide/appendix/media-formats.html
 
                         try {
-                            mVideoURI = videoStreamURI == null
-                                    || "".equals(videoStreamURI) ? null
-                                    : new URI(videoStreamURI);
+                            mVideoURI = videoStreamURI == null || "".equals(videoStreamURI) ? null : new URI(
+                                    videoStreamURI);
                         } catch (URISyntaxException e) {
                             toast("Illegal video stream URI\n" + e.getReason());
                         }
@@ -183,16 +174,15 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                     {
                         mWheelStep = Integer
-                                .getInteger(sharedPreferences.getString(
-                                        SettingsActivity.SK_WHEEL_STEP,
-                                        String.valueOf(mWheelStep)), mWheelStep);
+                                .getInteger(
+                                        sharedPreferences.getString(SettingsActivity.SK_WHEEL_STEP,
+                                                String.valueOf(mWheelStep)), mWheelStep);
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
                 }
             };
-            mSharedPreferencesListener.onSharedPreferenceChanged(prefs,
-                    SettingsActivity.SK_HOST_ADDRESS);
+            mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsActivity.SK_HOST_ADDRESS);
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
 
@@ -212,8 +202,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (mVideoURI != null) {
             new StartReadMjpegAsync(mVideo).execute(mVideoURI);
         }
-        mSensorManager.registerListener(this,
-                mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -259,8 +248,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         for (int num = 1; num <= count; ++num) {
             final Button btn = new Button(MainActivity.this);
             btn.setGravity(Gravity.CENTER);
-            btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT));
+            btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             final String name = "" + num + "";
             btn.setText(name);
             btn.setPadding(10, 10, 10, 10);
@@ -281,8 +269,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
             }
         });
     }
