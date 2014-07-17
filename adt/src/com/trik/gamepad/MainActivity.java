@@ -2,7 +2,6 @@ package com.trik.gamepad;
 
 import java.net.URI;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,17 +44,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     protected URI                                              mVideoURI;
 
-    @SuppressWarnings("deprecation")
-    @TargetApi(16)
+    // @SuppressWarnings("deprecation")
+    // @TargetApi(16)
     private void createPad(final Drawable image, int id, String strId) {
         final View pad = findViewById(id);
         pad.setOnTouchListener(new TouchPadListener(pad, "pad " + strId,
                 mSender));
-        if (android.os.Build.VERSION.SDK_INT >= 16) {
-            pad.setBackground(image);
-        } else {
-            pad.setBackgroundDrawable(image);
-        }
+        // if (android.os.Build.VERSION.SDK_INT >= 16) {
+        // pad.setBackground(image);
+        // } else {
+        pad.setBackgroundDrawable(image);
+        // }
     };
 
     @Override
