@@ -29,16 +29,15 @@ public class SenderService {
 
     private long                    mLastConnectionAttemptTimestamp;
 
-    final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50,
-            100, 200, 50, 200, 50, 200, 100, 50, 50, 50, 50, 50 };
+    final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200, 100, 50, 50,
+            50, 50, 50                 };
 
     public SenderService(final MainActivity mainActivity) {
         mMainActivity = mainActivity;
-        mVibrator = (Vibrator) mainActivity
-                .getSystemService(Context.VIBRATOR_SERVICE);
+        mVibrator = (Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
-    public boolean connect() {
+    synchronized public boolean connect() {
 
         mOut = null;
         try {
@@ -69,8 +68,18 @@ public class SenderService {
         try {
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket();
-            socket.setTcpNoDelay(true);
             socket.connect(new InetSocketAddress(mHostAddr, mHostPort), TIMEOUT);
+
+            socket.setTcpNoDelay(true);
+            socket.setKeepAlive(true);
+            socket.setSoLinger(true, 0);
+            socket.setTrafficClass(0x0F); // high priority, no-delay
+            socket.setOOBInline(true);
+            socket.shutdownInput();
+
+            // currently does nothing
+            // socket.setPerformancePreferences(connectionTime, latency,
+            // bandwidth);
             try {
                 return new PrintWriter(socket.getOutputStream(), true);
             } catch (final Exception e) {
@@ -80,8 +89,8 @@ public class SenderService {
             }
         } catch (final Exception e) {
             Log.e("TCP", "Connect: Error", e);
-            mLastConnectionAttemptTimestamp = currentTime;
         }
+        mLastConnectionAttemptTimestamp = currentTime;
         return null;
     }
 
@@ -99,10 +108,8 @@ public class SenderService {
 
         if (mOut == null) {
             final Boolean connected = connect();
-            Toast.makeText(
-                    mMainActivity,
-                    "Connection to " + mHostAddr + ':' + mHostPort
-                            + (connected ? " established." : " error."),
+            Toast.makeText(mMainActivity,
+                    "Connection to " + mHostAddr + ':' + mHostPort + (connected ? " established." : " error."),
                     Toast.LENGTH_SHORT).show();
             if (!connected)
                 return;
