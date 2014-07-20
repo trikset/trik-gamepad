@@ -94,7 +94,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
     private final void init() {
         paint.setColor(Color.RED);
-        paint.setStrokeWidth(10.0f);
+        paint.setStrokeWidth(0);
         paint.setStyle(Paint.Style.STROKE);
         setOnTouchListener(new TouchPadListener());
         setWillNotDraw(false);
