@@ -29,7 +29,8 @@
         android:defaultValue="50"
         android:hint="0..255"
         android:inputType="number"
-        android:summary="0 means fully transparent, and 255 means fully opaque."/>
+        android:numeric="integer"
+        android:summary="0 for fully transparent, and 255 is opaque."/>
     
     <EditTextPreference 
         android:key="wheelSens"

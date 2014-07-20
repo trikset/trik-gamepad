@@ -127,6 +127,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+                float mPrevAlpha;
+
                 @Override
                 public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
                     final String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.1.1");
@@ -140,15 +142,23 @@ public class MainActivity extends Activity implements SensorEventListener {
                     mSender.setTarget(addr, portNumber);
 
                     {
-                        final Integer defAlpha = 200;
-                        final int padsAlpha = Integer.getInteger(
-                                sharedPreferences.getString(SettingsActivity.SK_SHOW_PADS, defAlpha.toString()),
-                                defAlpha);
-                        final float alpha = Math.max(0, Math.min(255, padsAlpha)) / 255.0f;
-                        AlphaAnimation alphaUp = new AlphaAnimation(alpha, alpha);
-                        alphaUp.setFillAfter(true);
-                        findViewById(R.id.controlsOverlay).startAnimation(alphaUp);
+                        final int defAlpha = 50;
+                        int padsAlpha = defAlpha;
 
+                        try {
+                            padsAlpha = Integer.parseInt(sharedPreferences.getString(SettingsActivity.SK_SHOW_PADS,
+                                    String.valueOf(defAlpha)));
+                        } catch (NumberFormatException nfe) {
+                            padsAlpha = defAlpha;
+                        }
+
+                        final float alpha = Math.max(0, Math.min(255, padsAlpha)) / 255.0f;
+                        AlphaAnimation alphaUp = new AlphaAnimation(mPrevAlpha, alpha);
+                        mPrevAlpha = alpha;
+                        alphaUp.setFillAfter(true);
+                        alphaUp.setDuration(2000);
+                        findViewById(R.id.controlsOverlay).startAnimation(alphaUp);
+                        findViewById(R.id.buttons).startAnimation(alphaUp);
                     }
 
                     {
