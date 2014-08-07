@@ -58,22 +58,19 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             p.getTextBounds(text, 0, text.length(), b);
             int bwidth = b.width() + 2;
             int bheight = b.height() + 2;
-            Bitmap bm = Bitmap.createBitmap(bwidth, bheight,
-                    Bitmap.Config.ARGB_8888);
+            Bitmap bm = Bitmap.createBitmap(bwidth, bheight, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bm);
             p.setColor(overlayBackgroundColor);
             c.drawRect(0, 0, bwidth, bheight, p);
             p.setColor(overlayTextColor);
-            c.drawText(text, -b.left + 1,
-                    bheight / 2 - (p.ascent() + p.descent()) / 2 + 1, p);
+            c.drawText(text, -b.left + 1, bheight / 2 - (p.ascent() + p.descent()) / 2 + 1, p);
             return bm;
         }
 
         @Override
         public void run() {
             start = System.currentTimeMillis();
-            PorterDuffXfermode mode = new PorterDuffXfermode(
-                    PorterDuff.Mode.DST_OVER);
+            PorterDuffXfermode mode = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
             Bitmap bm;
             int width;
             int height;
@@ -88,26 +85,20 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                         synchronized (mSurfaceHolder) {
                             try {
                                 bm = mIn.readMjpegFrame();
-                                destRect = destRect(bm.getWidth(),
-                                        bm.getHeight());
+                                destRect = destRect(bm.getWidth(), bm.getHeight());
                                 c.drawColor(Color.BLACK);
                                 c.drawBitmap(bm, null, destRect, p);
                                 if (showFps) {
                                     p.setXfermode(mode);
                                     if (ovl != null) {
-                                        height = (ovlPos & 1) == 1 ? destRect.top
-                                                : destRect.bottom
-                                                        - ovl.getHeight();
-                                        width = (ovlPos & 8) == 8 ? destRect.left
-                                                : destRect.right
-                                                        - ovl.getWidth();
+                                        height = (ovlPos & 1) == 1 ? destRect.top : destRect.bottom - ovl.getHeight();
+                                        width = (ovlPos & 8) == 8 ? destRect.left : destRect.right - ovl.getWidth();
                                         c.drawBitmap(ovl, width, height, null);
                                     }
                                     p.setXfermode(null);
                                     frameCounter++;
                                     if (System.currentTimeMillis() - start >= 1000) {
-                                        fps = String.valueOf(frameCounter)
-                                                + " fps";
+                                        fps = String.valueOf(frameCounter) + " fps";
                                         frameCounter = 0;
                                         start = System.currentTimeMillis();
                                         ovl = makeFpsOverlay(overlayPaint, fps);
