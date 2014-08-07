@@ -126,7 +126,7 @@ public class SenderService {
 
             @Override
             protected void onPostExecute(final Void result) {
-                if (mOut.checkError()) {
+                if (mOut == null || mOut.checkError()) {
                     Log.e("TCP", "NotSent: " + command);
                     disconnect("Send failed.");
                     mVibrator.vibrate(SOS, -1);

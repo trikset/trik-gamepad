@@ -96,6 +96,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
         paint.setColor(Color.RED);
         paint.setStrokeWidth(0);
         paint.setStyle(Paint.Style.STROKE);
+        paint.setAlpha(255);
         setOnTouchListener(new TouchPadListener());
         setWillNotDraw(false);
         setBackgroundDrawable(getResources().getDrawable(R.drawable.oxygen_actions_transform_move_icon));
