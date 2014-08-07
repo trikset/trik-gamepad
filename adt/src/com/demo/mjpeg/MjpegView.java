@@ -199,7 +199,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void setSource(MjpegInputStream source) {
         mIn = source;
-        startPlayback();
+        // startPlayback();
     }
 
     public void showFps(boolean b) {

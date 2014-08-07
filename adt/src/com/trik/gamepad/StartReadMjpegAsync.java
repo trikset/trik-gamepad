@@ -15,7 +15,7 @@ import android.os.AsyncTask;
 import com.demo.mjpeg.MjpegInputStream;
 import com.demo.mjpeg.MjpegView;
 
-public class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
+public class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
     private final MjpegView mv;
 
     StartReadMjpegAsync(MjpegView mv) {
@@ -23,12 +23,14 @@ public class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> 
     }
 
     @Override
-    protected MjpegInputStream doInBackground(URI... uri) {
+    protected Void doInBackground(URI... uri) {
         HttpResponse res = null;
         DefaultHttpClient httpclient = new DefaultHttpClient();
         try {
             res = httpclient.execute(new HttpGet(uri[0]));
-            return new MjpegInputStream(res.getEntity().getContent());
+            MjpegInputStream stream = new MjpegInputStream(res.getEntity().getContent());
+            mv.setSource(stream);
+            return null;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -38,9 +40,7 @@ public class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> 
     }
 
     @Override
-    protected void onPostExecute(MjpegInputStream result) {
-        mv.setSource(result);
-        mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
-        mv.showFps(true);
+    protected void onPostExecute(Void result) {
+        mv.startPlayback();
     }
 };
