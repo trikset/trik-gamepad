@@ -29,21 +29,21 @@ import com.trik.gamepad.SenderService.OnEventListener;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
-    public static final String                                 TAG        = "MainActivity";
+    static final String                                TAG        = "MainActivity";
 
-    private SensorManager                                      mSensorManager;
-    private int                                                mAngle;                     // -100%
+    SensorManager                                      mSensorManager;
+    int                                                mAngle;                     // -100%
     // ...
     // +100%
-    private boolean                                            mWheelEnabled;
-    protected SenderService                                    mSender;
-    private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
+    boolean                                            mWheelEnabled;
+    SenderService                                      mSender;
+    SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
-    protected int                                              mWheelStep = 7;
+    int                                                mWheelStep = 7;
 
-    private MjpegView                                          mVideo;
+    MjpegView                                          mVideo;
 
-    protected URI                                              mVideoURI;
+    URI                                                mVideoURI;
 
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
@@ -78,6 +78,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             // WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mVideo = (MjpegView) findViewById(R.id.video);
             mVideo.setOverlayPosition(MjpegView.POSITION_UPPER_RIGHT);
+            mVideo.showFps(true);
+            mVideo.setDisplayMode(MjpegView.SIZE_BEST_FIT);
 
         }
 
@@ -178,6 +180,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                                     videoStreamURI);
                         } catch (URISyntaxException e) {
                             toast("Illegal video stream URI\n" + e.getReason());
+                            mVideoURI = null;
                         }
 
                     }
@@ -209,9 +212,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mVideoURI != null) {
-            new StartReadMjpegAsync(mVideo).execute(mVideoURI);
-        }
+        new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
