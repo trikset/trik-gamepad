@@ -23,19 +23,23 @@ public class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(URI... uri) {
+    protected Void doInBackground(URI... uris) {
         HttpResponse res = null;
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        try {
-            res = httpclient.execute(new HttpGet(uri[0]));
-            MjpegInputStream stream = new MjpegInputStream(res.getEntity().getContent());
-            mv.setSource(stream);
-            return null;
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        URI uri = uris[0];
+        if (uri != null) {
+            try {
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                res = httpclient.execute(new HttpGet(uri));
+                MjpegInputStream stream = new MjpegInputStream(res.getEntity().getContent());
+                mv.setSource(stream);
+                return null;
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        mv.setSource(null);
         return null;
     }
 
