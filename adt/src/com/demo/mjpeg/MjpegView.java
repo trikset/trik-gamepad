@@ -19,7 +19,7 @@ import android.view.SurfaceView;
 
 public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
     public class MjpegViewThread  {
-        private Thread thread;
+        private Thread              thread;
         private final SurfaceHolder mSurfaceHolder;
         private int                 frameCounter;
         private long                start;
@@ -49,6 +49,10 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                                 synchronized (mSurfaceHolder) {
                                     try {
                                         bm = mIn.readMjpegFrame();
+
+                                        if (bm == null)
+                                            continue;
+
                                         destRect = destRect(bm.getWidth(), bm.getHeight());
                                         c.drawColor(Color.BLACK);
                                         c.drawBitmap(bm, null, destRect, p);
@@ -130,12 +134,12 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        public void start () {
+        public void start() {
             initThread();
             thread.start();
         }
 
-        public void join ()  {
+        public void join() {
             if (thread != null) {
                 boolean retry = true;
                 while (retry) {
