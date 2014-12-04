@@ -166,7 +166,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     {
                         // "http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=320x240";
 
-                        String videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "http://192.168.1.1:8080/?action=stream");
+                        String videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream");
 
                         // --no-sout-audio --sout
                         // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
