@@ -103,6 +103,10 @@ public class SenderService {
         }
     }
 
+    public String getHostAddr() {
+        return mHostAddr;
+    }
+
     public void send(final String command) {
         Log.d("TCP", "Sending '" + command + '\'');
 

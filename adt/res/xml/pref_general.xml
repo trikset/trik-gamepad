@@ -26,7 +26,7 @@
     <EditTextPreference
         android:key="showPads"
         android:title="Arrows transparancy"
-        android:defaultValue="50"
+        android:defaultValue="100"
         android:hint="0..255"
         android:inputType="number"
         android:numeric="integer"
@@ -43,7 +43,6 @@
     <EditTextPreference
         android:inputType="textUri"
         android:key="videoURI"
-        android:defaultValue="http://192.168.1.1:8080/?action=stream"
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"

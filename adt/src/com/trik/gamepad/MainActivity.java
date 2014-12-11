@@ -141,10 +141,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                     } catch (final NumberFormatException e) {
                         toast("Port number '" + portStr + "' is incorrect.");
                     }
+                    final String oldAddr = mSender.getHostAddr();
                     mSender.setTarget(addr, portNumber);
 
+                    if (!addr.equalsIgnoreCase(oldAddr)) {
+                        // update video stream URI when target addr changed
+                        sharedPreferences.edit()
+                                .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
+                                .apply();
+                    }
+
                     {
-                        final int defAlpha = 50;
+                        final int defAlpha = 100;
                         int padsAlpha = defAlpha;
 
                         try {
@@ -166,7 +174,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                     {
                         // "http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=320x240";
 
-                        String videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream");
+                        String videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "http://"
+                                + addr + ":8080/?action=stream");
 
                         // --no-sout-audio --sout
                         // "#transcode{width=320,height=240,vcodec=mp2v,fps=20}:rtp{ttl=5,sdp=rtsp://:8889/s}"
