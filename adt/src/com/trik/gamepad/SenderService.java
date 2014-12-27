@@ -3,7 +3,6 @@ package com.trik.gamepad;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.ExecutionException;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -16,48 +15,51 @@ public class SenderService {
         void onEvent(ArgType arg);
     }
 
-    private PrintWriter             mOut;
+    private PrintWriter                        mOut;
 
-    private OnEventListener<String> mOnDisconnectedListener;
-    private final Vibrator          mVibrator;
+    private OnEventListener<String>            mOnDisconnectedListener;
+    private final Vibrator                     mVibrator;
 
-    private String                  mHostAddr;
+    private String                             mHostAddr;
 
-    private int                     mHostPort;
+    private int                                mHostPort;
 
-    private final MainActivity      mMainActivity;
+    private final MainActivity                 mMainActivity;
 
-    private long                    mLastConnectionAttemptTimestamp;
+    private long                               mLastConnectionAttemptTimestamp;
 
-    final static long[]             SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200, 100, 50, 50,
-            50, 50, 50                 };
+    private AsyncTask<Void, Void, PrintWriter> mConnectTask;
+    final static long[]                        SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200,
+            100, 50, 50, 50, 50, 50               };
 
     public SenderService(final MainActivity mainActivity) {
         mMainActivity = mainActivity;
         mVibrator = (Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
-    synchronized public boolean connect() {
-
-        mOut = null;
-        try {
-            mOut = new AsyncTask<Void, Void, PrintWriter>() {
-
+    public void connectAsync() {
+        if (mConnectTask == null) {
+            mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
                 @Override
                 protected PrintWriter doInBackground(final Void... params) {
-                    return connectToCar();
+                    return connectToTRIK();
                 }
-            }.execute().get();
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
-        } catch (final ExecutionException e) {
-            e.printStackTrace();
-        }
 
-        return mOut != null;
+                @Override
+                protected void onPostExecute(PrintWriter result) {
+                    mOut = result;
+                    mConnectTask = null;
+                    Toast.makeText(
+                            mMainActivity,
+                            "Connection to " + mHostAddr + ':' + mHostPort
+                                    + (mOut != null ? " established." : " error."), Toast.LENGTH_SHORT).show();
+                };
+            };
+            mConnectTask.execute();
+        }
     }
 
-    private PrintWriter connectToCar() {
+    private PrintWriter connectToTRIK() {
         final long currentTime = System.currentTimeMillis();
         final long elapsed = currentTime - mLastConnectionAttemptTimestamp;
         final int TIMEOUT = 5000;
@@ -108,16 +110,14 @@ public class SenderService {
     }
 
     public void send(final String command) {
-        Log.d("TCP", "Sending '" + command + '\'');
 
         if (mOut == null) {
-            final Boolean connected = connect();
-            Toast.makeText(mMainActivity,
-                    "Connection to " + mHostAddr + ':' + mHostPort + (connected ? " established." : " error."),
-                    Toast.LENGTH_SHORT).show();
-            if (!connected)
-                return;
+            connectAsync();
+            // Data loss here! Nevermind ...
+            return;
         }
+
+        Log.d("TCP", "Sending '" + command + '\'');
 
         new AsyncTask<Void, Void, Void>() {
             @Override
