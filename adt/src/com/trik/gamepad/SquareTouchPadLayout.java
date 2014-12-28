@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 
 public class SquareTouchPadLayout extends RelativeLayout {
     final class TouchPadListener implements OnTouchListener {
+
         @Override
         public boolean onTouch(final View v, final MotionEvent event) {
             if (v != SquareTouchPadLayout.this)
@@ -20,8 +21,10 @@ public class SquareTouchPadLayout extends RelativeLayout {
             switch (event.getAction()) {
             default:
                 Log.e("TouchEvent", "Unknown:" + event.toString());
+
                 return true;
             case MotionEvent.ACTION_UP:
+                v.performClick();
             case MotionEvent.ACTION_CANCEL:
                 getSender().send(getPadName() + " up");
                 return true;

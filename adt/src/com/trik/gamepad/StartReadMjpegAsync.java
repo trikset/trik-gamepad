@@ -11,6 +11,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.demo.mjpeg.MjpegInputStream;
 import com.demo.mjpeg.MjpegView;
@@ -34,9 +35,10 @@ public class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
                 mv.setSource(stream);
                 return null;
             } catch (ClientProtocolException e) {
-                e.printStackTrace();
+                Log.e(this.getClass().getSimpleName(), Log.getStackTraceString(e));
+
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(this.getClass().getSimpleName(), Log.getStackTraceString(e));
             }
         }
         mv.setSource(null);

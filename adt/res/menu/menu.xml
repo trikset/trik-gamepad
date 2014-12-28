@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/wheel" android:title="@string/menu_wheel" android:icon="@android:drawable/ic_menu_rotate" android:checked="false" android:showAsAction="always|withText"/>s
+    <item android:id="@+id/wheel" android:title="@string/menu_wheel" android:icon="@android:drawable/ic_menu_rotate" android:checked="false" />
     <item android:id="@+id/settings" android:title="@string/menu_settings" android:titleCondensed="@string/menu_settings_condensed" android:icon="@android:drawable/ic_menu_preferences" />    
 </menu>
