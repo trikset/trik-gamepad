@@ -75,8 +75,17 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setSystemUiVisibility();
-        getSupportActionBar().hide();
+
+        setSystemUiVisibility(false);
+        {
+            android.support.v7.app.ActionBar a = getSupportActionBar();
+            a.setDisplayShowHomeEnabled(true);
+            a.setLogo(R.drawable.trik_icon);
+            a.setDisplayUseLogoEnabled(true);
+            a.setDefaultDisplayHomeAsUpEnabled(true);
+            a.setDisplayShowTitleEnabled(true);
+            a.setHomeActionContentDescription("Preferences");
+        }
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSender = new SenderService(this);
 
@@ -115,11 +124,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
                 @Override
                 public void onClick(final View v) {
-                    getSupportActionBar().show();
-                    final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
-                    startActivity(settings);
+                    android.support.v7.app.ActionBar a = getSupportActionBar();
+                    setSystemUiVisibility(!a.isShowing());
                 }
             });
+
         }
 
         {
@@ -321,7 +330,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     @SuppressLint("NewApi")
-    void setSystemUiVisibility() {
+    void setSystemUiVisibility(boolean on) {
         int flags = 0;
         final int sdk = Build.VERSION.SDK_INT;
         if (sdk >= 19) {
@@ -329,16 +338,34 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
         if (sdk >= 16) {
-            flags |= View.SYSTEM_UI_FLAG_FULLSCREEN;
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-            flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            flags |= on ? 0 : View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
+        } else {
+            if (on) {
+                getSupportActionBar().show();
+            } else {
+                getSupportActionBar().hide();
+            }
         }
+
         if (sdk >= 14) {
-            flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            flags |= on ? 0 : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
             findViewById(R.id.main).setSystemUiVisibility(flags);
         }
+
+        if (on) {
+            findViewById(R.id.main).postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    setSystemUiVisibility(false);
+
+                }
+            }, 2000);
+        }
+
     }
 
     void toast(final String text) {
