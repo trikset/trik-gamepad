@@ -27,14 +27,13 @@ public class SquareTouchPadLayout extends RelativeLayout {
                 return true;
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
-                aX = Math.max(0, Math.min(event.getX(), mMaxX));
-                aY = Math.max(0, Math.min(event.getY(), mMaxY));
+                setAbsXY(Math.max(0, Math.min(event.getX(), mMaxX)), Math.max(0, Math.min(event.getY(), mMaxY)));
 
                 final int SENSITIVITY = 3;
 
                 final double SCALE = 1.15;
-                final int rX = (int) (200 * SCALE * (aX / mMaxX - 0.5));
-                final int rY = -(int) (200 * SCALE * (aY / mMaxY - 0.5));
+                final int rX = (int) (200 * SCALE * (getAbsX() / mMaxX - 0.5));
+                final int rY = -(int) (200 * SCALE * (getAbsY() / mMaxY - 0.5));
                 final int curY = Math.max(-100, Math.min(rY, 100));
                 final int curX = Math.max(-100, Math.min(rX, 100));
 
@@ -49,9 +48,9 @@ public class SquareTouchPadLayout extends RelativeLayout {
         }
     }
 
-    public float          aY;
+    private float         mAbsY;
 
-    public float          aX;
+    private float         mAbsX;
 
     private String        mPadName;
 
@@ -84,13 +83,21 @@ public class SquareTouchPadLayout extends RelativeLayout {
         init();
     }
 
+    private float getAbsX() {
+        return mAbsX;
+    }
+
+    private float getAbsY() {
+        return mAbsY;
+    };
+
     String getPadName() {
         return mPadName;
     };
 
     SenderService getSender() {
         return mSender;
-    };
+    }
 
     private final void init() {
         paint.setColor(Color.RED);
@@ -107,8 +114,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawCircle(aX, aY, mMaxX / 20, paint);
-        invalidate();
+        canvas.drawCircle(getAbsX(), getAbsY(), mMaxX / 20, paint);
     }
 
     @Override
@@ -127,10 +133,15 @@ public class SquareTouchPadLayout extends RelativeLayout {
         mMaxX = w;
         mMaxY = h;
         if (oldw == 0 && oldh == 0) {
-            aX = w / 2;
-            aY = h / 2;
+            setAbsXY(w / 2, h / 2);
         }
 
+    }
+
+    void setAbsXY(float x, float y) {
+        mAbsX = x;
+        mAbsY = y;
+        invalidate();
     }
 
     void setPadName(String padName) {
