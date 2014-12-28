@@ -3,6 +3,7 @@ package com.trik.gamepad;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -10,11 +11,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,9 +73,9 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setSystemUiVisibility();
         getSupportActionBar().hide();
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSender = new SenderService(this);
@@ -236,7 +239,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             return super.onOptionsItemSelected(item);
         }
 
-    };
+    }
 
     @Override
     protected void onPause() {
@@ -244,7 +247,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mSender.disconnect("Inactive gamepad");
         mVideo.stopPlayback();
         super.onPause();
-    }
+    };
 
     @Override
     protected void onResume() {
@@ -264,7 +267,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         } else {
             Log.i("Sensor", "" + event.sensor.getType());
         }
-    };
+    }
 
     private void processSensor(final float[] values) {
         final double WHEEL_BOOSTER_MULTIPLIER = 1.5;
@@ -289,13 +292,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mAngle = angle;
 
         mSender.send("wheel " + mAngle);
-    }
+    };
 
     private void recreateMagicButtons(final int count) {
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
         buttonsView.removeAllViews();
         for (int num = 1; num <= count; ++num) {
             final Button btn = new Button(MainActivity.this);
+            btn.setHapticFeedbackEnabled(true);
             btn.setGravity(Gravity.CENTER);
             btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             final String name = "" + num + "";
@@ -306,11 +310,34 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View arg0) {
-                    mSender.send("btn " + name + " down"); // TBD: "up" via
+                    mSender.send("btn " + name + " down"); // TODO: "up" via
                                                            // TouchListner
+                    btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 }
             });
             buttonsView.addView(btn);
+        }
+    }
+
+    @SuppressLint("NewApi")
+    void setSystemUiVisibility() {
+        int flags = 0;
+        final int sdk = Build.VERSION.SDK_INT;
+        if (sdk >= 19) {
+            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
+            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+        if (sdk >= 16) {
+            flags |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+            flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+            flags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        }
+        if (sdk >= 14) {
+            flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
+            findViewById(R.id.main).setSystemUiVisibility(flags);
         }
     }
 

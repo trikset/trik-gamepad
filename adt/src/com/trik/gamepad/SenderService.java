@@ -4,9 +4,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,7 +16,6 @@ public class SenderService {
     private PrintWriter                        mOut;
 
     private OnEventListener<String>            mOnDisconnectedListener;
-    private final Vibrator                     mVibrator;
 
     private String                             mHostAddr;
 
@@ -26,15 +23,12 @@ public class SenderService {
 
     private final MainActivity                 mMainActivity;
 
-    private long                               mLastConnectionAttemptTimestamp;
+    // private long mLastConnectionAttemptTimestamp;
 
     private AsyncTask<Void, Void, PrintWriter> mConnectTask;
-    final static long[]                        SOS = new long[] { 0, 50, 50, 50, 50, 50, 100, 200, 50, 200, 50, 200,
-            100, 50, 50, 50, 50, 50               };
 
     public SenderService(final MainActivity mainActivity) {
         mMainActivity = mainActivity;
-        mVibrator = (Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     public void connectAsync() {
@@ -59,14 +53,17 @@ public class SenderService {
         }
     }
 
+    // socket is closed from PrintWriter.close()
+    @SuppressWarnings("resource")
     private PrintWriter connectToTRIK() {
-        final long currentTime = System.currentTimeMillis();
-        final long elapsed = currentTime - mLastConnectionAttemptTimestamp;
+        /*
+         * final long currentTime = System.currentTimeMillis(); final long
+         * elapsed = currentTime - mLastConnectionAttemptTimestamp; final int
+         * DELAY = 5000;
+         * 
+         * if (elapsed < TIMEOUT + DELAY) return null;
+         */
         final int TIMEOUT = 5000;
-        final int DELAY = 5000;
-
-        if (elapsed < TIMEOUT + DELAY)
-            return null;
         try {
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket();
@@ -83,7 +80,7 @@ public class SenderService {
             // socket.setPerformancePreferences(connectionTime, latency,
             // bandwidth);
             try {
-                return new PrintWriter(socket.getOutputStream(), true);
+                return new PrintWriter(socket.getOutputStream(), /* autoflush */true);
             } catch (final Exception e) {
                 Log.e("TCP", "GetStream: Error", e);
                 socket.close();
@@ -92,7 +89,7 @@ public class SenderService {
         } catch (final Exception e) {
             Log.e("TCP", "Connect: Error", e);
         }
-        mLastConnectionAttemptTimestamp = currentTime;
+        // mLastConnectionAttemptTimestamp = currentTime;
         return null;
     }
 
@@ -123,6 +120,8 @@ public class SenderService {
             @Override
             protected Void doInBackground(final Void... params) {
                 synchronized (mOut) {
+                    // TODO: reimplement with Handle instead of multiple chaotic
+                    // AyncTasks
                     mOut.println(command);
                 }
                 return null;
@@ -133,9 +132,6 @@ public class SenderService {
                 if (mOut == null || mOut.checkError()) {
                     Log.e("TCP", "NotSent: " + command);
                     disconnect("Send failed.");
-                    mVibrator.vibrate(SOS, -1);
-                } else {
-                    mVibrator.vibrate(20);
                 }
             };
 

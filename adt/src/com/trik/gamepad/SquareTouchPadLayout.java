@@ -1,16 +1,20 @@
 package com.trik.gamepad;
 
+import java.util.Locale;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 public class SquareTouchPadLayout extends RelativeLayout {
+
     final class TouchPadListener implements OnTouchListener {
 
         @Override
@@ -24,11 +28,12 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
                 return true;
             case MotionEvent.ACTION_UP:
-                v.performClick();
             case MotionEvent.ACTION_CANCEL:
-                getSender().send(getPadName() + " up");
+                send("up");
+                v.performClick();
                 return true;
             case MotionEvent.ACTION_DOWN:
+                v.performClick();
             case MotionEvent.ACTION_MOVE:
                 setAbsXY(Math.max(0, Math.min(event.getX(), mMaxX)), Math.max(0, Math.min(event.getY(), mMaxY)));
 
@@ -43,7 +48,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
                 if (Math.abs(curX - mPrevX) > SENSITIVITY || Math.abs(curY - mPrevY) > SENSITIVITY) {
                     mPrevX = curX;
                     mPrevY = curY;
-                    getSender().send(getPadName() + ' ' + curX + ' ' + curY);
+                    send(String.format(Locale.US, "%d %d", curX, curY));
                 }
 
                 return true;
@@ -98,17 +103,23 @@ public class SquareTouchPadLayout extends RelativeLayout {
         return mPadName;
     };
 
-    SenderService getSender() {
-        return mSender;
-    }
-
     private final void init() {
         paint.setColor(Color.RED);
         paint.setStrokeWidth(0);
         paint.setStyle(Paint.Style.STROKE);
         paint.setAlpha(255);
         setOnTouchListener(new TouchPadListener());
+        setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                        HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+
+            }
+        });
         setWillNotDraw(false);
+        setHapticFeedbackEnabled(true);
         setBackgroundDrawable(getResources().getDrawable(R.drawable.oxygen_actions_transform_move_icon));
 
     }
@@ -138,7 +149,16 @@ public class SquareTouchPadLayout extends RelativeLayout {
         if (oldw == 0 && oldh == 0) {
             setAbsXY(w / 2, h / 2);
         }
+    }
 
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
+
+    void send(String command) {
+        mSender.send(getPadName() + ' ' + command);
+        performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
     }
 
     void setAbsXY(float x, float y) {
