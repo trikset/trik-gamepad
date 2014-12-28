@@ -3,7 +3,6 @@ package com.trik.gamepad;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -13,21 +12,23 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.demo.mjpeg.MjpegView;
 import com.trik.gamepad.SenderService.OnEventListener;
 
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends ActionBarActivity implements SensorEventListener {
 
     static final String                                TAG        = "MainActivity";
 
@@ -62,20 +63,21 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onAccuracyChanged(final Sensor arg0, final int arg1) {
         // TODO Auto-generated method stub
 
-    }
+    };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getSupportActionBar().hide();
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSender = new SenderService(this);
 
         {
-            // requestWindowFeature(Window.FEATURE_NO_TITLE);
-            // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            // WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mVideo = (MjpegView) findViewById(R.id.video);
             mVideo.setOverlayPosition(MjpegView.POSITION_UPPER_RIGHT);
             mVideo.showFps(true);
@@ -94,21 +96,23 @@ public class MainActivity extends Activity implements SensorEventListener {
             });
         }
 
-        {
-            final ToggleButton tglWheel = (ToggleButton) findViewById(R.id.tglWheel);
-            tglWheel.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-                    mWheelEnabled = isChecked;
-                }
-            });
-        }
+        /*
+         * { final ToggleButton tglWheel = (ToggleButton)
+         * findViewById(R.id.tglWheel); tglWheel.setOnCheckedChangeListener(new
+         * CompoundButton.OnCheckedChangeListener() {
+         * 
+         * @Override public void onCheckedChanged(final CompoundButton
+         * buttonView, final boolean isChecked) { mWheelEnabled = isChecked; }
+         * }); }
+         */
 
         {
             final Button btnSettings = (Button) findViewById(R.id.btnSettings);
             btnSettings.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(final View v) {
+                    getSupportActionBar().show();
                     final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
                     startActivity(settings);
                 }
@@ -148,7 +152,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
                                 .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
-                                .apply();
+                                .commit();
                     }
 
                     {
@@ -209,6 +213,30 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.settings:
+            final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
+        case R.id.wheel:
+            mWheelEnabled = !mWheelEnabled;
+            item.setChecked(mWheelEnabled);
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+
+    };
 
     @Override
     protected void onPause() {
@@ -272,7 +300,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             final String name = "" + num + "";
             btn.setText(name);
-            btn.setPadding(10, 10, 10, 10);
+            // btn.setPadding(10, 10, 10, 10);
             btn.setBackgroundResource(R.drawable.button_shape);
 
             btn.setOnClickListener(new View.OnClickListener() {
