@@ -14,6 +14,8 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,6 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.demo.mjpeg.MjpegView;
@@ -78,14 +81,17 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         setSystemUiVisibility(false);
         {
-            android.support.v7.app.ActionBar a = getSupportActionBar();
+            ActionBar a = getSupportActionBar();
+
             a.setDisplayShowHomeEnabled(true);
-            a.setLogo(R.drawable.trik_icon);
             a.setDisplayUseLogoEnabled(true);
-            a.setDefaultDisplayHomeAsUpEnabled(true);
+            a.setLogo(R.drawable.trik_icon);
+
             a.setDisplayShowTitleEnabled(true);
-            a.setHomeActionContentDescription("Preferences");
+            a.setTitle("Preferences");
+
         }
+
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSender = new SenderService(this);
 
@@ -224,12 +230,17 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
 
-    }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+
+        // TODO: remove this hack
+        final CheckBox w = (CheckBox) MenuItemCompat.getActionView(menu.findItem(R.id.wheel));
+        w.setText("WHEEL");
+
         return true;
     }
 
@@ -256,7 +267,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mSender.disconnect("Inactive gamepad");
         mVideo.stopPlayback();
         super.onPause();
-    };
+    }
 
     @Override
     protected void onResume() {
@@ -311,9 +322,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             btn.setHapticFeedbackEnabled(true);
             btn.setGravity(Gravity.CENTER);
             btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            final String name = "" + num + "";
+            final String name = "" + num;
             btn.setText(name);
-            // btn.setPadding(10, 10, 10, 10);
             btn.setBackgroundResource(R.drawable.button_shape);
 
             btn.setOnClickListener(new View.OnClickListener() {
@@ -349,14 +359,15 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             }
         }
 
+        final View mainView = findViewById(R.id.main);
         if (sdk >= 14) {
             flags |= on ? 0 : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
-            findViewById(R.id.main).setSystemUiVisibility(flags);
+            mainView.setSystemUiVisibility(flags);
         }
 
         if (on) {
-            findViewById(R.id.main).postDelayed(new Runnable() {
+            mainView.postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
