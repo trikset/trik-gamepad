@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -318,23 +319,41 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
         buttonsView.removeAllViews();
         for (int num = 1; num <= count; ++num) {
-            final Button btn = new Button(MainActivity.this);
-            btn.setHapticFeedbackEnabled(true);
-            btn.setGravity(Gravity.CENTER);
-            btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             final String name = "" + num;
-            btn.setText(name);
-            btn.setBackgroundResource(R.drawable.button_shape);
+            final Button btn = new Button(MainActivity.this) {
+                private long mWhenDown = 0;
+                {
+                    setHapticFeedbackEnabled(true);
+                    setGravity(Gravity.CENTER);
+                    setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View arg0) {
-                    mSender.send("btn " + name + " down"); // TODO: "up" via
-                                                           // TouchListner
-                    btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-                            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+                    setText(name);
+                    setBackgroundResource(R.drawable.button_shape);
+                    setOnTouchListener(new View.OnTouchListener() {
+
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                mWhenDown = System.currentTimeMillis();
+                                mSender.send("btn " + name + " down");
+                            }
+                            return false; // proceed with default codepath
+                        }
+                    });
+                    setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View arg0) {
+                            long delay = System.currentTimeMillis() - mWhenDown;
+                            mSender.send("btn " + name + " up " + delay);
+
+                            performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+
+                        }
+                    });
                 }
-            });
+            };
+
             buttonsView.addView(btn);
         }
     }
