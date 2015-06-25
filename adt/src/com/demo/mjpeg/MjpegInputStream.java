@@ -1,16 +1,16 @@
 // http://stackoverflow.com/questions/10550139/android-ics-and-mjpeg-using-asynctask
 package com.demo.mjpeg;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
 public class MjpegInputStream extends DataInputStream {
     private static final String TAG               = "MjpegInputStream";

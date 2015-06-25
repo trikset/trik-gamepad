@@ -2,21 +2,21 @@
 
 package com.trik.gamepad;
 
-import java.io.IOException;
-import java.net.URI;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.demo.mjpeg.MjpegInputStream;
 import com.demo.mjpeg.MjpegView;
 
-public class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
+import java.net.URI;
+
+class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
     private final MjpegView mv;
 
     StartReadMjpegAsync(MjpegView mv) {
@@ -25,7 +25,7 @@ public class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
 
     @Override
     protected Void doInBackground(URI... uris) {
-        HttpResponse res = null;
+        HttpResponse res;
         URI uri = uris[0];
         if (uri != null) {
             try {
@@ -49,4 +49,4 @@ public class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
     protected void onPostExecute(Void result) {
         mv.startPlayback();
     }
-};
+}

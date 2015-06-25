@@ -1,8 +1,5 @@
 package com.trik.gamepad;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,23 +31,26 @@ import android.widget.Toast;
 import com.demo.mjpeg.MjpegView;
 import com.trik.gamepad.SenderService.OnEventListener;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
 
     static final String                                TAG        = "MainActivity";
 
-    SensorManager                                      mSensorManager;
-    int                                                mAngle;                     // -100%
+    private SensorManager                                      mSensorManager;
+    private int                                                mAngle;                     // -100%
     // ...
     // +100%
-    boolean                                            mWheelEnabled;
-    SenderService                                      mSender;
-    SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
+    private boolean                                            mWheelEnabled;
+    private SenderService                                      mSender;
+    private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
-    int                                                mWheelStep = 7;
+    private int                                                mWheelStep = 7;
 
-    MjpegView                                          mVideo;
+    private MjpegView                                          mVideo;
 
-    URI                                                mVideoURI;
+    private URI                                                mVideoURI;
 
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
@@ -63,18 +63,18 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         // } else {
         // pad.setBackgroundDrawable(image);
         // }
-    };
+    }
 
     @Override
     public void onAccuracyChanged(final Sensor arg0, final int arg1) {
         // TODO Auto-generated method stub
 
-    };
+    }
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -130,7 +130,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
                 @Override
                 public void onClick(final View v) {
-                    android.support.v7.app.ActionBar a = getSupportActionBar();
+                    ActionBar a = getSupportActionBar();
                     setSystemUiVisibility(!a.isShowing());
                 }
             });
@@ -166,7 +166,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                     final String oldAddr = mSender.getHostAddr();
                     mSender.setTarget(addr, portNumber);
 
-                    if (!addr.equalsIgnoreCase(oldAddr)) {
+                    if (addr != null && !addr.equalsIgnoreCase(oldAddr)) {
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
                                 .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                             padsAlpha = Integer.parseInt(sharedPreferences.getString(SettingsActivity.SK_SHOW_PADS,
                                     String.valueOf(defAlpha)));
                         } catch (NumberFormatException nfe) {
-                            padsAlpha = defAlpha;
+                            // unchanged
                         }
 
                         final float alpha = Math.max(0, Math.min(255, padsAlpha)) / 255.0f;
@@ -230,7 +230,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
 
-    };
+    }
 
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
@@ -312,7 +312,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mAngle = angle;
 
         mSender.send("wheel " + mAngle);
-    };
+    }
 
     private void recreateMagicButtons(final int count) {
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
@@ -340,7 +340,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     @SuppressLint("NewApi")
-    void setSystemUiVisibility(boolean on) {
+    private void setSystemUiVisibility(boolean on) {
         int flags = 0;
         final int sdk = Build.VERSION.SDK_INT;
         if (sdk >= 19) {
@@ -379,7 +379,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     }
 
-    void toast(final String text) {
+    private void toast(final String text) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

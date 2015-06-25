@@ -1,7 +1,5 @@
 package com.trik.gamepad;
 
-import java.util.Locale;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,6 +10,8 @@ import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+
+import java.util.Locale;
 
 public class SquareTouchPadLayout extends RelativeLayout {
 
@@ -70,7 +70,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
     final static int      sDefaultSize = 100;
 
-    Paint                 paint        = new Paint();
+    final Paint                 paint        = new Paint();
 
     private float         mMaxX;
 
@@ -97,13 +97,13 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
     private float getAbsY() {
         return mAbsY;
-    };
+    }
 
     String getPadName() {
         return mPadName;
-    };
+    }
 
-    private final void init() {
+    private void init() {
         paint.setColor(Color.RED);
         paint.setStrokeWidth(0);
         paint.setStyle(Paint.Style.STROKE);

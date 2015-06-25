@@ -1,8 +1,6 @@
 // http://stackoverflow.com/questions/10550139/android-ics-and-mjpeg-using-asynctask
 package com.demo.mjpeg;
 
-import java.io.IOException;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +14,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.io.IOException;
 
 public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
     public class MjpegViewThread {
@@ -81,6 +81,11 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                                         }
 
                                         destRect = destRect(bm.getWidth(), bm.getHeight());
+
+                                        if (destRect == null) {
+                                            continue;
+                                        }
+
                                         c.drawColor(Color.BLACK);
                                         c.drawBitmap(bm, null, destRect, p);
                                         if (showFps) {

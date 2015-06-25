@@ -1,14 +1,14 @@
 package com.trik.gamepad;
 
-import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-public class SenderService {
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+class SenderService {
     interface OnEventListener<ArgType> {
         void onEvent(ArgType arg);
     }
@@ -31,7 +31,7 @@ public class SenderService {
         mMainActivity = mainActivity;
     }
 
-    public void connectAsync() {
+    private void connectAsync() {
         if (mConnectTask == null) {
             mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
                 @Override
@@ -47,7 +47,7 @@ public class SenderService {
                             mMainActivity,
                             "Connection to " + mHostAddr + ':' + mHostPort
                                     + (mOut != null ? " established." : " error."), Toast.LENGTH_SHORT).show();
-                };
+                }
             };
             mConnectTask.execute();
         }
@@ -133,7 +133,7 @@ public class SenderService {
                     Log.e("TCP", "NotSent: " + command);
                     disconnect("Send failed.");
                 }
-            };
+            }
 
         }.execute();
     }
