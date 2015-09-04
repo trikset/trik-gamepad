@@ -23,3 +23,10 @@ proguard/
 # Xamarin related
 *.designer.fs
 *.userprefs
+
+# Android Studio
+as/.gradle
+as/local.properties
+as/.idea/*
+as/app/build/
+as/build
