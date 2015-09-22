@@ -9,10 +9,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 class SenderService {
-    interface OnEventListener<ArgType> {
-        void onEvent(ArgType arg);
-    }
-
+    private final Object mSyncFlag = new Object();
+    private final MainActivity mMainActivity;
     private PrintWriter                        mOut;
 
     private OnEventListener<String>            mOnDisconnectedListener;
@@ -20,12 +18,9 @@ class SenderService {
     private String                             mHostAddr;
 
     private int                                mHostPort;
-
-    private final MainActivity                 mMainActivity;
+    private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
     // private long mLastConnectionAttemptTimestamp;
-
-    private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
     public SenderService(final MainActivity mainActivity) {
         mMainActivity = mainActivity;
@@ -60,7 +55,7 @@ class SenderService {
          * final long currentTime = System.currentTimeMillis(); final long
          * elapsed = currentTime - mLastConnectionAttemptTimestamp; final int
          * DELAY = 5000;
-         * 
+         *
          * if (elapsed < TIMEOUT + DELAY) return null;
          */
         final int TIMEOUT = 5000;
@@ -84,7 +79,6 @@ class SenderService {
             } catch (final Exception e) {
                 Log.e("TCP", "GetStream: Error", e);
                 socket.close();
-                socket = null;
             }
         } catch (final Exception e) {
             Log.e("TCP", "Connect: Error", e);
@@ -119,7 +113,7 @@ class SenderService {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(final Void... params) {
-                synchronized (mOut) {
+                synchronized (mSyncFlag) {
                     // TODO: reimplement with Handle instead of multiple chaotic
                     // AyncTasks
                     mOut.println(command);
@@ -149,5 +143,9 @@ class SenderService {
 
         mHostAddr = hostAddr;
         mHostPort = hostPort;
+    }
+
+    interface OnEventListener<ArgType> {
+        void onEvent(ArgType arg);
     }
 }

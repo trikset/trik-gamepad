@@ -14,13 +14,11 @@ import java.util.Properties;
 
 public class MjpegInputStream extends DataInputStream {
     private static final String TAG               = "MjpegInputStream";
-
+    private final static String CONTENT_LENGTH = "Content-Length";
+    private final static int HEADER_MAX_LENGTH = 100;
+    private final static int FRAME_MAX_LENGTH = 40000 + HEADER_MAX_LENGTH;
     private final byte[]        SOI_MARKER        = { (byte) 0xFF, (byte) 0xD8 };
     private final byte[]        EOF_MARKER        = { (byte) 0xFF, (byte) 0xD9 };
-    private final static String CONTENT_LENGTH    = "Content-Length";
-    private final static int    HEADER_MAX_LENGTH = 100;
-    private final static int    FRAME_MAX_LENGTH  = 40000 + HEADER_MAX_LENGTH;
-    private int                 mContentLength    = -1;
 
     public MjpegInputStream(InputStream in) {
         super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
@@ -62,15 +60,16 @@ public class MjpegInputStream extends DataInputStream {
         reset();
         byte[] header = new byte[headerLen];
         readFully(header);
+        int length;
         try {
-            mContentLength = parseContentLength(header);
+            length = parseContentLength(header);
         } catch (NumberFormatException nfe) {
             nfe.getStackTrace();
             Log.d(TAG, "catch NumberFormatException hit", nfe);
-            mContentLength = getEndOfSeqeunce(this, EOF_MARKER);
+            length = getEndOfSeqeunce(this, EOF_MARKER);
         }
         reset();
-        byte[] frameData = new byte[mContentLength];
+        byte[] frameData = new byte[length];
         skipBytes(headerLen);
         readFully(frameData);
         return BitmapFactory.decodeStream(new ByteArrayInputStream(frameData));

@@ -15,65 +15,15 @@ import java.util.Locale;
 
 public class SquareTouchPadLayout extends RelativeLayout {
 
-    final class TouchPadListener implements OnTouchListener {
-
-        @Override
-        public boolean onTouch(final View v, final MotionEvent event) {
-            if (v != SquareTouchPadLayout.this)
-                return false;
-
-            switch (event.getAction()) {
-            default:
-                Log.e("TouchEvent", "Unknown:" + event.toString());
-
-                return true;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                send("up");
-                v.performClick();
-                return true;
-            case MotionEvent.ACTION_DOWN:
-                v.performClick();
-            case MotionEvent.ACTION_MOVE:
-                setAbsXY(Math.max(0, Math.min(event.getX(), mMaxX)), Math.max(0, Math.min(event.getY(), mMaxY)));
-
-                final int SENSITIVITY = 3;
-
-                final double SCALE = 1.15;
-                final int rX = (int) (200 * SCALE * (getAbsX() / mMaxX - 0.5));
-                final int rY = -(int) (200 * SCALE * (getAbsY() / mMaxY - 0.5));
-                final int curY = Math.max(-100, Math.min(rY, 100));
-                final int curX = Math.max(-100, Math.min(rX, 100));
-
-                if (Math.abs(curX - mPrevX) > SENSITIVITY || Math.abs(curY - mPrevY) > SENSITIVITY) {
-                    mPrevX = curX;
-                    mPrevY = curY;
-                    send(String.format(Locale.US, "%d %d", curX, curY));
-                }
-
-                return true;
-            }
-        }
-    }
-
+    final static private int sDefaultSize = 100;
+    final private Paint paint = new Paint();
     private float         mAbsY;
-
     private float         mAbsX;
-
     private String        mPadName;
-
     private SenderService mSender;
-
-    int                   mPrevY;
-
-    int                   mPrevX;
-
-    final static int      sDefaultSize = 100;
-
-    final Paint                 paint        = new Paint();
-
+    private int mPrevY;
+    private int mPrevX;
     private float         mMaxX;
-
     private float         mMaxY;
 
     public SquareTouchPadLayout(final Context context) {
@@ -101,6 +51,10 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
     String getPadName() {
         return mPadName;
+    }
+
+    void setPadName(String padName) {
+        mPadName = padName;
     }
 
     private void init() {
@@ -167,11 +121,48 @@ public class SquareTouchPadLayout extends RelativeLayout {
         invalidate();
     }
 
-    void setPadName(String padName) {
-        mPadName = padName;
-    }
-
     void setSender(SenderService sender) {
         mSender = sender;
+    }
+
+    final class TouchPadListener implements OnTouchListener {
+
+        @Override
+        public boolean onTouch(final View v, final MotionEvent event) {
+            if (v != SquareTouchPadLayout.this)
+                return false;
+
+            switch (event.getAction()) {
+                default:
+                    Log.e("TouchEvent", "Unknown:" + event.toString());
+
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    send("up");
+                    v.performClick();
+                    return true;
+                case MotionEvent.ACTION_DOWN:
+                    v.performClick();
+                case MotionEvent.ACTION_MOVE:
+                    setAbsXY(Math.max(0, Math.min(event.getX(), mMaxX)), Math.max(0, Math.min(event.getY(), mMaxY)));
+
+                    final int SENSITIVITY = 3;
+
+                    final double SCALE = 1.15;
+                    final int rX = (int) (200 * SCALE * (getAbsX() / mMaxX - 0.5));
+                    final int rY = -(int) (200 * SCALE * (getAbsY() / mMaxY - 0.5));
+                    final int curY = Math.max(-100, Math.min(rY, 100));
+                    final int curX = Math.max(-100, Math.min(rX, 100));
+
+                    if (Math.abs(curX - mPrevX) > SENSITIVITY || Math.abs(curY - mPrevY) > SENSITIVITY) {
+                        mPrevX = curX;
+                        mPrevY = curY;
+                        send(String.format(Locale.US, "%d %d", curX, curY));
+                    }
+
+                    return true;
+            }
+        }
     }
 }

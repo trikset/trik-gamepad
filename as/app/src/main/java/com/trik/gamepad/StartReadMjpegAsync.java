@@ -9,14 +9,13 @@ import com.demo.mjpeg.MjpegInputStream;
 import com.demo.mjpeg.MjpegView;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 import java.net.URI;
 
-class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
+class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
     private final MjpegView mv;
 
     StartReadMjpegAsync(MjpegView mv) {
@@ -24,29 +23,25 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(URI... uris) {
+    protected MjpegInputStream doInBackground(URI... uris) {
         HttpResponse res;
         URI uri = uris[0];
         if (uri != null) {
             try {
                 DefaultHttpClient httpclient = new DefaultHttpClient();
                 res = httpclient.execute(new HttpGet(uri));
-                MjpegInputStream stream = new MjpegInputStream(res.getEntity().getContent());
-                mv.setSource(stream);
-                return null;
-            } catch (ClientProtocolException e) {
-                Log.e(this.getClass().getSimpleName(), Log.getStackTraceString(e));
-
+                return new MjpegInputStream(res.getEntity().getContent());
             } catch (IOException e) {
                 Log.e(this.getClass().getSimpleName(), Log.getStackTraceString(e));
+
             }
         }
-        mv.setSource(null);
         return null;
     }
 
     @Override
-    protected void onPostExecute(Void result) {
+    protected void onPostExecute(MjpegInputStream result) {
+        mv.setSource(result);
         mv.startPlayback();
     }
 }

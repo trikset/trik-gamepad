@@ -13,7 +13,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
@@ -34,7 +34,7 @@ import com.trik.gamepad.SenderService.OnEventListener;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class MainActivity extends ActionBarActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     static final String                                TAG        = "MainActivity";
 
@@ -44,7 +44,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     // +100%
     private boolean                                            mWheelEnabled;
     private SenderService                                      mSender;
-    private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
     private int                                                mWheelStep = 7;
 
@@ -82,14 +81,15 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         setSystemUiVisibility(false);
         {
             ActionBar a = getSupportActionBar();
+            if (a != null) {
 
-            a.setDisplayShowHomeEnabled(true);
-            a.setDisplayUseLogoEnabled(true);
-            a.setLogo(R.drawable.trik_icon);
+                a.setDisplayShowHomeEnabled(true);
+                a.setDisplayUseLogoEnabled(true);
+                a.setLogo(R.drawable.trik_icon);
 
-            a.setDisplayShowTitleEnabled(true);
-            a.setTitle("Preferences");
-
+                a.setDisplayShowTitleEnabled(true);
+                a.setTitle("Preferences");
+            }
         }
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -150,12 +150,13 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         {
 
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            mSharedPreferencesListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener
+                    = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 float mPrevAlpha;
 
                 @Override
                 public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
-                    final String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.1.1");
+                    final String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.77.1");
                     int portNumber = 4444;
                     final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
                     try {
@@ -166,7 +167,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                     final String oldAddr = mSender.getHostAddr();
                     mSender.setTarget(addr, portNumber);
 
-                    if (addr != null && !addr.equalsIgnoreCase(oldAddr)) {
+                    if (!addr.equalsIgnoreCase(oldAddr)) {
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
                                 .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
@@ -207,7 +208,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                         // http://developer.android.com/guide/appendix/media-formats.html
 
                         try {
-                            mVideoURI = videoStreamURI == null || "".equals(videoStreamURI) ? null : new URI(
+                            mVideoURI = "".equals(videoStreamURI) ? null : new URI(
                                     videoStreamURI);
                         } catch (URISyntaxException e) {
                             toast("Illegal video stream URI\n" + e.getReason());
@@ -343,11 +344,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private void setSystemUiVisibility(boolean on) {
         int flags = 0;
         final int sdk = Build.VERSION.SDK_INT;
-        if (sdk >= 19) {
+        if (sdk >= Build.VERSION_CODES.KITKAT) {
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
-        if (sdk >= 16) {
+        if (sdk >= Build.VERSION_CODES.JELLY_BEAN) {
             flags |= on ? 0 : View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 
@@ -360,7 +361,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         }
 
         final View mainView = findViewById(R.id.main);
-        if (sdk >= 14) {
+        if (sdk >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             flags |= on ? 0 : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
             mainView.setSystemUiVisibility(flags);
