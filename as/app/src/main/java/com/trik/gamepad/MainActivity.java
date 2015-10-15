@@ -36,20 +36,16 @@ import java.net.URISyntaxException;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     static final String                                TAG        = "MainActivity";
-
+    private final HideRunnable mHideRunnable = new HideRunnable();
     private SensorManager                                      mSensorManager;
     private int                                                mAngle;                     // -100%
     // ...
     // +100%
     private boolean                                            mWheelEnabled;
     private SenderService                                      mSender;
-
     private int                                                mWheelStep = 7;
-
     private MjpegView                                          mVideo;
-
     private URI                                                mVideoURI;
-    private HideRunnable mHideRunnable = new HideRunnable();
 
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
