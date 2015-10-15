@@ -1,6 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <EditTextPreference
-        android:defaultValue="192.168.1.1"
+        android:defaultValue="192.168.77.1"
         android:inputType="textUri"
         android:key="hostAddress"
         android:maxLines="1"
@@ -24,21 +24,21 @@
 	    alphaSlider="false"
 	/> -->
     <EditTextPreference
-        android:key="showPads"
-        android:title="Arrows transparancy"
         android:defaultValue="100"
         android:hint="0..255"
         android:inputType="number"
+        android:key="showPads"
         android:numeric="integer"
-        android:summary="0 for fully transparent, and 255 is opaque."/>
+        android:summary="0 for fully transparent, and 255 is opaque."
+        android:title="Arrows transparancy" />
     
     <EditTextPreference 
-        android:key="wheelSens"
-        android:title="Wheel sensitivity"
         android:defaultValue="7"
         android:hint="1..100"
         android:inputType="number"
-        android:summary="5..10 as usual, 1 for very sensitive"/>
+        android:key="wheelSens"
+        android:summary="5..10 as usual, 1 for very sensitive"
+        android:title="Wheel sensitivity" />
 
     <EditTextPreference
         android:inputType="textUri"

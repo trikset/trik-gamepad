@@ -21,7 +21,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
@@ -50,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private MjpegView                                          mVideo;
 
     private URI                                                mVideoURI;
+    private HideRunnable mHideRunnable = new HideRunnable();
 
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        //supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -84,11 +84,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (a != null) {
 
                 a.setDisplayShowHomeEnabled(true);
-                a.setDisplayUseLogoEnabled(true);
+                a.setDisplayUseLogoEnabled(false);
                 a.setLogo(R.drawable.trik_icon);
 
                 a.setDisplayShowTitleEnabled(true);
-                a.setTitle("Preferences");
             }
         }
 
@@ -118,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
          * { final ToggleButton tglWheel = (ToggleButton)
          * findViewById(R.id.tglWheel); tglWheel.setOnCheckedChangeListener(new
          * CompoundButton.OnCheckedChangeListener() {
-         * 
+         *
          * @Override public void onCheckedChanged(final CompoundButton
          * buttonView, final boolean isChecked) { mWheelEnabled = isChecked; }
          * }); }
@@ -131,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 @Override
                 public void onClick(final View v) {
                     ActionBar a = getSupportActionBar();
+                    if (a != null)
                     setSystemUiVisibility(!a.isShowing());
                 }
             });
@@ -168,6 +168,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     mSender.setTarget(addr, portNumber);
 
                     if (!addr.equalsIgnoreCase(oldAddr)) {
+                        ActionBar a = getSupportActionBar();
+                        if (a != null)
+                            a.setTitle(addr);
+
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
                                 .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
@@ -341,41 +345,47 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @SuppressLint("NewApi")
-    private void setSystemUiVisibility(boolean on) {
+    private void setSystemUiVisibility(boolean show) {
         int flags = 0;
+        final View mainView = findViewById(R.id.main);
+
         final int sdk = Build.VERSION.SDK_INT;
+
         if (sdk >= Build.VERSION_CODES.KITKAT) {
-            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
-            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            flags |= show ? 0 : View.SYSTEM_UI_FLAG_IMMERSIVE;
+            //Not using View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY; we use handcrafted autohide
         }
+
         if (sdk >= Build.VERSION_CODES.JELLY_BEAN) {
-            flags |= on ? 0 : View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 
-        } else {
-            if (on) {
-                getSupportActionBar().show();
-            } else {
-                getSupportActionBar().hide();
+            flags |= show ? 0 : View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        if (sdk >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            flags |= show ? View.SYSTEM_UI_FLAG_VISIBLE
+                    : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LOW_PROFILE;
+            mainView.setSystemUiVisibility(flags);
+        }
+//        if (sdk >= Build.VERSION_CODES.HONEYCOMB) {
+//            flags |= show ? View.STATUS_BAR_VISIBLE:View.STATUS_BAR_HIDDEN;
+//        }
+
+
+        else {
+            ActionBar a = getSupportActionBar();
+            if (a != null) {
+                if (show)
+                    a.show();
+                else
+                    a.hide();
             }
         }
 
-        final View mainView = findViewById(R.id.main);
-        if (sdk >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            flags |= on ? 0 : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-            flags |= View.SYSTEM_UI_FLAG_LOW_PROFILE;
-            mainView.setSystemUiVisibility(flags);
-        }
-
-        if (on) {
-            mainView.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    setSystemUiVisibility(false);
-
-                }
-            }, 2000);
+        if (show) {
+            mainView.removeCallbacks(mHideRunnable);
+            mainView.postDelayed(mHideRunnable, 2000);
         }
 
     }
@@ -389,4 +399,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    private class HideRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            setSystemUiVisibility(false);
+
+        }
+    }
 }

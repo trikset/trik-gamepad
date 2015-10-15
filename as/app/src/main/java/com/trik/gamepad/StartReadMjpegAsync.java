@@ -3,17 +3,15 @@
 package com.trik.gamepad;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.demo.mjpeg.MjpegInputStream;
 import com.demo.mjpeg.MjpegView;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+
 
 class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
     private final MjpegView mv;
@@ -24,16 +22,18 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
 
     @Override
     protected MjpegInputStream doInBackground(URI... uris) {
-        HttpResponse res;
         URI uri = uris[0];
         if (uri != null) {
-            try {
-                DefaultHttpClient httpclient = new DefaultHttpClient();
-                res = httpclient.execute(new HttpGet(uri));
-                return new MjpegInputStream(res.getEntity().getContent());
-            } catch (IOException e) {
-                Log.e(this.getClass().getSimpleName(), Log.getStackTraceString(e));
 
+            try {
+                URL u = uri.toURL();
+                HttpURLConnection c = (HttpURLConnection) u.openConnection();
+                c.setConnectTimeout(5000);
+                c.setReadTimeout(5000);
+                return new MjpegInputStream(c.getInputStream());
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return null;
