@@ -20,16 +20,16 @@ internal class SenderService// private long mLastConnectionAttemptTimestamp;
         private set
 
     private var mHostPort: Int = 0
-    private var mConnectTask: AsyncTask<Void, Void, PrintWriter>? = null
+    private var mConnectTask: AsyncTask<Void, Void, PrintWriter?>? = null
 
     private fun connectAsync() {
         if (mConnectTask == null) {
-            mConnectTask = object : AsyncTask<Void, Void, PrintWriter>() {
+            mConnectTask = object : AsyncTask<Void, Void, PrintWriter?>() {
                 override fun doInBackground(vararg params: Void): PrintWriter? {
                     return connectToTRIK()
                 }
 
-                override fun onPostExecute(result: PrintWriter) {
+                override fun onPostExecute(result: PrintWriter?) {
                     mOut = result
                     mConnectTask = null
                     Toast.makeText(

@@ -191,7 +191,7 @@ class MjpegView : SurfaceView, SurfaceHolder.Callback {
     }
 
 
-    fun setSource(source: MjpegInputStream) {
+    fun setSource(source: MjpegInputStream?) {
         mIn = source
         // startPlayback();
     }

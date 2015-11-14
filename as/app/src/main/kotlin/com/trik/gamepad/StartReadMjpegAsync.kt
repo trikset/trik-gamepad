@@ -10,7 +10,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 
 
-internal class StartReadMjpegAsync(private val mv: MjpegView) : AsyncTask<URI, Void, MjpegInputStream>() {
+internal class StartReadMjpegAsync(private val mv: MjpegView) : AsyncTask<URI, Void, MjpegInputStream?>() {
 
     override fun doInBackground(vararg uris: URI): MjpegInputStream? {
         val uri = uris[0]
@@ -27,7 +27,7 @@ internal class StartReadMjpegAsync(private val mv: MjpegView) : AsyncTask<URI, V
         return null
     }
 
-    override fun onPostExecute(result: MjpegInputStream) {
+    override fun onPostExecute(result: MjpegInputStream?) {
         mv.setSource(result)
         mv.startPlayback()
     }

@@ -336,22 +336,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         val sdk = Build.VERSION.SDK_INT
 
-        if (sdk >= Build.VERSION_CODES.KITKAT) {
-            flags = flags or (if (show) 0 else View.SYSTEM_UI_FLAG_IMMERSIVE)
-            //Not using View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY; we use handcrafted autohide
-        }
 
-        if (sdk >= Build.VERSION_CODES.JELLY_BEAN) {
-            flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 
-            flags = flags or (if (show) 0 else View.SYSTEM_UI_FLAG_FULLSCREEN)
-        }
-
-        if (sdk >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+        if (sdk >= 14 /*Build.VERSION_CODES.ICE_CREAM_SANDWICH*/) {
             flags = flags or (if (show)
                 View.SYSTEM_UI_FLAG_VISIBLE
             else
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LOW_PROFILE)
+
+            if (sdk >= 16 /*Build.VERSION_CODES.JELLY_BEAN*/) {
+                flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+
+                flags = flags or (if (show) 0 else View.SYSTEM_UI_FLAG_FULLSCREEN)
+
+                if (sdk >= 19 /*Build.VERSION_CODES.KITKAT*/) {
+                    flags = flags or (if (show) 0 else View.SYSTEM_UI_FLAG_IMMERSIVE)
+                    //Not using View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY; we use handcrafted autohide
+                }
+
+            }
+
             mainView.systemUiVisibility = flags
         } else {
             val a = supportActionBar
