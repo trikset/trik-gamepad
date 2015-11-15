@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
                                 .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
-                                .commit();
+                                .apply();
                     }
 
                     {

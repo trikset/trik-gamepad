@@ -75,7 +75,9 @@ class SenderService {
             // socket.setPerformancePreferences(connectionTime, latency,
             // bandwidth);
             try {
-                return new PrintWriter(socket.getOutputStream(), /* autoflush */true);
+                PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),
+                        StandardCharsets.UTF_8), /* autoflush */true);
+                return pw;
             } catch (final Exception e) {
                 Log.e("TCP", "GetStream: Error", e);
                 socket.close();

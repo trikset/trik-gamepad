@@ -147,7 +147,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             p.setColor(overlayBackgroundColor);
             c.drawRect(0, 0, bwidth, bheight, p);
             p.setColor(overlayTextColor);
-            c.drawText(text, -b.left + 1, bheight / 2 - (p.ascent() + p.descent()) / 2 + 1, p);
+            c.drawText(text, -b.left + 1, (float)bheight / 2 - (p.ascent() + p.descent()) / 2 + 1, p);
             return bm;
         }
 
