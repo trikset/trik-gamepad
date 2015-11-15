@@ -1,0 +1,24 @@
+Applications Memory Usage (kB):
+Uptime: 6529426 Realtime: 6529426
+
+** MEMINFO in pid 32070 [com.trik.gamepad] **
+                    native   dalvik    other    total
+            size:    14100     6343      N/A    20443
+       allocated:    13722     3673      N/A    17395
+            free:      121     2670      N/A     2791
+           (Pss):     1051     1561    15721    18333
+  (shared dirty):     2188     1860    10088    14136
+    (priv dirty):      940      348    12052    13340
+ 
+ Objects
+           Views:        0        ViewRoots:        0
+     AppContexts:        0       Activities:        0
+          Assets:        2    AssetManagers:        2
+   Local Binders:        7    Proxy Binders:       10
+Death Recipients:        0
+ OpenSSL Sockets:        0
+ 
+ SQL
+               heap:        0         MEMORY_USED:        0
+ PAGECACHE_OVERFLOW:        0         MALLOC_SIZE:        0
+ 

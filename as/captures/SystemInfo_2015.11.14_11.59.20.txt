@@ -1,0 +1,35 @@
+Applications Memory Usage (kB):
+Uptime: 60703099 Realtime: 217374254
+
+** MEMINFO in pid 19488 [com.trik.gamepad] **
+                   Pss  Private  Private  Swapped     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------
+  Native Heap     4833     4788        0     1200     7092     6873      218
+  Dalvik Heap     7665     7624        0       52    16155     6760     9395
+ Dalvik Other      458      456        0        0                           
+        Stack      204      204        0        0                           
+    Other dev     5425     5420        4        0                           
+     .so mmap     2962      344     2152     1312                           
+    .apk mmap      367        0      260        0                           
+    .ttf mmap       51        0       36        0                           
+    .dex mmap     2068        0     2064        0                           
+    code mmap     1466        0      716        0                           
+   image mmap     5799     5532       56      184                           
+   Other mmap       12        4        0        0                           
+     Graphics    13440    13440        0        0                           
+      Unknown      132      132        0       48                           
+        TOTAL    44882    37944     5288     2796    23247    13633     9613
+ 
+ Objects
+               Views:       50         ViewRootImpl:        1
+         AppContexts:        4           Activities:        2
+              Assets:        4        AssetManagers:        4
+       Local Binders:        9        Proxy Binders:       13
+    Death Recipients:        0
+     OpenSSL Sockets:        0
+ 
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0
+ 
