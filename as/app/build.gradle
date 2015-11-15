@@ -1,25 +1,31 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        trikGamepad {
+            storeFile file('/home/me/Google Drive/trikset.com/TRIK-management/android-keystorage.jks')
+        }
+    }
     buildToolsVersion "23.0.1"
     compileSdkVersion 23
-
     defaultConfig {
         applicationId "com.trik.gamepad"
         minSdkVersion 9
         targetSdkVersion 23
         maxSdkVersion 23
     }
-
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            debuggable true
+            signingConfig signingConfigs.trikGamepad
         }
     }
-
     useLibrary 'org.apache.http.legacy'
-
+    dexOptions {
+        incremental false
+    }
 }
 
 dependencies {
