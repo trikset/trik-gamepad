@@ -11,6 +11,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -132,7 +133,22 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         private int frameCounter;
         private long start;
         private Bitmap ovl;
+        private InputStream mFrame;
+        final AsyncTask<Void, Void, Void> extractor = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    InputStream is = mIn.readMjpegFrame();
+                    synchronized (extractor) {
+                        mFrame = is;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
 
+        };
 
         public MjpegViewThread(SurfaceHolder surfaceHolder) {
             mSurfaceHolder = surfaceHolder;
@@ -180,20 +196,19 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                         if (surfaceDone) {
                             Canvas c = null;
                             try {
-                                Bitmap bm;
-                                try {
-
-                                    InputStream is = mIn.readMjpegFrame();
-                                    if (is == null)
-                                        continue;
-
-                                    bm = BitmapFactory.decodeStream(is);
-
-                                } catch (IOException e) {
-                                    e.getStackTrace();
-                                    Log.d(TAG, "catch IOException hit in run", e);
+                                if (mFrame == null)
                                     continue;
+
+                                extractNextFrameDataAsync();
+
+                                Bitmap bm;
+                                InputStream is;
+                                synchronized (extractor) {
+                                    is = mFrame;
                                 }
+
+
+                                bm = BitmapFactory.decodeStream(is);
 
                                 if (bm == null) {
                                     continue;
@@ -238,6 +253,10 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                     }
                 }
             };
+        }
+
+        private void extractNextFrameDataAsync() {
+            extractor.execute();
         }
 
         public void join() {

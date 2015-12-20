@@ -163,10 +163,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     final String oldAddr = mSender.getHostAddr();
                     mSender.setTarget(addr, portNumber);
 
-                    if (!addr.equalsIgnoreCase(oldAddr)) {
+                    {
                         ActionBar a = getSupportActionBar();
+
                         if (a != null)
                             a.setTitle(addr);
+                        else
+                            toast("Can not change title, not a problem");
+
+                    }
+
+                    if (!addr.equalsIgnoreCase(oldAddr)) {
 
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()

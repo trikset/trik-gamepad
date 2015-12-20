@@ -4,13 +4,9 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 class SenderService {
     private final Object mSyncFlag = new Object();
@@ -79,9 +75,7 @@ class SenderService {
             // socket.setPerformancePreferences(connectionTime, latency,
             // bandwidth);
             try {
-                PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),
-                        StandardCharsets.UTF_8), /* autoflush */true);
-                return pw;
+                return new PrintWriter(socket.getOutputStream(), /* autoflush */true);
             } catch (final Exception e) {
                 Log.e("TCP", "GetStream: Error", e);
                 socket.close();
