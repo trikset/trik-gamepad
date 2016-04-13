@@ -4,7 +4,7 @@ android {
     signingConfigs {
         config {
             keyAlias 'gamepad'
-            storeFile file('android-keystorage.jks')
+            storeFile file('~/android-keystorage.jks')
         }
     }
     buildToolsVersion "23.0.2"
@@ -18,10 +18,16 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            debuggable false
+            signingConfig signingConfigs.config
+        }
+        releaseDebug {
+            minifyEnabled false
             debuggable true
             signingConfig signingConfigs.config
         }
+
     }
     useLibrary 'org.apache.http.legacy'
     dexOptions {

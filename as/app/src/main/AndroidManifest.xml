@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.trik.gamepad"
     android:versionCode="20"
-    android:versionName="1.12 beta" >
+    android:versionName="1.12 beta">
     <uses-permission android:name="android.permission.INTERNET" />    
     <!--  <uses-permission android:name="android.permission.VIBRATE" /> -->
 
