@@ -101,7 +101,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
         mMaxX = w;
         mMaxY = h;
         if (oldw == 0 && oldh == 0) {
-            setAbsXY(w / 2, h / 2);
+            setAbsXY(w / 2.0f, h / 2.0f);
         }
     }
 

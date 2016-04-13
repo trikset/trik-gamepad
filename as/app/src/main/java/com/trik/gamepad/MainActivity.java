@@ -51,8 +51,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // @TargetApi(16)
     private void createPad(int id, String strId) {
         final SquareTouchPadLayout pad = (SquareTouchPadLayout) findViewById(id);
-        pad.setPadName("pad " + strId);
-        pad.setSender(mSender);
+        if (pad != null) {
+            pad.setPadName("pad " + strId);
+            pad.setSender(mSender);
+        }
         // if (android.os.Build.VERSION.SDK_INT >= 16) {
         // pad.setBackground(image);
         // } else {
@@ -90,8 +92,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mSender = new SenderService(this);
 
+        mVideo = (MjpegView) findViewById(R.id.video);
+
+        if (mVideo != null)
         {
-            mVideo = (MjpegView) findViewById(R.id.video);
+
             mVideo.setOverlayPosition(MjpegView.POSITION_UPPER_RIGHT);
             mVideo.showFps(true);
             mVideo.setDisplayMode(MjpegView.SIZE_BEST_FIT);
@@ -121,21 +126,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         {
             final Button btnSettings = (Button) findViewById(R.id.btnSettings);
-            btnSettings.setOnClickListener(new View.OnClickListener() {
+            if (btnSettings != null) {
+                btnSettings.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(final View v) {
-                    ActionBar a = getSupportActionBar();
-                    if (a != null)
-                    setSystemUiVisibility(!a.isShowing());
-                }
-            });
-
+                    @Override
+                    public void onClick(final View v) {
+                        ActionBar a = getSupportActionBar();
+                        if (a != null)
+                            setSystemUiVisibility(!a.isShowing());
+                    }
+                });
+            }
         }
 
         {
             final View controlsOverlay = findViewById(R.id.controlsOverlay);
-            controlsOverlay.bringToFront();
+            if (controlsOverlay != null)
+                controlsOverlay.bringToFront();
         }
 
         {
@@ -177,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
-                                .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr + ":8080/?action=stream")
+                                .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr.trim()
+                                        + ":8080/?action=stream")
                                 .apply();
                     }
 
@@ -197,8 +205,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         mPrevAlpha = alpha;
                         alphaUp.setFillAfter(true);
                         alphaUp.setDuration(2000);
-                        findViewById(R.id.controlsOverlay).startAnimation(alphaUp);
-                        findViewById(R.id.buttons).startAnimation(alphaUp);
+                        final View co = findViewById(R.id.controlsOverlay);
+                        if (co != null)
+                            co.startAnimation(alphaUp);
+                        final View btns = findViewById(R.id.buttons);
+                        if (btns != null)
+                            btns.startAnimation(alphaUp);
                     }
 
                     {
@@ -324,6 +336,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void recreateMagicButtons(final int count) {
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
+        if (buttonsView == null)
+            return;
         buttonsView.removeAllViews();
         for (int num = 1; num <= count; ++num) {
             final Button btn = new Button(MainActivity.this);
@@ -351,6 +365,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void setSystemUiVisibility(boolean show) {
         int flags = 0;
         final View mainView = findViewById(R.id.main);
+        if (mainView == null)
+            return;
 
         final int sdk = Build.VERSION.SDK_INT;
 

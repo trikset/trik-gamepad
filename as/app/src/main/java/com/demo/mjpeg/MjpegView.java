@@ -19,6 +19,7 @@ import android.view.SurfaceView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 
 public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
     public final static int     POSITION_UPPER_LEFT  = 9;
@@ -196,17 +197,14 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                         if (surfaceDone) {
                             Canvas c = null;
                             try {
+                                extractNextFrameData();
+
                                 if (mFrame == null)
                                     continue;
 
-                                extractNextFrameDataAsync();
-
                                 Bitmap bm;
                                 InputStream is;
-                                synchronized (extractor) {
-                                    is = mFrame;
-                                }
-
+                                is = mFrame;
 
                                 bm = BitmapFactory.decodeStream(is);
 
@@ -255,8 +253,14 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             };
         }
 
-        private void extractNextFrameDataAsync() {
-            extractor.execute();
+        private void extractNextFrameData() {
+            try {
+                extractor.execute().get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
 
         public void join() {
