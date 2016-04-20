@@ -1,4 +1,4 @@
-package com.trik.gamepad;
+package com.trikset.gamepad;
 
 import android.os.Bundle;
 import android.preference.Preference;

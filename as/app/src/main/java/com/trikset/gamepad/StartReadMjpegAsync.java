@@ -1,6 +1,6 @@
 // based on http://stackoverflow.com/questions/10550139/android-ics-and-mjpeg-using-asynctask
 
-package com.trik.gamepad;
+package com.trikset.gamepad;
 
 import android.os.AsyncTask;
 

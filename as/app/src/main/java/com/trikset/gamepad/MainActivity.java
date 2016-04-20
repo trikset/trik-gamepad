@@ -1,4 +1,4 @@
-package com.trik.gamepad;
+package com.trikset.gamepad;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -28,7 +28,7 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.demo.mjpeg.MjpegView;
-import com.trik.gamepad.SenderService.OnEventListener;
+import com.trikset.gamepad.SenderService.OnEventListener;
 
 import java.net.URI;
 import java.net.URISyntaxException;

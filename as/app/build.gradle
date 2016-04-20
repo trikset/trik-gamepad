@@ -10,7 +10,7 @@ android {
     buildToolsVersion "23.0.2"
     compileSdkVersion 23
     defaultConfig {
-        applicationId "com.trik.gamepad"
+        applicationId "com.trikset.gamepad"
         minSdkVersion 9
         targetSdkVersion 23
         maxSdkVersion 23

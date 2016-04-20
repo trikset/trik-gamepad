@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.trik.gamepad"
-    android:versionCode="20"
-    android:versionName="1.12 beta">
+    package="com.trikset.gamepad"
+    android:versionCode="21"
+    android:versionName="1.13 beta">
     <uses-permission android:name="android.permission.INTERNET" />    
     <!--  <uses-permission android:name="android.permission.VIBRATE" /> -->
 
@@ -14,7 +14,7 @@
        <!--  <service android:name=".SenderService" />  -->
         
         <activity
-            android:name="com.trik.gamepad.MainActivity"
+            android:name="com.trikset.gamepad.MainActivity"
             android:label="TRIK Gamepad">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.trik.gamepad.SettingsActivity"
+            android:name="com.trikset.gamepad.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>        
     </application>

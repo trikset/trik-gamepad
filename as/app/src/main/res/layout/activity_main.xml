@@ -22,7 +22,7 @@
         android:baselineAligned="false"
         android:orientation="horizontal" >
 
-        <com.trik.gamepad.SquareTouchPadLayout
+        <com.trikset.gamepad.SquareTouchPadLayout
             android:id="@+id/leftPad"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -31,7 +31,7 @@
             android:src="@drawable/oxygen_actions_transform_move_icon"
             android:background="@drawable/touchpad_shape"/>
         
-        <com.trik.gamepad.SquareTouchPadLayout
+        <com.trikset.gamepad.SquareTouchPadLayout
             android:id="@+id/rightPad"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
