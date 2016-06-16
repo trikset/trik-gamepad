@@ -40,7 +40,6 @@ import com.trikset.gamepad.SenderService.OnEventListener;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -56,8 +55,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private MjpegView mVideo;
     @Nullable
     private URI mVideoURI;
-    @NonNull
-    private final Timer mTimer = new Timer();
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -311,7 +308,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onPause() {
         mSensorManager.unregisterListener(this);
-        mTimer.purge();
         getSenderService().disconnect("Inactive gamepad");
         mVideo.stopPlayback();
         super.onPause();
@@ -320,13 +316,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume() {
         super.onResume();
-
-//        mTimer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                new StartReadMjpegAsync(mVideo).execute(mVideoURI);
-//            }
-//        }, 0, 30000);
 
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
@@ -524,7 +513,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onDestroy() {
         mSensorManager.unregisterListener(this);
-        mTimer.purge();
         mVideo.stopPlayback();
         final View mainView = findViewById(R.id.main);
         mainView.removeCallbacks(getHideRunnable());

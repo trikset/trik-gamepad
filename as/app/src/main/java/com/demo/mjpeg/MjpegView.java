@@ -23,26 +23,27 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
-    public final static int     POSITION_UPPER_LEFT  = 9;
-    public final static int     POSITION_UPPER_RIGHT = 3;
-    public final static int     POSITION_LOWER_LEFT  = 12;
-    public final static int     POSITION_LOWER_RIGHT = 6;
-    public final static int     SIZE_STANDARD        = 1;
-    public final static int     SIZE_BEST_FIT        = 4;
-    public final static int     SIZE_FULLSCREEN      = 8;
+    public final static int POSITION_UPPER_LEFT = 9;
+    public final static int POSITION_UPPER_RIGHT = 3;
+    public final static int POSITION_LOWER_LEFT = 12;
+    public final static int POSITION_LOWER_RIGHT = 6;
+    public final static int SIZE_STANDARD = 1;
+    public final static int SIZE_BEST_FIT = 4;
+    public final static int SIZE_FULLSCREEN = 8;
     private static final String TAG = "MjpegView";
-    private MjpegViewThread     thread;
-    private MjpegInputStream    mIn;
-    private boolean             showFps;
-    private boolean             mRun;
-    private boolean             surfaceDone;
-    private Paint               overlayPaint;
-    private int                 overlayTextColor;
-    private int                 overlayBackgroundColor;
-    private int                 ovlPos;
-    private int                 dispWidth;
-    private int                 dispHeight;
-    private int                 displayMode;
+    private MjpegViewThread thread;
+    private MjpegInputStream mIn;
+    private boolean showFps;
+    private boolean mRun;
+    private boolean surfaceDone;
+    private Paint overlayPaint;
+    private int overlayTextColor;
+    private int overlayBackgroundColor;
+    private int ovlPos;
+    private int dispWidth;
+    private int dispHeight;
+    private int displayMode;
+    private Runnable mRestartCallback;
 
     public MjpegView(Context context) {
         super(context);
@@ -101,13 +102,37 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void startPlayback() {
+        if (mRestartCallback != null)
+            removeCallbacks(mRestartCallback);
+
+        mRestartCallback = new Runnable() {
+                @Override
+                public void run() {
+                    stopPlaybackInternal();
+                    startPlaybackInternal();
+                }
+            };
+
+        startPlaybackInternal();
+    }
+
+    private void startPlaybackInternal() {
         if (mIn != null) {
             mRun = true;
             thread.start();
+            postDelayed(mRestartCallback, 30000);
         }
     }
 
     public void stopPlayback() {
+        if (mRestartCallback != null) {
+            removeCallbacks(mRestartCallback);
+            mRestartCallback = null;
+        }
+        stopPlaybackInternal();
+    }
+
+    private void stopPlaybackInternal() {
         mRun = false;
         thread.join();
     }
@@ -168,7 +193,8 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                 return new Rect(0, 0, dispWidth, dispHeight);
             return null;
         }
-// TODO: rewrite from scratch. needs redesign.
+
+        // TODO: rewrite from scratch. needs redesign.
         private void initThread() {
             join();
             thread = new Thread() {
@@ -249,13 +275,13 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         private void extractNextFrameDataAsync() {
-            final AsyncTask<Void,Void,Void> extractor = new AsyncTask<Void, Void, Void>() {
+            final AsyncTask<Void, Void, Void> extractor = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
-                            synchronized (buf) {
-                                mFrame = mIn.readMjpegFrame();
-                            }
+                        synchronized (buf) {
+                            mFrame = mIn.readMjpegFrame();
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
