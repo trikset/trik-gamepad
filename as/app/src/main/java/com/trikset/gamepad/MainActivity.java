@@ -8,16 +8,21 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
+import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -28,24 +33,37 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.demo.mjpeg.MjpegView;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.trikset.gamepad.SenderService.OnEventListener;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    static final String                                TAG        = "MainActivity";
-    private final HideRunnable mHideRunnable = new HideRunnable();
-    private SensorManager                                      mSensorManager;
-    private int                                                mAngle;                     // -100%
+    static final String TAG = "MainActivity";
+    private HideRunnable mHideRunnable;
+    private SensorManager mSensorManager;
+    private int mAngle;                     // -100%
     // ...
     // +100%
-    private boolean                                            mWheelEnabled;
-    private SenderService                                      mSender;
-    private int                                                mWheelStep = 7;
-    private MjpegView                                          mVideo;
-    private URI                                                mVideoURI;
+    private boolean mWheelEnabled;
+    private SenderService mSender;
+    private int mWheelStep = 7;
+    private MjpegView mVideo;
+    @Nullable
+    private URI mVideoURI;
+    @NonNull
+    private final Timer mTimer = new Timer();
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
+    private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
@@ -53,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         final SquareTouchPadLayout pad = (SquareTouchPadLayout) findViewById(id);
         if (pad != null) {
             pad.setPadName("pad " + strId);
-            pad.setSender(mSender);
+            pad.setSender(getSenderService());
         }
         // if (android.os.Build.VERSION.SDK_INT >= 16) {
         // pad.setBackground(image);
@@ -75,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        setHideRunnable(new HideRunnable());
         setSystemUiVisibility(false);
         {
             ActionBar a = getSupportActionBar();
@@ -89,13 +107,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
+        setSenderService(new SenderService());
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mSender = new SenderService(this);
+
 
         mVideo = (MjpegView) findViewById(R.id.video);
 
-        if (mVideo != null)
-        {
+        if (mVideo != null) {
 
             mVideo.setOverlayPosition(MjpegView.POSITION_UPPER_RIGHT);
             mVideo.showFps(true);
@@ -106,10 +124,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         recreateMagicButtons(5);
 
         {
-            mSender.setOnDiconnectedListner(new OnEventListener<String>() {
+            getSenderService().setOnDiconnectedListner(new OnEventListener<String>() {
                 @Override
                 public void onEvent(final String reason) {
                     toast("Disconnected." + reason);
+                }
+            });
+            getSenderService().setShowTextCallback(new OnEventListener<String>() {
+                @Override
+                public void onEvent(String text) {
+                    toast(text);
                 }
             });
         }
@@ -153,22 +177,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         {
 
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener
+            mSharedPreferencesListener
                     = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 float mPrevAlpha;
 
                 @Override
-                public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+                public void onSharedPreferenceChanged(@NonNull final SharedPreferences sharedPreferences, final String key) {
                     final String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.77.1");
                     int portNumber = 4444;
                     final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
                     try {
                         portNumber = Integer.parseInt(portStr);
-                    } catch (final NumberFormatException e) {
+                    } catch (@NonNull final NumberFormatException e) {
                         toast("Port number '" + portStr + "' is incorrect.");
                     }
-                    final String oldAddr = mSender.getHostAddr();
-                    mSender.setTarget(addr, portNumber);
+                    final String oldAddr = getSenderService().getHostAddr();
+                    getSenderService().setTarget(addr, portNumber);
 
                     {
                         ActionBar a = getSupportActionBar();
@@ -250,10 +274,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
 
@@ -265,18 +292,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
-    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.settings:
-            final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(settings);
-            return true;
-        case R.id.wheel:
-            mWheelEnabled = !mWheelEnabled;
-            item.setChecked(mWheelEnabled);
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+            case R.id.settings:
+                final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settings);
+                return true;
+            case R.id.wheel:
+                mWheelEnabled = !mWheelEnabled;
+                item.setChecked(mWheelEnabled);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
     }
@@ -284,7 +311,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onPause() {
         mSensorManager.unregisterListener(this);
-        mSender.disconnect("Inactive gamepad");
+        mTimer.purge();
+        getSenderService().disconnect("Inactive gamepad");
         mVideo.stopPlayback();
         super.onPause();
     }
@@ -292,20 +320,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume() {
         super.onResume();
-        new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+
+//        mTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+//            }
+//        }, 0, 30000);
 
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
-    public void onSensorChanged(final SensorEvent event) {
+    public void onSensorChanged(@NonNull final SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             if (!mWheelEnabled)
                 return;
             processSensor(event.values);
         } else {
-            Log.i("Sensor", "" + event.sensor.getType());
+            Log.i("Sensor", String.valueOf(event.sensor.getType()));
         }
     }
 
@@ -331,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mAngle = angle;
 
-        mSender.send("wheel " + mAngle);
+        getSenderService().send("wheel " + mAngle);
     }
 
     private void recreateMagicButtons(final int count) {
@@ -344,17 +378,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             btn.setHapticFeedbackEnabled(true);
             btn.setGravity(Gravity.CENTER);
             btn.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-            final String name = "" + num;
+            final String name = String.valueOf(num);
             btn.setText(name);
             btn.setBackgroundResource(R.drawable.button_shape);
 
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View arg0) {
-                    mSender.send("btn " + name + " down"); // TODO: "up" via
-                                                           // TouchListner
-                    btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-                            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+                    SenderService sender = getSenderService();
+                    if (sender != null) {
+                        sender.send("btn " + name + " down"); // TODO: "up" via
+                        // TouchListner
+                        btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+                    }
                 }
             });
             buttonsView.addView(btn);
@@ -402,9 +439,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        if (show) {
-            mainView.removeCallbacks(mHideRunnable);
-            mainView.postDelayed(mHideRunnable, 2000);
+        HideRunnable r = getHideRunnable();
+        if ( r != null) {
+            mainView.removeCallbacks(r);
+            mainView.postDelayed(r, 3000);
         }
 
     }
@@ -418,6 +456,62 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://com.trikset.gamepad/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://com.trikset.gamepad/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
+
+    public SenderService getSenderService() {
+        return mSender;
+    }
+
+    public void setSenderService(SenderService sender) {
+        this.mSender = sender;
+    }
+
+    public HideRunnable getHideRunnable() {
+        return mHideRunnable;
+    }
+
+    public void setHideRunnable(HideRunnable r) {
+        this.mHideRunnable = r;
+    }
+
     private class HideRunnable implements Runnable {
 
         @Override
@@ -425,5 +519,44 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             setSystemUiVisibility(false);
 
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mSensorManager.unregisterListener(this);
+        mTimer.purge();
+        mVideo.stopPlayback();
+        final View mainView = findViewById(R.id.main);
+        mainView.removeCallbacks(getHideRunnable());
+        final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
+        if (buttonsView != null) {
+            for (int i = 0; i < buttonsView.getChildCount();
+                 ++i) {
+                buttonsView.getChildAt(i).setOnClickListener(null);
+            }
+        }
+
+        final Button btnSettings = (Button) findViewById(R.id.btnSettings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(null);
+        }
+
+        final SquareTouchPadLayout pad1 = (SquareTouchPadLayout) findViewById(R.id.leftPad);
+        if (pad1 != null)
+            pad1.setSender(null);
+
+        final SquareTouchPadLayout pad2 = (SquareTouchPadLayout) findViewById(R.id.rightPad);
+        if (pad2 != null)
+            pad2.setSender(null);
+
+
+        PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+                .unregisterOnSharedPreferenceChangeListener(mSharedPreferencesListener);
+        getSenderService().setOnDiconnectedListner(null);
+        getSenderService().setShowTextCallback(null);
+        setSenderService(null);
+        setHideRunnable(null);
+        client = null; //????
+        super.onDestroy();
     }
 }

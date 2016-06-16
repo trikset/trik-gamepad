@@ -1,6 +1,7 @@
 // http://stackoverflow.com/questions/10550139/android-ics-and-mjpeg-using-asynctask
 package com.demo.mjpeg;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.commons.io.input.BoundedInputStream;
@@ -21,11 +22,12 @@ public class MjpegInputStream extends DataInputStream {
     //private byte[] mHeader = new byte[100];
 
 
-    public MjpegInputStream(InputStream in) {
+    public MjpegInputStream(@NonNull InputStream in) {
         super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
     }
 
-    private int getEndOfSequence(DataInputStream in, byte[] sequence)
+
+    private int getEndOfSequence(@NonNull DataInputStream in, @NonNull byte[] sequence)
             throws IOException {
         int seqIndex = 0;
         byte c;
@@ -42,12 +44,13 @@ public class MjpegInputStream extends DataInputStream {
         return -1;
     }
 
-    private int getStartOfSequence(DataInputStream in, byte[] sequence)
+    private int getStartOfSequence(@NonNull DataInputStream in, @NonNull byte[] sequence)
             throws IOException {
         int end = getEndOfSequence(in, sequence);
         return end < 0 ? -1 : end - sequence.length;
     }
 
+    @NonNull
     public InputStream readMjpegFrame() throws IOException {
         mark(FRAME_MAX_LENGTH);
         int headerLen = getStartOfSequence(this, SOI_MARKER);
@@ -58,18 +61,17 @@ public class MjpegInputStream extends DataInputStream {
     }
 
     private int extractLength(int headerLen) throws IOException {
-        InputStream headerIn = new BoundedInputStream(this,headerLen);
-        try {
+        int result;
+        try (BoundedInputStream headerIn = new BoundedInputStream(this, headerLen)) {
             Properties props = new Properties();
             props.load(headerIn);
-            return Integer.parseInt(props.getProperty(CONTENT_LENGTH));
+            result = Integer.parseInt(props.getProperty(CONTENT_LENGTH));
         } catch (NumberFormatException nfe) {
             nfe.getStackTrace();
             Log.d(TAG, "catch NumberFormatException hit", nfe);
-            return getEndOfSequence(this, EOF_MARKER);
-        } finally {
-                headerIn.close();
+            result = getEndOfSequence(this, EOF_MARKER);
         }
+        return result;
 
     }
 }

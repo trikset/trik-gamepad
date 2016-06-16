@@ -20,6 +20,7 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
         this.mv = mv;
     }
 
+   // @Nullable
     @Override
     protected MjpegInputStream doInBackground(URI... uris) {
         URI uri = uris[0];

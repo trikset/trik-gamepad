@@ -12,6 +12,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -127,13 +128,15 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         stopPlayback();
     }
 
-    public class MjpegViewThread {
+    class MjpegViewThread {
         private final SurfaceHolder mSurfaceHolder;
         private final byte[] buf = new byte[500000];
+        @Nullable
         private Thread thread;
         private int frameCounter;
         private long start;
         private Bitmap ovl;
+        @Nullable
         private InputStream mFrame;
 
         public MjpegViewThread(SurfaceHolder surfaceHolder) {
@@ -279,7 +282,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        private Bitmap makeFpsOverlay(Paint p, String text) {
+        private Bitmap makeFpsOverlay(@NonNull Paint p, @NonNull String text) {
             Rect b = new Rect();
             p.getTextBounds(text, 0, text.length(), b);
             int bwidth = b.width() + 2;

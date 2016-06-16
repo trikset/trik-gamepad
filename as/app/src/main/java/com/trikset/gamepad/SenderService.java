@@ -1,64 +1,96 @@
 package com.trikset.gamepad;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-class SenderService {
+final class SenderService {
+    public OnEventListener<String> getShowTextCallback() {
+        return mShowTextCallback;
+    }
+
+    public void setShowTextCallback(OnEventListener<String> mShowTextCallback) {
+        this.mShowTextCallback = mShowTextCallback;
+    }
+
+    public OnEventListener<String> getOnDisconnectedListener() {
+        return mOnDisconnectedListener;
+    }
+
+    public void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
+        this.mOnDisconnectedListener = mOnDisconnectedListener;
+    }
+
+    interface IShowTextCallback {
+        public void show(String text);
+    }
+
+    private static final int TIMEOUT = 5000;
     private final Object mSyncFlag = new Object();
-    private final MainActivity mMainActivity;
-    private PrintWriter                        mOut;
+    private OnEventListener<String> mShowTextCallback;
+    @Nullable
+    private PrintWriter mOut;
 
-    private OnEventListener<String>            mOnDisconnectedListener;
+    private OnEventListener<String> mOnDisconnectedListener;
 
-    private String                             mHostAddr;
+    private String mHostAddr;
 
-    private int                                mHostPort;
+    private int mHostPort;
+    @Nullable
     private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
-    // private long mLastConnectionAttemptTimestamp;
-
-    public SenderService(final MainActivity mainActivity) {
-        mMainActivity = mainActivity;
+    public SenderService() {
     }
 
     private void connectAsync() {
         if (mConnectTask == null) {
-            mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
-                @Override
-                protected PrintWriter doInBackground(final Void... params) {
-                    return connectToTRIK();
-                }
+            synchronized (this) {
+                mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
+                    @Nullable
+                    @Override
+                    protected PrintWriter doInBackground(final Void... params) {
+                        return connectToTRIK();
+                    }
 
-                @Override
-                protected void onPostExecute(PrintWriter result) {
-                    mOut = result;
-                    mConnectTask = null;
-                    Toast.makeText(
-                            mMainActivity,
-                            "Connection to " + mHostAddr + ':' + mHostPort
-                                    + (mOut != null ? " established." : " error."), Toast.LENGTH_SHORT).show();
-                }
-            };
-            mConnectTask.execute();
+                    @Override
+                    protected void onPostExecute(PrintWriter result) {
+                        mOut = result;
+                        OnEventListener<String> cb = getShowTextCallback();
+                        if (cb != null) {
+                            cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
+                                    + (mOut != null ? " established." : " error."));
+                        }
+                        (new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Void... voids) {
+                                try {
+                                    Thread.sleep(TIMEOUT);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                synchronized (SenderService.this){
+                                    mConnectTask = null;
+                                }
+                                return null;
+                            }
+                        }).execute();
+                    }
+                };
+                mConnectTask.execute();
+            }
         }
     }
 
     // socket is closed from PrintWriter.close()
     @SuppressWarnings("resource")
-    private PrintWriter connectToTRIK() {
-        /*
-         * final long currentTime = System.currentTimeMillis(); final long
-         * elapsed = currentTime - mLastConnectionAttemptTimestamp; final int
-         * DELAY = 5000;
-         *
-         * if (elapsed < TIMEOUT + DELAY) return null;
-         */
-        final int TIMEOUT = 5000;
+    synchronized private PrintWriter connectToTRIK() {
+
         try {
             Log.e("TCP Client", "C: Connecting...");
             Socket socket = new Socket();
@@ -70,17 +102,19 @@ class SenderService {
             socket.setTrafficClass(0x0F); // high priority, no-delay
             socket.setOOBInline(true);
             socket.shutdownInput();
+            OutputStreamWriter osw = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
 
             // currently does nothing
             // socket.setPerformancePreferences(connectionTime, latency,
             // bandwidth);
             try {
-                return new PrintWriter(socket.getOutputStream(), /* autoflush */true);
-            } catch (final Exception e) {
+                return new PrintWriter(osw, true);
+            } catch (@NonNull final Exception e) {
                 Log.e("TCP", "GetStream: Error", e);
                 socket.close();
+                osw.close();
             }
-        } catch (final Exception e) {
+        } catch (@NonNull final Exception e) {
             Log.e("TCP", "Connect: Error", e);
         }
         // mLastConnectionAttemptTimestamp = currentTime;
@@ -92,7 +126,9 @@ class SenderService {
             mOut.close();
             mOut = null;
             Log.d("TCP", "Disconnected.");
-            mOnDisconnectedListener.onEvent(reason);
+            OnEventListener<String> l = getOnDisconnectedListener();
+            if (l != null)
+                l.onEvent(reason);
         }
     }
 
@@ -111,11 +147,12 @@ class SenderService {
         Log.d("TCP", "Sending '" + command + '\'');
 
         new AsyncTask<Void, Void, Void>() {
+            @Nullable
             @Override
             protected Void doInBackground(final Void... params) {
                 synchronized (mSyncFlag) {
                     // TODO: reimplement with Handle instead of multiple chaotic
-                    // AyncTasks
+                    // AsyncTasks
                     mOut.println(command);
                 }
                 return null;
@@ -133,10 +170,10 @@ class SenderService {
     }
 
     void setOnDiconnectedListner(final OnEventListener<String> oel) {
-        mOnDisconnectedListener = oel;
+        setOnDisconnectedListener(oel);
     }
 
-    public void setTarget(final String hostAddr, final int hostPort) {
+    public void setTarget(@NonNull final String hostAddr, final int hostPort) {
         if (!hostAddr.equalsIgnoreCase(mHostAddr) || mHostPort != hostPort) {
             disconnect("Target changed.");
         }

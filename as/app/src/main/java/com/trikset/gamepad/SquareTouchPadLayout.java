@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
@@ -17,14 +18,14 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
     final static private int sDefaultSize = 100;
     final private Paint paint = new Paint();
-    private float         mAbsY;
-    private float         mAbsX;
-    private String        mPadName;
+    private float mAbsY;
+    private float mAbsX;
+    private String mPadName;
     private SenderService mSender;
     private int mPrevY;
     private int mPrevX;
-    private float         mMaxX;
-    private float         mMaxY;
+    private float mMaxX;
+    private float mMaxY;
 
     public SquareTouchPadLayout(final Context context) {
         super(context);
@@ -79,7 +80,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         canvas.drawCircle(getAbsX(), getAbsY(), mMaxX / 20, paint);
@@ -111,8 +112,10 @@ public class SquareTouchPadLayout extends RelativeLayout {
     }
 
     void send(String command) {
-        mSender.send(getPadName() + ' ' + command);
-        performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+        if (mSender != null) {
+            mSender.send(getPadName() + ' ' + command);
+            performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+        }
     }
 
     void setAbsXY(float x, float y) {
@@ -128,13 +131,13 @@ public class SquareTouchPadLayout extends RelativeLayout {
     final class TouchPadListener implements OnTouchListener {
 
         @Override
-        public boolean onTouch(final View v, final MotionEvent event) {
+        public boolean onTouch(@NonNull final View v, @NonNull final MotionEvent event) {
             if (v != SquareTouchPadLayout.this)
                 return false;
 
             switch (event.getAction()) {
                 default:
-                    Log.e("TouchEvent", "Unknown:" + event.toString());
+                    Log.e("TouchEvent", "Unknown:" + event);
 
                     return true;
                 case MotionEvent.ACTION_UP:
