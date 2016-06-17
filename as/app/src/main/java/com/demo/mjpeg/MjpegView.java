@@ -180,6 +180,12 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         private void initThread() {
             join();
             thread = new Thread() {
+                Canvas mCanvas;
+                Bitmap mBitmap;
+                InputStream mFrame;
+                BitmapFactory.Options mOpts = new BitmapFactory.Options();
+                byte[] mTempStorage = new byte[100000];
+
                 @Override
                 public void run() {
                     start = System.currentTimeMillis();
@@ -192,9 +198,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                     String fps;
                     while (mRun) {
                         if (surfaceDone) {
-                            Canvas c = null;
-                            Bitmap bm = null;
-                            InputStream mFrame = null;
+
                             try {
                                 mFrame = mIn.readMjpegFrame();
                                 if (mFrame == null)
@@ -202,23 +206,44 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 
                                 // decode last extracted while next one is being extracted
 
-                                bm = BitmapFactory.decodeStream(mFrame);
-                                mFrame.close();
-                                mFrame = null;
+                                mOpts.inBitmap = mBitmap;
+                                mOpts.inMutable = true;
+                                mOpts.inInputShareable = true;
+                                mOpts.inTempStorage = mTempStorage;
 
-                                if (bm == null)
+
+                                Bitmap bm = BitmapFactory.decodeStream(mFrame, null, mOpts);
+
+
+                                if (bm == null) {
+                                    if (mFrame != null)
+                                        mFrame.close();
+                                    mFrame = null;
                                     continue;
+                                }
+                                else
+                                    mBitmap = bm;
 
-                                destRect = destRect(bm.getWidth(), bm.getHeight());
+                                destRect = destRect(mBitmap.getWidth(), mBitmap.getHeight());
 
-                                if (destRect == null)
+                                if (destRect == null) {
+                                    if (mFrame != null)
+                                        mFrame.close();
+                                    mFrame = null;
+                                    mBitmap.recycle();
+                                    mBitmap = null;
                                     continue;
+                                }
 
-                                c = mSurfaceHolder.lockCanvas();
-                                if (c != null)
+                                mCanvas = mSurfaceHolder.lockCanvas();
+                                if (mCanvas != null)
                                     synchronized (mSurfaceHolder) {
-                                        c.drawColor(Color.BLACK);
-                                        c.drawBitmap(bm, null, destRect, p);
+                                        mCanvas.drawColor(Color.BLACK);
+                                        mCanvas.drawBitmap(bm, null, destRect, p);
+                                        if (mFrame != null)
+                                            mFrame.close();
+                                        mFrame = null;
+
                                         if (showFps) {
                                             p.setXfermode(mode);
                                             if (ovl != null) {
@@ -226,7 +251,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                                                         - ovl.getHeight();
                                                 width = (ovlPos & 8) == 8 ? destRect.left : destRect.right
                                                         - ovl.getWidth();
-                                                c.drawBitmap(ovl, width, height, null);
+                                                mCanvas.drawBitmap(ovl, width, height, null);
                                             }
                                             p.setXfermode(null);
                                             frameCounter++;
@@ -239,14 +264,15 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                                         }
 
                                     }
+
                             } catch (IOException e) {
                                 mRun = false;
                             } finally {
-                                if (c != null)
-                                    mSurfaceHolder.unlockCanvasAndPost(c);
 
-                                if (bm != null)
-                                    bm.recycle();
+                                if (mCanvas != null) {
+                                    mSurfaceHolder.unlockCanvasAndPost(mCanvas);
+                                    mCanvas = null;
+                                }
                             }
 
                         }

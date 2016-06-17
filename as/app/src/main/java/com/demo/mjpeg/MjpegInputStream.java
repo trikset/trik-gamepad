@@ -21,7 +21,7 @@ public class MjpegInputStream extends DataInputStream {
     private final static byte[] SOI_MARKER = {(byte) 0xFF, (byte) 0xD8};
     //private final byte[] EOF_MARKER = {(byte) 0xFF, (byte) 0xD9};
     private static byte[] CONTENT_LENGTH_MARKER = getUTF8Bytes(CONTENT_LENGTH);
-
+    private final Properties props = new Properties();
     private static byte[] getUTF8Bytes(String s) {
         try {
             return s.getBytes("UTF-8");
@@ -76,7 +76,7 @@ public class MjpegInputStream extends DataInputStream {
             int headerLen = getStartOfSequence(SOI_MARKER);
             BoundedInputStream headerIn = new BoundedInputStream(this, headerLen);
             headerIn.setPropagateClose(false);
-            Properties props = new Properties();
+            props.clear();
             props.load(headerIn);
             contentLength = Integer.parseInt(props.getProperty(CONTENT_LENGTH));
             headerIn.close();
@@ -95,8 +95,15 @@ public class MjpegInputStream extends DataInputStream {
             Log.d(TAG, "catch exn hit", e);
         }
         try {
-            if (contentLength < 0)
-                skipBytes(getStartOfSequence(CONTENT_LENGTH_MARKER));
+            if (contentLength < 0) {
+                Log.e(TAG, "Skipping to recover");
+                int count = getStartOfSequence(CONTENT_LENGTH_MARKER);
+                Log.e(TAG, count + " bytes to skip until next frame header.");
+                int skipped = skipBytes(count);
+                if (skipped != count)
+                    Log.e(TAG, "But " + skipped + " bytes skipped instead.");
+
+            }
             else {
                 Log.i(TAG, "Frame dropped.");
                 skipBytes(contentLength);
