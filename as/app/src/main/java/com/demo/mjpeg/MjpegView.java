@@ -11,7 +11,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -43,7 +42,6 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
     private int dispWidth;
     private int dispHeight;
     private int displayMode;
-    private Runnable mRestartCallback;
 
     public MjpegView(Context context) {
         super(context);
@@ -101,18 +99,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         showFps = b;
     }
 
-    public void startPlayback() {
-        if (mRestartCallback != null)
-            removeCallbacks(mRestartCallback);
-
-        mRestartCallback = new Runnable() {
-                @Override
-                public void run() {
-                    stopPlaybackInternal();
-                    startPlaybackInternal();
-                }
-            };
-
+    public synchronized void startPlayback() {
         startPlaybackInternal();
     }
 
@@ -120,21 +107,18 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         if (mIn != null) {
             mRun = true;
             thread.start();
-            postDelayed(mRestartCallback, 30000);
         }
     }
 
-    public void stopPlayback() {
-        if (mRestartCallback != null) {
-            removeCallbacks(mRestartCallback);
-            mRestartCallback = null;
-        }
+    public synchronized void stopPlayback() {
         stopPlaybackInternal();
     }
 
     private void stopPlaybackInternal() {
-        mRun = false;
-        thread.join();
+        if (mRun) {
+            mRun = false;
+            thread.join();
+        }
     }
 
     @Override
@@ -155,14 +139,12 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 
     class MjpegViewThread {
         private final SurfaceHolder mSurfaceHolder;
-        private final byte[] buf = new byte[500000];
+        //private final byte[] buf = new byte[500000];
         @Nullable
         private Thread thread;
         private int frameCounter;
         private long start;
         private Bitmap ovl;
-        @Nullable
-        private InputStream mFrame;
 
         public MjpegViewThread(SurfaceHolder surfaceHolder) {
             mSurfaceHolder = surfaceHolder;
@@ -211,32 +193,26 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                     while (mRun) {
                         if (surfaceDone) {
                             Canvas c = null;
+                            Bitmap bm = null;
+                            InputStream mFrame = null;
                             try {
-                                extractNextFrameDataAsync();
-
+                                mFrame = mIn.readMjpegFrame();
                                 if (mFrame == null)
                                     continue;
 
                                 // decode last extracted while next one is being extracted
-                                InputStream is = mFrame;
 
-                                Bitmap bm = BitmapFactory.decodeStream(is);
+                                bm = BitmapFactory.decodeStream(mFrame);
+                                mFrame.close();
+                                mFrame = null;
 
-                                if (mFrame == is) // not ready yet, it is still the same, then ...
-                                    synchronized (buf) {
-                                        if (mFrame == is)
-                                            mFrame = null; // prevent redraw
-                                    }
-
-                                if (bm == null) {
+                                if (bm == null)
                                     continue;
-                                }
 
                                 destRect = destRect(bm.getWidth(), bm.getHeight());
 
-                                if (destRect == null) {
+                                if (destRect == null)
                                     continue;
-                                }
 
                                 c = mSurfaceHolder.lockCanvas();
                                 if (c != null)
@@ -263,34 +239,22 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                                         }
 
                                     }
+                            } catch (IOException e) {
+                                mRun = false;
                             } finally {
-                                if (c != null) {
+                                if (c != null)
                                     mSurfaceHolder.unlockCanvasAndPost(c);
-                                }
+
+                                if (bm != null)
+                                    bm.recycle();
                             }
+
                         }
                     }
                 }
-            };
-        }
+            }
 
-        private void extractNextFrameDataAsync() {
-            final AsyncTask<Void, Void, Void> extractor = new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        synchronized (buf) {
-                            mFrame = mIn.readMjpegFrame();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-
-            };
-            extractor.execute();
-
+            ;
         }
 
         public void join() {
@@ -331,7 +295,8 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 
         public void start() {
             initThread();
-            thread.start();
+            if (thread != null)
+                thread.start();
         }
     }
 }

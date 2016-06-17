@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -28,7 +29,7 @@ final class SenderService {
     }
 
     interface IShowTextCallback {
-        public void show(String text);
+        void show(String text);
     }
 
     private static final int TIMEOUT = 5000;
@@ -49,43 +50,44 @@ final class SenderService {
     }
 
     private void connectAsync() {
-        if (mConnectTask == null) {
-            synchronized (this) {
-                mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
-                    @Nullable
-                    @Override
-                    protected PrintWriter doInBackground(final Void... params) {
-                        return connectToTRIK();
-                    }
+        synchronized (this) {
+            if (mConnectTask != null)
+                return;
+            mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
+                @Nullable
+                @Override
+                protected PrintWriter doInBackground(final Void... params) {
+                    return connectToTRIK();
+                }
 
-                    @Override
-                    protected void onPostExecute(PrintWriter result) {
-                        mOut = result;
-                        OnEventListener<String> cb = getShowTextCallback();
-                        if (cb != null) {
-                            cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
-                                    + (mOut != null ? " established." : " error."));
-                        }
-                        (new AsyncTask<Void, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(Void... voids) {
-                                try {
-                                    Thread.sleep(TIMEOUT);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                synchronized (SenderService.this){
-                                    mConnectTask = null;
-                                }
-                                return null;
-                            }
-                        }).execute();
+                @Override
+                protected void onPostExecute(PrintWriter result) {
+                    mOut = result;
+                    OnEventListener<String> cb = getShowTextCallback();
+                    if (cb != null) {
+                        cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
+                                + (mOut != null ? " established." : " error."));
                     }
-                };
-                mConnectTask.execute();
-            }
+                    (new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... voids) {
+                            try {
+                                Thread.sleep(TIMEOUT);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            synchronized (SenderService.this) {
+                                mConnectTask = null;
+                            }
+                            return null;
+                        }
+                    }).execute();
+                }
+            };
+            mConnectTask.execute();
         }
     }
+
 
     // socket is closed from PrintWriter.close()
     @SuppressWarnings("resource")
@@ -114,7 +116,7 @@ final class SenderService {
                 socket.close();
                 osw.close();
             }
-        } catch (@NonNull final Exception e) {
+        } catch (@NonNull final IOException e) {
             Log.e("TCP", "Connect: Error", e);
         }
         // mLastConnectionAttemptTimestamp = currentTime;

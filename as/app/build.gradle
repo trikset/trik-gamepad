@@ -11,7 +11,7 @@ android {
     compileSdkVersion 24
     defaultConfig {
         applicationId "com.trikset.gamepad"
-        minSdkVersion 19
+        minSdkVersion 10
         targetSdkVersion 24
         maxSdkVersion 24
     }

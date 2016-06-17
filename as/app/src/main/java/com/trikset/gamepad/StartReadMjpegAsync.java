@@ -42,7 +42,9 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
 
     @Override
     protected void onPostExecute(MjpegInputStream result) {
+        mv.stopPlayback();
         mv.setSource(result);
         mv.startPlayback();
     }
+
 }

@@ -10,68 +10,102 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 public class MjpegInputStream extends DataInputStream {
-    private static final String TAG               = "MjpegInputStream";
+    private static final String TAG = "MjpegInputStream";
     private final static String CONTENT_LENGTH = "Content-Length";
-    private final static int HEADER_MAX_LENGTH = 100;
-    private final static int FRAME_MAX_LENGTH = 200000 + HEADER_MAX_LENGTH;
-    private final byte[]        SOI_MARKER        = { (byte) 0xFF, (byte) 0xD8 };
-    private final byte[]        EOF_MARKER        = { (byte) 0xFF, (byte) 0xD9 };
-    //private byte[] mHeader = new byte[100];
+    private final static int HEADER_MAX_LENGTH = 10000;
+    private final static int FRAME_MAX_LENGTH = 300000 + HEADER_MAX_LENGTH;
+    private final static byte[] SOI_MARKER = {(byte) 0xFF, (byte) 0xD8};
+    //private final byte[] EOF_MARKER = {(byte) 0xFF, (byte) 0xD9};
+    private static byte[] CONTENT_LENGTH_MARKER = getUTF8Bytes(CONTENT_LENGTH);
 
+    private static byte[] getUTF8Bytes(String s) {
+        try {
+            return s.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public MjpegInputStream(@NonNull InputStream in) {
         super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
     }
 
 
-    private int getEndOfSequence(@NonNull DataInputStream in, @NonNull byte[] sequence)
-            throws IOException {
+    private int getEndOfSequence(@NonNull byte[] sequence) throws IOException {
+        mark(FRAME_MAX_LENGTH);
         int seqIndex = 0;
-        byte c;
-        for (int i = 0; i < FRAME_MAX_LENGTH; i++) {
-            c = (byte) in.readUnsignedByte();
-            if (c == sequence[seqIndex]) {
-                seqIndex++;
-                if (seqIndex == sequence.length)
-                    return i + 1;
-            } else {
-                seqIndex = 0;
+
+        try {
+            for (int i = 0; i < FRAME_MAX_LENGTH; i++) {
+                int c = readUnsignedByte();
+                if (c < 0)
+                    return -1;
+                if ((byte) c == sequence[seqIndex]) {
+                    seqIndex++;
+                    if (seqIndex == sequence.length)
+                        return i + 1;
+                } else {
+                    seqIndex = 0;
+                }
             }
+            return -1;
+        } catch (IOException e) {
+            return -1;
+        } finally {
+            reset();
         }
-        return -1;
     }
 
-    private int getStartOfSequence(@NonNull DataInputStream in, @NonNull byte[] sequence)
-            throws IOException {
-        int end = getEndOfSequence(in, sequence);
+    private int getStartOfSequence(@NonNull byte[] sequence) throws IOException {
+        int end = getEndOfSequence(sequence);
         return end < 0 ? -1 : end - sequence.length;
     }
 
-    @NonNull
     public InputStream readMjpegFrame() throws IOException {
-        mark(FRAME_MAX_LENGTH);
-        int headerLen = getStartOfSequence(this, SOI_MARKER);
-        reset();
-        int length = extractLength(headerLen);
-        //skipBytes(SOI_MARKER.length);
-        return new BoundedInputStream(this, length);
-    }
+        int contentLength = -1;
+        int contentAttrPos = getStartOfSequence(CONTENT_LENGTH_MARKER);
+        if (contentAttrPos < 0 || skipBytes(contentAttrPos) < contentAttrPos)
+            throw new IOException("JPG stream is totally broken or this is extremely huge image");
 
-    private int extractLength(int headerLen) throws IOException {
-        int result;
-        try (BoundedInputStream headerIn = new BoundedInputStream(this, headerLen)) {
+        try {
+            int headerLen = getStartOfSequence(SOI_MARKER);
+            BoundedInputStream headerIn = new BoundedInputStream(this, headerLen);
+            headerIn.setPropagateClose(false);
             Properties props = new Properties();
             props.load(headerIn);
-            result = Integer.parseInt(props.getProperty(CONTENT_LENGTH));
-        } catch (NumberFormatException nfe) {
-            nfe.getStackTrace();
-            Log.d(TAG, "catch NumberFormatException hit", nfe);
-            result = getEndOfSequence(this, EOF_MARKER);
-        }
-        return result;
+            contentLength = Integer.parseInt(props.getProperty(CONTENT_LENGTH));
+            headerIn.close();
 
+            if (contentLength >= 0 && available() < 2 * contentLength) {
+                // we must be at the very beginning of data already, but ....
+                int skip = getStartOfSequence(SOI_MARKER);
+                if(skipBytes(skip) < skip)
+                    return null;
+                BoundedInputStream s = new BoundedInputStream(this, contentLength);
+                s.setPropagateClose(false);
+                return s;
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            //e.getStackTrace();
+            Log.d(TAG, "catch exn hit", e);
+        }
+        try {
+            if (contentLength < 0)
+                skipBytes(getStartOfSequence(CONTENT_LENGTH_MARKER));
+            else {
+                Log.i(TAG, "Frame dropped.");
+                skipBytes(contentLength);
+            }
+        } catch (IOException e) {
+            e.getStackTrace();
+            Log.e(TAG, "Failed to skip bad data:" + e);
+        }
+        return null;
     }
+
 }

@@ -36,7 +36,6 @@ import com.demo.mjpeg.MjpegView;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.trikset.gamepad.SenderService.OnEventListener;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     static final String TAG = "MainActivity";
     private HideRunnable mHideRunnable;
+    private Runnable mRestartCallback;
     private SensorManager mSensorManager;
     private int mAngle;                     // -100%
     // ...
@@ -121,13 +121,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         recreateMagicButtons(5);
 
         {
-            getSenderService().setOnDiconnectedListner(new OnEventListener<String>() {
+            getSenderService().setOnDiconnectedListner(new SenderService.OnEventListener<String>() {
                 @Override
-                public void onEvent(final String reason) {
+                public void onEvent(String reason) {
                     toast("Disconnected." + reason);
                 }
             });
-            getSenderService().setShowTextCallback(new OnEventListener<String>() {
+            getSenderService().setShowTextCallback(new SenderService.OnEventListener<String>() {
                 @Override
                 public void onEvent(String text) {
                     toast(text);
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // TODO: remove this hack
         final CheckBox w = (CheckBox) MenuItemCompat.getActionView(menu.findItem(R.id.wheel));
-        w.setText("WHEEL");
+        w.setText("WHEEL".intern());
 
         return true;
     }
@@ -310,6 +310,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager.unregisterListener(this);
         getSenderService().disconnect("Inactive gamepad");
         mVideo.stopPlayback();
+        if (mRestartCallback != null) {
+            mVideo.removeCallbacks(mRestartCallback);
+            mRestartCallback = null;
+        }
+
         super.onPause();
     }
 
@@ -317,6 +322,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
+        if (mRestartCallback != null)
+            mVideo.removeCallbacks(mRestartCallback);
+
+        mRestartCallback = new Runnable() {
+            @Override
+            public void run() {
+                new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+                //if (mRestartCallback != null && mVideo != null)
+                //    mVideo.postDelayed(mRestartCallback, 60000);
+            }
+        };
+        mVideo.post(mRestartCallback);
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -429,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         HideRunnable r = getHideRunnable();
-        if ( r != null) {
+        if (r != null) {
             mainView.removeCallbacks(r);
             mainView.postDelayed(r, 3000);
         }
@@ -513,7 +530,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onDestroy() {
         mSensorManager.unregisterListener(this);
+
+        if (mRestartCallback != null) {
+            mVideo.removeCallbacks(mRestartCallback);
+            mRestartCallback = null;
+        }
         mVideo.stopPlayback();
+
         final View mainView = findViewById(R.id.main);
         mainView.removeCallbacks(getHideRunnable());
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
