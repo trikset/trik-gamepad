@@ -3,6 +3,7 @@
 package com.trikset.gamepad;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.demo.mjpeg.MjpegInputStream;
 import com.demo.mjpeg.MjpegView;
@@ -31,7 +32,9 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
                 HttpURLConnection c = (HttpURLConnection) u.openConnection();
                 c.setConnectTimeout(5000);
                 c.setReadTimeout(5000);
-                return new MjpegInputStream(c.getInputStream());
+                MjpegInputStream s = new MjpegInputStream(c.getInputStream());
+                Log.i("JPGReader", "Restarted connection.");
+                return s;
 
             } catch (IOException e) {
                 e.printStackTrace();

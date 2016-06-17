@@ -329,8 +329,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void run() {
                 new StartReadMjpegAsync(mVideo).execute(mVideoURI);
-                //if (mRestartCallback != null && mVideo != null)
-                //    mVideo.postDelayed(mRestartCallback, 60000);
+                if (mRestartCallback != null && mVideo != null)
+                    // drop HTTP connection and restart
+                    mVideo.postDelayed(mRestartCallback, 30000);
             }
         };
         mVideo.post(mRestartCallback);
@@ -536,6 +537,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mRestartCallback = null;
         }
         mVideo.stopPlayback();
+        mVideo = null;
 
         final View mainView = findViewById(R.id.main);
         mainView.removeCallbacks(getHideRunnable());
