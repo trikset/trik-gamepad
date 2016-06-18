@@ -110,14 +110,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mVideo = (MjpegView) findViewById(R.id.video);
 
-        if (mVideo != null) {
-
-            mVideo.setOverlayPosition(MjpegView.POSITION_UPPER_RIGHT);
-            mVideo.showFps(true);
-            mVideo.setDisplayMode(MjpegView.SIZE_BEST_FIT);
-
-        }
-
         recreateMagicButtons(5);
 
         {
@@ -283,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // TODO: remove this hack
         final CheckBox w = (CheckBox) MenuItemCompat.getActionView(menu.findItem(R.id.wheel));
-        w.setText("WHEEL".intern());
+        w.setText("WHEEL");
 
         return true;
     }

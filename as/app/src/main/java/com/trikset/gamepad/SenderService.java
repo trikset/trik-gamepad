@@ -104,7 +104,11 @@ final class SenderService {
             socket.setTrafficClass(0x0F); // high priority, no-delay
             socket.setOOBInline(true);
             socket.shutdownInput();
-            OutputStreamWriter osw = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+            OutputStreamWriter osw =
+                    //Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
+                    //new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8):
+                    new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+
 
             // currently does nothing
             // socket.setPerformancePreferences(connectionTime, latency,

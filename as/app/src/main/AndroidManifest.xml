@@ -10,7 +10,9 @@
         android:allowBackup="false"
         android:icon="@drawable/trik_icon"
         android:label="TRIK Gamepad"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:largeHeap="false"
+        android:hardwareAccelerated="true">
        <!--  <service android:name=".SenderService" />  -->
         
         <activity

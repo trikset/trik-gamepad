@@ -66,7 +66,7 @@ public class MjpegInputStream extends DataInputStream {
         return end < 0 ? -1 : end - sequence.length;
     }
 
-    public InputStream readMjpegFrame() throws IOException {
+    public BoundedInputStream readMjpegFrame() throws IOException {
         int contentLength = -1;
         int contentAttrPos = getStartOfSequence(CONTENT_LENGTH_MARKER);
         if (contentAttrPos < 0 || skipBytes(contentAttrPos) < contentAttrPos)
@@ -97,17 +97,15 @@ public class MjpegInputStream extends DataInputStream {
         try {
             if (contentLength < 0) {
                 Log.e(TAG, "Skipping to recover");
-                int count = getStartOfSequence(CONTENT_LENGTH_MARKER);
-                Log.e(TAG, count + " bytes to skip until next frame header.");
-                int skipped = skipBytes(count);
-                if (skipped != count)
-                    Log.e(TAG, "But " + skipped + " bytes skipped instead.");
-
+                contentLength = getStartOfSequence(CONTENT_LENGTH_MARKER);
             }
             else {
                 Log.i(TAG, "Frame dropped.");
-                skipBytes(contentLength);
             }
+            Log.v(TAG, contentLength + " bytes to skip until next frame header.");
+            int skipped = skipBytes(contentLength);
+            if (skipped != contentLength)
+                Log.w(TAG, "Skipped only" + skipped + " bytes instead of " + contentLength);
         } catch (IOException e) {
             e.getStackTrace();
             Log.e(TAG, "Failed to skip bad data:" + e);
