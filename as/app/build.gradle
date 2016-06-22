@@ -14,11 +14,13 @@ android {
         minSdkVersion 11
         targetSdkVersion 24
         maxSdkVersion 24
+        resConfigs "en"
     }
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),'proguard-rules.pro'
             debuggable false
             signingConfig signingConfigs.config
         }
