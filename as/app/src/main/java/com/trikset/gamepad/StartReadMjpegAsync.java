@@ -3,6 +3,7 @@
 package com.trikset.gamepad;
 
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.demo.mjpeg.MjpegInputStream;
@@ -22,6 +23,7 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
     }
 
    // @Nullable
+    @Nullable
     @Override
     protected MjpegInputStream doInBackground(URI... uris) {
         URI uri = uris[0];

@@ -2,6 +2,7 @@
 package com.demo.mjpeg;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.apache.commons.io.input.BoundedInputStream;
@@ -20,9 +21,11 @@ public class MjpegInputStream extends DataInputStream {
     private final static int FRAME_MAX_LENGTH = 300000 + HEADER_MAX_LENGTH;
     private final static byte[] SOI_MARKER = {(byte) 0xFF, (byte) 0xD8};
     //private final byte[] EOF_MARKER = {(byte) 0xFF, (byte) 0xD9};
+    @Nullable
     private static byte[] CONTENT_LENGTH_MARKER = getUTF8Bytes(CONTENT_LENGTH);
     private final Properties props = new Properties();
-    private static byte[] getUTF8Bytes(String s) {
+    @Nullable
+    private static byte[] getUTF8Bytes(@NonNull String s) {
         try {
             return s.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -66,6 +69,7 @@ public class MjpegInputStream extends DataInputStream {
         return end < 0 ? -1 : end - sequence.length;
     }
 
+    @Nullable
     public BoundedInputStream readMjpegFrame() throws IOException {
         int contentLength = -1;
         int contentAttrPos = getStartOfSequence(CONTENT_LENGTH_MARKER);
@@ -90,7 +94,7 @@ public class MjpegInputStream extends DataInputStream {
                 s.setPropagateClose(false);
                 return s;
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (@NonNull IOException | IllegalArgumentException e) {
             //e.getStackTrace();
             Log.d(TAG, "catch exn hit", e);
         }

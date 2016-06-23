@@ -11,7 +11,7 @@ android {
     compileSdkVersion 24
     defaultConfig {
         applicationId "com.trikset.gamepad"
-        minSdkVersion 11
+        minSdkVersion 10
         targetSdkVersion 24
         maxSdkVersion 24
         resConfigs "en"
@@ -20,7 +20,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             debuggable false
             signingConfig signingConfigs.config
         }

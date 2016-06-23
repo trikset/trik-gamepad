@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     static final String TAG = "MainActivity";
     private HideRunnable mHideRunnable;
+    @Nullable
     private Runnable mRestartCallback;
     private SensorManager mSensorManager;
     private int mAngle;                     // -100%
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean mWheelEnabled;
     private SenderService mSender;
     private int mWheelStep = 7;
+    @Nullable
     private MjpegView mVideo;
     @Nullable
     private URI mVideoURI;
@@ -59,7 +61,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
+    @Nullable
     private GoogleApiClient client;
+    @Nullable
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
     // @SuppressWarnings("deprecation")

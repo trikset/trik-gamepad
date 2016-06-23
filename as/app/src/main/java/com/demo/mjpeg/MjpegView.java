@@ -11,6 +11,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -151,8 +152,11 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         private int frameCounter;
         private long mStart;
 
+        @Nullable
         Bitmap mBitmap;
+        @Nullable
         BoundedInputStream mFrame;
+        @NonNull
         byte[] mTempStorage = new byte[100000];
         private final PorterDuffXfermode mMode = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
         private String mFpsStr="";
@@ -232,9 +236,11 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             //opts.inScreenDensity = scale;
             //opts.inDensity = scale * opts.outHeight / destRect.height();
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                opts.inBitmap = mBitmap; // reuse if possible
+                opts.inMutable = true;
+            }
 
-            opts.inBitmap = mBitmap; // reuse if possible
-            opts.inMutable = true;
             opts.inPurgeable = true;
             opts.inInputShareable = true;
             //opts.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -263,7 +269,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             return destRect(bm.getWidth(), bm.getHeight());
         }
 
-        private void DrawToCanvas(Canvas canvas, Rect destRect) {
+        private void DrawToCanvas(@NonNull Canvas canvas, @NonNull Rect destRect) {
             synchronized (mSurfaceHolder) {
                 frameCounter++;
                 final long now = System.currentTimeMillis();
