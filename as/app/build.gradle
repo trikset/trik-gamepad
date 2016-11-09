@@ -7,13 +7,13 @@ android {
             storeFile file('~/android-keystorage.jks')
         }
     }
-    buildToolsVersion "24"
-    compileSdkVersion 24
+    buildToolsVersion "25"
+    compileSdkVersion 25
     defaultConfig {
         applicationId "com.trikset.gamepad"
-        minSdkVersion 10
-        targetSdkVersion 24
-        maxSdkVersion 24
+        minSdkVersion 9
+        targetSdkVersion 25
+        maxSdkVersion 25
         resConfigs "en"
     }
     buildTypes {
@@ -32,15 +32,12 @@ android {
 
     }
     useLibrary 'org.apache.http.legacy'
-    dexOptions {
-        incremental false
-    }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support:support-v4:24.0.0'
-    compile 'com.android.support:support-annotations:24.0.0'
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.android.support:support-v4:25.0.0'
+    compile 'com.android.support:support-annotations:25.0.0'
     compile 'commons-io:commons-io:2.4'
-    compile 'com.google.android.gms:play-services-appindexing:9.0.2'
+    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
 }

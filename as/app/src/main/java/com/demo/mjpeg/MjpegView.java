@@ -276,9 +276,10 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                 final long elapsedMs = now - mStart;
                 final int TIME_FRAME_MS = 5000;
 
-                canvas.drawColor(Color.BLACK);
-                canvas.drawBitmap(mBitmap, null, destRect, null);
-                canvas.drawText(mFpsStr, dispWidth - 1, -fpsTextPaint.ascent(), fpsTextPaint);
+                if (mBitmap != null) {
+                    canvas.drawColor(Color.BLACK);
+                    canvas.drawBitmap(mBitmap, null, destRect, null);
+                }
 
                 if (elapsedMs >= TIME_FRAME_MS) {
                     Log.v(TAG, "elapsed " + elapsedMs);
@@ -287,6 +288,8 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                     frameCounter = 0;
                     mFpsStr = String.format(Locale.getDefault(), "%.1f", fps);
                 }
+
+                canvas.drawText(mFpsStr, dispWidth - 1, -fpsTextPaint.ascent(), fpsTextPaint);
 
             }
         }
