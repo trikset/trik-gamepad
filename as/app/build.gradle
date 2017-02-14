@@ -12,8 +12,8 @@ android {
     defaultConfig {
         applicationId "com.trikset.gamepad"
         minSdkVersion 9
-        // Stick to Android 5.1 compatibility, because better tested on this version
-        targetSdkVersion 22
+        // Stick to Android 6 compatibility, because better tested on this version
+        targetSdkVersion 23
         maxSdkVersion 25
         resConfigs "en"
     }
