@@ -149,17 +149,17 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
     /// TODO: rewrite from scratch. needs redesign.
     private class MjpegRenderThread extends Thread {
         private final SurfaceHolder mSurfaceHolder;
-        private int frameCounter;
+        private int mFrameCounter;
         private long mStart;
 
         @Nullable
-        Bitmap mBitmap;
+        private Bitmap mBitmap;
         @Nullable
-        BoundedInputStream mFrame;
+        private BoundedInputStream mFrame;
         @NonNull
-        byte[] mTempStorage = new byte[100000];
+        private byte[] mTempStorage = new byte[100000];
         private final PorterDuffXfermode mMode = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
-        private String mFpsStr="";
+        private String mFpsStr = "";
 
         public MjpegRenderThread(SurfaceHolder holder) {
             this.mSurfaceHolder = holder;
@@ -186,7 +186,8 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                     if (null == (canvas = mSurfaceHolder.lockCanvas()))
                         continue;
 
-                    DrawToCanvas(canvas, destRect);
+                    if (mBitmap != null)
+                        DrawToCanvas(canvas, destRect);
 
                 } catch (IOException e) {
                     mRun = false;
@@ -270,35 +271,36 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         private void DrawToCanvas(@NonNull Canvas canvas, @NonNull Rect destRect) {
-            synchronized (mSurfaceHolder) {
-                frameCounter++;
-                final long now = System.currentTimeMillis();
-                final long elapsedMs = now - mStart;
-                final int TIME_FRAME_MS = 5000;
 
-                if (mBitmap != null) {
-                    canvas.drawColor(Color.BLACK);
-                    canvas.drawBitmap(mBitmap, null, destRect, null);
-                }
-
-                if (elapsedMs >= TIME_FRAME_MS) {
-                    Log.v(TAG, "elapsed " + elapsedMs);
-                    mStart = now;
-                    float fps = 1000.0f * frameCounter / TIME_FRAME_MS;
-                    frameCounter = 0;
-                    mFpsStr = String.format(Locale.getDefault(), "%.1f", fps);
-                }
-
-                canvas.drawText(mFpsStr, dispWidth - 1, -fpsTextPaint.ascent(), fpsTextPaint);
-
+            mFrameCounter++;
+            final long now = System.currentTimeMillis();
+            final long elapsedMs = now - mStart;
+            final int TIME_FRAME_MS = 5000;
+            if (elapsedMs >= TIME_FRAME_MS) {
+                Log.v(TAG, "elapsed " + elapsedMs);
+                mStart = now;
+                float fps = 1000.0f * mFrameCounter / TIME_FRAME_MS;
+                mFrameCounter = 0;
+                mFpsStr = String.format(Locale.getDefault(), "%.1f", fps);
             }
+
+            synchronized (mSurfaceHolder) {
+                canvas.drawColor(Color.BLACK);
+                synchronized (this) {
+                    if (mBitmap != null)
+                        canvas.drawBitmap(mBitmap, null, destRect, null);
+                }
+                canvas.drawText(mFpsStr, dispWidth - 1, -fpsTextPaint.ascent(), fpsTextPaint);
+            }
+
+
         }
 
 
         @NonNull
         private Rect destRect(int bmw, int bmh) {
-            int tempx;
-            int tempy;
+            int tempX;
+            int tempY;
             float bmasp = (float) bmw / (float) bmh;
             bmw = dispWidth;
             bmh = (int) (dispWidth / bmasp);
@@ -306,9 +308,9 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                 bmh = dispHeight;
                 bmw = (int) (dispHeight * bmasp);
             }
-            tempx = dispWidth / 2 - bmw / 2;
-            tempy = dispHeight / 2 - bmh / 2;
-            return new Rect(tempx, tempy, bmw + tempx, bmh + tempy);
+            tempX = dispWidth / 2 - bmw / 2;
+            tempY = dispHeight / 2 - bmh / 2;
+            return new Rect(tempX, tempY, bmw + tempX, bmh + tempY);
         }
 
     }

@@ -111,8 +111,8 @@ public class MjpegInputStream extends DataInputStream {
             if (skipped != contentLength)
                 Log.w(TAG, "Skipped only" + skipped + " bytes instead of " + contentLength);
         } catch (IOException e) {
-            e.getStackTrace();
-            Log.e(TAG, "Failed to skip bad data:" + e);
+            final StackTraceElement[] stackTrace = e.getStackTrace();
+            Log.e(TAG, "Failed to skip bad data:" + e + "\n" + stackTrace.toString());
         }
         return null;
     }
