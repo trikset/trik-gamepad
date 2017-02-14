@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             mSharedPreferencesListener
                     = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                float mPrevAlpha;
+                private float mPrevAlpha;
 
                 @Override
                 public void onSharedPreferenceChanged(@NonNull final SharedPreferences sharedPreferences, final String key) {
@@ -305,12 +305,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         mSensorManager.unregisterListener(this);
         getSenderService().disconnect("Inactive gamepad");
-        mVideo.stopPlayback();
-        if (mRestartCallback != null) {
-            mVideo.removeCallbacks(mRestartCallback);
-            mRestartCallback = null;
+        if(mVideo!=null) {
+            mVideo.stopPlayback();
+            if (mRestartCallback != null) {
+                mVideo.removeCallbacks(mRestartCallback);
+                mRestartCallback = null;
+            }
         }
-
         super.onPause();
     }
 
@@ -318,19 +319,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
-        if (mRestartCallback != null)
-            mVideo.removeCallbacks(mRestartCallback);
-
-        mRestartCallback = new Runnable() {
-            @Override
-            public void run() {
-                new StartReadMjpegAsync(mVideo).execute(mVideoURI);
-                if (mRestartCallback != null && mVideo != null)
-                    // drop HTTP connection and restart
-                    mVideo.postDelayed(mRestartCallback, 30000);
+        if (mVideo != null) {
+            if (mRestartCallback != null) {
+                mVideo.removeCallbacks(mRestartCallback);
             }
-        };
-        mVideo.post(mRestartCallback);
+
+            mRestartCallback = new Runnable() {
+                @Override
+                public void run() {
+                    new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+                    if (mRestartCallback != null && mVideo != null)
+                        // drop HTTP connection and restart
+                        mVideo.postDelayed(mRestartCallback, 30000);
+                 }
+            };
+
+            mVideo.post(mRestartCallback);
+        }
+
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ALL),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -528,13 +534,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onDestroy() {
         mSensorManager.unregisterListener(this);
 
-        if (mRestartCallback != null) {
-            mVideo.removeCallbacks(mRestartCallback);
+        if (mVideo != null) {
+            if (mRestartCallback != null)
+                mVideo.removeCallbacks(mRestartCallback);
             mRestartCallback = null;
-        }
-        mVideo.stopPlayback();
-        mVideo = null;
 
+            mVideo.stopPlayback();
+            mVideo = null;
+        }
         final View mainView = findViewById(R.id.main);
         mainView.removeCallbacks(getHideRunnable());
         final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);

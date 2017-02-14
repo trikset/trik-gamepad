@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.trikset.gamepad"
-    android:versionCode="24"
-    android:versionName="1.16">
+    android:versionCode="26"
+    android:versionName="1.18">
     <uses-permission android:name="android.permission.INTERNET" />    
     <!--  <uses-permission android:name="android.permission.VIBRATE" /> -->
 
     <application
         android:allowBackup="false"
         android:icon="@drawable/trik_icon"
-        android:label="TRIK Gamepad"
-        android:theme="@style/AppTheme"
-        android:largeHeap="false"
-        android:hardwareAccelerated="true">
+        android:label="TRIK Gamepad Lite"
+        android:theme="@style/AppTheme">
        <!--  <service android:name=".SenderService" />  -->
         
         <activity
             android:name="com.trikset.gamepad.MainActivity"
-            android:label="TRIK Gamepad">
+            android:label="TRIK gamepad (lite)">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
