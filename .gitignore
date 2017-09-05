@@ -27,7 +27,8 @@ proguard/
 # Android Studio
 as/.gradle
 as/local.properties
-as/.idea/workspace.xml
+as/.idea
 as/app/build/
 as/build
 as/.navigation
+*.iml

@@ -12,6 +12,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class MjpegInputStream extends DataInputStream {
@@ -112,7 +113,7 @@ public class MjpegInputStream extends DataInputStream {
                 Log.w(TAG, "Skipped only" + skipped + " bytes instead of " + contentLength);
         } catch (IOException e) {
             final StackTraceElement[] stackTrace = e.getStackTrace();
-            Log.e(TAG, "Failed to skip bad data:" + e + "\n" + stackTrace.toString());
+            Log.e(TAG, "Failed to skip bad data:" + e + "\n" + Arrays.toString(stackTrace));
         }
         return null;
     }

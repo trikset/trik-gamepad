@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="menu_settings">Settings</string>
-    <string name="menu_settings_condensed">Settings</string>
-    <string name="menu_wheel">Wheel</string>
-    <string name="menu_wheel_condensed">Wheel</string>
-</resources>
