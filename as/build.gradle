@@ -1,19 +1,23 @@
+apply plugin: 'idea'
+apply plugin: 'checkstyle'
+apply plugin: 'com.android.application'
+
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
 }
-
-apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
@@ -22,14 +26,15 @@ android {
             storeFile file('~/android-keystorage.jks')
         }
     }
-    buildToolsVersion '25.0.2'
-    compileSdkVersion 25
+    buildToolsVersion '27.0.3'
+    compileSdkVersion 27
     defaultConfig {
         applicationId "com.trikset.gamepad"
         minSdkVersion 9
         targetSdkVersion 25
         maxSdkVersion 26
         resConfigs "en"
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
@@ -46,13 +51,13 @@ android {
         }
 
     }
-    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:support-annotations:25.3.1'
-    compile 'commons-io:commons-io:2.4'
-    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
+    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:support-compat:27.0.2'
+    implementation 'com.android.support:support-annotations:27.0.2'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'com.google.firebase:firebase-appindexing:11.8.0'
+    implementation 'com.android.support:support-v4:27.0.2'
 }
