@@ -433,10 +433,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LOW_PROFILE;
             mainView.setSystemUiVisibility(flags);
         }
-//        if (sdk >= Build.VERSION_CODES.HONEYCOMB) {
-//            flags |= show ? View.STATUS_BAR_VISIBLE:View.STATUS_BAR_HIDDEN;
-//        }
-
 
         else {
             ActionBar a = getSupportActionBar();

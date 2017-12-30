@@ -30,9 +30,9 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.trikset.gamepad"
-        minSdkVersion 9
-        targetSdkVersion 25
-        maxSdkVersion 26
+        minSdkVersion 14
+        targetSdkVersion 27
+        maxSdkVersion 27
         resConfigs "en"
         signingConfig signingConfigs.config
     }

@@ -237,10 +237,8 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
             //opts.inScreenDensity = scale;
             //opts.inDensity = scale * opts.outHeight / destRect.height();
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                opts.inBitmap = mBitmap; // reuse if possible
-                opts.inMutable = true;
-            }
+            opts.inBitmap = mBitmap; // reuse if possible
+            opts.inMutable = true;
 
             opts.inPurgeable = true;
             opts.inInputShareable = true;
