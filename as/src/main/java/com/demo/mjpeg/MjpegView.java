@@ -157,7 +157,7 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
         @Nullable
         private BoundedInputStream mFrame;
         @NonNull
-        private byte[] mTempStorage = new byte[100000];
+        private final byte[] mTempStorage = new byte[100000];
         private final PorterDuffXfermode mMode = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
         private String mFpsStr = "";
 

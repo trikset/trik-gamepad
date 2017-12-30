@@ -23,7 +23,7 @@ public class MjpegInputStream extends DataInputStream {
     private final static byte[] SOI_MARKER = {(byte) 0xFF, (byte) 0xD8};
     //private final byte[] EOF_MARKER = {(byte) 0xFF, (byte) 0xD9};
     @Nullable
-    private static byte[] CONTENT_LENGTH_MARKER = getUTF8Bytes(CONTENT_LENGTH);
+    private final static byte[] CONTENT_LENGTH_MARKER = getUTF8Bytes(CONTENT_LENGTH);
     private final Properties props = new Properties();
     @Nullable
     private static byte[] getUTF8Bytes(@NonNull String s) {
