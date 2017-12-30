@@ -32,3 +32,4 @@ as/app/build/
 as/build
 as/.navigation
 *.iml
+as/gradle*
