@@ -12,7 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 final class SenderService {
-    public OnEventListener<String> getShowTextCallback() {
+    private OnEventListener<String> getShowTextCallback() {
         return mShowTextCallback;
     }
 
@@ -20,11 +20,11 @@ final class SenderService {
         this.mShowTextCallback = mShowTextCallback;
     }
 
-    public OnEventListener<String> getOnDisconnectedListener() {
+    private OnEventListener<String> getOnDisconnectedListener() {
         return mOnDisconnectedListener;
     }
 
-    public void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
+    private void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
         this.mOnDisconnectedListener = mOnDisconnectedListener;
     }
 

@@ -91,8 +91,8 @@ public class SquareTouchPadLayout extends RelativeLayout {
         final int width = MeasureSpec.getSize(widthMeasureSpec);
         final int height = MeasureSpec.getSize(heightMeasureSpec);
         final int halfPerimeter = width + height;
-        final int size = width * height != 0 ? Math.min(width, height) : halfPerimeter != 0 ? halfPerimeter
-                : SquareTouchPadLayout.sDefaultSize;
+        final int size = ((width * height) != 0) ? Math.min(width, height) : ((halfPerimeter != 0) ? halfPerimeter
+                : SquareTouchPadLayout.sDefaultSize);
         setMeasuredDimension(size, size);
     }
 
@@ -132,8 +132,9 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
         @Override
         public boolean onTouch(@NonNull final View v, @NonNull final MotionEvent event) {
-            if (v != SquareTouchPadLayout.this)
+            if (v != SquareTouchPadLayout.this) {
                 return false;
+            }
 
             switch (event.getAction()) {
                 default:
