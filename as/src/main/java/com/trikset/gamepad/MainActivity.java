@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // @SuppressWarnings("deprecation")
     // @TargetApi(16)
     private void createPad(int id, String strId) {
-        final SquareTouchPadLayout pad = (SquareTouchPadLayout) findViewById(id);
+        final SquareTouchPadLayout pad = findViewById(id);
         if (pad != null) {
             pad.setPadName("pad " + strId);
             pad.setSender(getSenderService());
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 a.setDisplayShowHomeEnabled(true);
                 a.setDisplayUseLogoEnabled(false);
-                a.setLogo(R.drawable.trik_gamepad_logo_1000x1000);
+                a.setLogo(R.drawable.trik_gamepad_logo_512x512);
 
                 a.setDisplayShowTitleEnabled(true);
             }
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 
-        mVideo = (MjpegView) findViewById(R.id.video);
+        mVideo = findViewById(R.id.video);
 
         recreateMagicButtons(5);
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         {
-            final Button btnSettings = (Button) findViewById(R.id.btnSettings);
+            final Button btnSettings = findViewById(R.id.btnSettings);
             if (btnSettings != null) {
                 btnSettings.setOnClickListener(new View.OnClickListener() {
 
@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void recreateMagicButtons(final int count) {
-        final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
+        final ViewGroup buttonsView = findViewById(R.id.buttons);
         if (buttonsView == null)
             return;
         buttonsView.removeAllViews();
@@ -476,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         final View mainView = findViewById(R.id.main);
         mainView.removeCallbacks(getHideRunnable());
-        final ViewGroup buttonsView = (ViewGroup) findViewById(R.id.buttons);
+        final ViewGroup buttonsView = findViewById(R.id.buttons);
         if (buttonsView != null) {
             for (int i = 0; i < buttonsView.getChildCount();
                  ++i) {
@@ -484,16 +484,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        final Button btnSettings = (Button) findViewById(R.id.btnSettings);
+        final Button btnSettings = findViewById(R.id.btnSettings);
         if (btnSettings != null) {
             btnSettings.setOnClickListener(null);
         }
 
-        final SquareTouchPadLayout pad1 = (SquareTouchPadLayout) findViewById(R.id.leftPad);
+        final SquareTouchPadLayout pad1 = findViewById(R.id.leftPad);
         if (pad1 != null)
             pad1.setSender(null);
 
-        final SquareTouchPadLayout pad2 = (SquareTouchPadLayout) findViewById(R.id.rightPad);
+        final SquareTouchPadLayout pad2 = findViewById(R.id.rightPad);
         if (pad2 != null)
             pad2.setSender(null);
 
