@@ -16,7 +16,7 @@ final class SenderService {
         return mShowTextCallback;
     }
 
-    public void setShowTextCallback(OnEventListener<String> mShowTextCallback) {
+    void setShowTextCallback(OnEventListener<String> mShowTextCallback) {
         this.mShowTextCallback = mShowTextCallback;
     }
 
@@ -24,7 +24,7 @@ final class SenderService {
         return mOnDisconnectedListener;
     }
 
-    private void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
+    void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
         this.mOnDisconnectedListener = mOnDisconnectedListener;
     }
 
@@ -46,45 +46,14 @@ final class SenderService {
     @Nullable
     private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
-    public SenderService() {
+    SenderService() {
     }
 
     private void connectAsync() {
         synchronized (this) {
             if (mConnectTask != null)
                 return;
-            mConnectTask = new AsyncTask<Void, Void, PrintWriter>() {
-                @Nullable
-                @Override
-                protected PrintWriter doInBackground(final Void... params) {
-                    return connectToTRIK();
-                }
-
-                @Override
-                protected void onPostExecute(PrintWriter result) {
-                    mOut = result;
-                    OnEventListener<String> cb = getShowTextCallback();
-                    if (cb != null) {
-                        cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
-                                + (mOut != null ? " established." : " error."));
-                    }
-                    (new AsyncTask<Void, Void, Void>() {
-                        @Nullable
-                        @Override
-                        protected Void doInBackground(Void... voids) {
-                            try {
-                                Thread.sleep(TIMEOUT);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            synchronized (SenderService.this) {
-                                mConnectTask = null;
-                            }
-                            return null;
-                        }
-                    }).execute();
-                }
-            };
+            mConnectTask = new PrintWriterAsyncTask();
             mConnectTask.execute();
         }
     }
@@ -128,7 +97,7 @@ final class SenderService {
         return null;
     }
 
-    public void disconnect(final String reason) {
+    void disconnect(final String reason) {
         if (mOut != null) {
             mOut.close();
             mOut = null;
@@ -139,11 +108,11 @@ final class SenderService {
         }
     }
 
-    public String getHostAddr() {
+    String getHostAddr() {
         return mHostAddr;
     }
 
-    public void send(final String command) {
+    void send(final String command) {
 
         if (mOut == null) {
             connectAsync();
@@ -153,34 +122,10 @@ final class SenderService {
 
         Log.d("TCP", "Sending '" + command + '\'');
 
-        new AsyncTask<Void, Void, Void>() {
-            @Nullable
-            @Override
-            protected Void doInBackground(final Void... params) {
-                synchronized (mSyncFlag) {
-                    // TODO: reimplement with Handle instead of multiple chaotic
-                    // AsyncTasks
-                    mOut.println(command);
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(final Void result) {
-                if (mOut == null || mOut.checkError()) {
-                    Log.e("TCP", "NotSent: " + command);
-                    disconnect("Send failed.");
-                }
-            }
-
-        }.execute();
+        new SendCommandAsyncTask(command).execute();
     }
 
-    void setOnDiconnectedListner(final OnEventListener<String> oel) {
-        setOnDisconnectedListener(oel);
-    }
-
-    public void setTarget(@NonNull final String hostAddr, final int hostPort) {
+    void setTarget(@NonNull final String hostAddr, final int hostPort) {
         if (!hostAddr.equalsIgnoreCase(mHostAddr) || mHostPort != hostPort) {
             disconnect("Target changed.");
         }
@@ -191,5 +136,69 @@ final class SenderService {
 
     interface OnEventListener<ArgType> {
         void onEvent(ArgType arg);
+    }
+
+    private class PrintWriterAsyncTask extends AsyncTask<Void, Void, PrintWriter> {
+        @Nullable
+        @Override
+        protected PrintWriter doInBackground(final Void... params) {
+            return connectToTRIK();
+        }
+
+        @Override
+        protected void onPostExecute(PrintWriter result) {
+            mOut = result;
+            OnEventListener<String> cb = getShowTextCallback();
+            if (cb != null) {
+                cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
+                        + (mOut != null ? " established." : " error."));
+            }
+            (new ResetToNullAsyncTask()).execute();
+        }
+
+        private class ResetToNullAsyncTask extends AsyncTask<Void, Void, Void> {
+            @Nullable
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    Thread.sleep(TIMEOUT);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                synchronized (SenderService.this) {
+                    mConnectTask = null;
+                }
+                return null;
+            }
+        }
+    }
+
+    private class SendCommandAsyncTask extends AsyncTask<Void, Void, Void> {
+        private final String command;
+
+        SendCommandAsyncTask(String command) {
+            this.command = command;
+        }
+
+        @Nullable
+        @Override
+        protected Void doInBackground(final Void... params) {
+            synchronized (mSyncFlag) {
+                // TODO: reimplement with Handle instead of multiple chaotic
+                // AsyncTasks
+                if (mOut != null)
+                    mOut.println(command);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final Void result) {
+            if (mOut == null || mOut.checkError()) {
+                Log.e("TCP", "NotSent: " + command);
+                disconnect("Send failed.");
+            }
+        }
+
     }
 }

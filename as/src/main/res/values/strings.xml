@@ -4,4 +4,5 @@
     <string name="menu_settings_condensed">Settings</string>
     <string name="menu_wheel">Wheel</string>
     <string name="menu_wheel_condensed">Wheel</string>
+    <string name="appLabel">TRIK Gamepad Lite</string>
 </resources>

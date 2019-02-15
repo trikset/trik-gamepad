@@ -8,7 +8,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -33,9 +32,6 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.demo.mjpeg.MjpegView;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -96,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 a.setDisplayShowHomeEnabled(true);
                 a.setDisplayUseLogoEnabled(false);
-                a.setLogo(R.drawable.trik_icon);
+                a.setLogo(R.drawable.trik_gamepad_logo_1000x1000);
 
                 a.setDisplayShowTitleEnabled(true);
             }
@@ -111,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         recreateMagicButtons(5);
 
         {
-            getSenderService().setOnDiconnectedListner(new SenderService.OnEventListener<String>() {
+            getSenderService().setOnDisconnectedListener(new SenderService.OnEventListener<String>() {
                 @Override
                 public void onEvent(String reason) {
                     toast("Disconnected." + reason);
@@ -504,7 +500,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         PreferenceManager.getDefaultSharedPreferences(getBaseContext())
                 .unregisterOnSharedPreferenceChangeListener(mSharedPreferencesListener);
-        getSenderService().setOnDiconnectedListner(null);
+        getSenderService().setOnDisconnectedListener(null);
         getSenderService().setShowTextCallback(null);
         setSenderService(null);
         setHideRunnable(null);

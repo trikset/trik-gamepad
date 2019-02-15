@@ -45,8 +45,8 @@
     
         <Button
             android:id="@+id/btnSettings"
-            android:layout_width="0.3in"
-            android:layout_height="0.3in"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_margin="0dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
@@ -59,7 +59,7 @@
         <LinearLayout
             android:id="@+id/buttons"
             android:layout_width="wrap_content"
-	        android:layout_height="0.3in"
+	        android:layout_height="50dp"
             android:layout_alignParentBottom="true"
         	android:layout_centerHorizontal="true"
         	android:gravity="center_horizontal|center_vertical"

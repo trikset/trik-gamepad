@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.trikset.gamepad"
-    android:versionCode="29"
-    android:versionName="1.21">
+    android:versionCode="30"
+    android:versionName="1.22">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"  tools:node="remove" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"  tools:node="remove" />
@@ -12,14 +12,14 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/trik_icon"
-        android:label="TRIK Gamepad Lite"
+        android:icon="@drawable/trik_gamepad_logo_1000x1000"
+        android:label="@string/appLabel"
         android:theme="@style/AppTheme">
        <!--  <service android:name=".SenderService" />  -->
 
        <activity
             android:name="com.trikset.gamepad.MainActivity"
-            android:label="TRIK gamepad (lite)">
+            android:label="@string/appLabel">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
