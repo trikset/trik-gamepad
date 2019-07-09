@@ -47,5 +47,25 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="URI for video stream to play" />
+
+    <PreferenceScreen
+        android:key="deviceInfo"
+        android:title="About system">
+        <Preference
+            android:enabled="false"
+            android:key="firmwareVersion"
+            android:title="SDK version" />
+
+        <Preference
+            android:key="androidVersion"
+            android:title="Android version"
+            android:enabled="false" />
+
+        <Preference
+            android:key="graphicMode"
+            android:title="Graphic mode"
+            android:enabled="false" />
+
+    </PreferenceScreen>
     
 </PreferenceScreen>
