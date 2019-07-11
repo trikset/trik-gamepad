@@ -1,14 +1,19 @@
 package com.trikset.gamepad;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Locale;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String SK_HOST_ADDRESS  = "hostAddress";
@@ -20,9 +25,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void initializeAboutSystemField() {
         final Preference aboutSystem = findPreference(SK_ABOUT_SYSTEM);
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
         final String systemInfo = String.format(
                 Locale.ENGLISH,
                 "Android %s; SDK %d; Resolution %d x %d (%f x %f PPI)",
@@ -33,6 +38,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 displayMetrics.ydpi,
                 displayMetrics.xdpi);
         aboutSystem.setSummary(systemInfo);
+
+        // Copying system info to the clipboard on click
+        final Preference.OnPreferenceClickListener listener = new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                ClipboardManager clipboard =
+                        (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Info about system", systemInfo);
+                clipboard.setPrimaryClip(clip);
+
+                final Toast copiedToClipboardToast = Toast.makeText(
+                        getActivity().getApplicationContext(),
+                        "Copied to clipboard",
+                        Toast.LENGTH_SHORT);
+                copiedToClipboardToast.show();
+
+                return true;
+            }
+        };
+        aboutSystem.setOnPreferenceClickListener(listener);
     }
 
     private void initializeDynamicPreferenceSummary() {
