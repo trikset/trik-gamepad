@@ -11,11 +11,11 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
@@ -156,9 +156,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 @Override
                 public void onSharedPreferenceChanged(@NonNull final SharedPreferences sharedPreferences, final String key) {
-                    final String addr = sharedPreferences.getString(SettingsActivity.SK_HOST_ADDRESS, "192.168.77.1");
+                    final String addr = sharedPreferences.getString(SettingsFragment.SK_HOST_ADDRESS, "192.168.77.1");
                     int portNumber = 4444;
-                    final String portStr = sharedPreferences.getString(SettingsActivity.SK_HOST_PORT, "4444");
+                    final String portStr = sharedPreferences.getString(SettingsFragment.SK_HOST_PORT, "4444");
                     try {
                         portNumber = Integer.parseInt(portStr);
                     } catch (@NonNull final NumberFormatException e) {
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                         // update video stream URI when target addr changed
                         sharedPreferences.edit()
-                                .putString(SettingsActivity.SK_VIDEO_URI, "http://" + addr.trim()
+                                .putString(SettingsFragment.SK_VIDEO_URI, "http://" + addr.trim()
                                         + ":8080/?action=stream")
                                 .apply();
                     }
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         int padsAlpha = defAlpha;
 
                         try {
-                            padsAlpha = Integer.parseInt(sharedPreferences.getString(SettingsActivity.SK_SHOW_PADS,
+                            padsAlpha = Integer.parseInt(sharedPreferences.getString(SettingsFragment.SK_SHOW_PADS,
                                     String.valueOf(defAlpha)));
                         } catch (NumberFormatException nfe) {
                             // unchanged
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     {
                         // "http://trackfield.webcam.oregonstate.edu/axis-cgi/mjpg/video.cgi?resolution=320x240";
 
-                        String videoStreamURI = sharedPreferences.getString(SettingsActivity.SK_VIDEO_URI, "http://"
+                        String videoStreamURI = sharedPreferences.getString(SettingsFragment.SK_VIDEO_URI, "http://"
                                 + addr + ":8080/?action=stream");
 
                         // --no-sout-audio --sout
@@ -236,14 +236,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     {
                         mWheelStep = Integer
                                 .getInteger(
-                                        sharedPreferences.getString(SettingsActivity.SK_WHEEL_STEP,
+                                        sharedPreferences.getString(SettingsFragment.SK_WHEEL_STEP,
                                                 String.valueOf(mWheelStep)), mWheelStep);
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
                 }
             };
-            mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsActivity.SK_HOST_ADDRESS);
+            mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsFragment.SK_HOST_ADDRESS);
             prefs.registerOnSharedPreferenceChangeListener(mSharedPreferencesListener);
         }
     }
