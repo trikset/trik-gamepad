@@ -10,8 +10,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
-final class SenderService {
+public final class SenderService {
     private OnEventListener<String> getShowTextCallback() {
         return mShowTextCallback;
     }
@@ -32,6 +35,9 @@ final class SenderService {
         void show(String text);
     }
 
+    private static final long KEEPALIVE_TIMEOUT = 7000;
+    private KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
+
     private static final int TIMEOUT = 5000;
     private final Object mSyncFlag = new Object();
     private OnEventListener<String> mShowTextCallback;
@@ -46,7 +52,8 @@ final class SenderService {
     @Nullable
     private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
-    SenderService() {
+
+    public SenderService() {
     }
 
     private void connectAsync() {
@@ -57,7 +64,6 @@ final class SenderService {
             mConnectTask.execute();
         }
     }
-
 
     // socket is closed from PrintWriter.close()
     @SuppressWarnings("resource")
@@ -79,6 +85,7 @@ final class SenderService {
                     //new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8):
                     new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
 
+            mKeepAliveTimer.restartKeepAliveTimer();
 
             // currently does nothing
             // socket.setPerformancePreferences(connectionTime, latency,
@@ -98,6 +105,8 @@ final class SenderService {
     }
 
     void disconnect(final String reason) {
+        mKeepAliveTimer.stopKeepAliveTimer();
+
         if (mOut != null) {
             mOut.close();
             mOut = null;
@@ -112,8 +121,7 @@ final class SenderService {
         return mHostAddr;
     }
 
-    void send(final String command) {
-
+    public void send(final String command) {
         if (mOut == null) {
             connectAsync();
             // Data loss here! Nevermind ...
@@ -121,11 +129,11 @@ final class SenderService {
         }
 
         Log.d("TCP", "Sending '" + command + '\'');
-
         new SendCommandAsyncTask(command).execute();
+        mKeepAliveTimer.restartKeepAliveTimer();
     }
 
-    void setTarget(@NonNull final String hostAddr, final int hostPort) {
+    public void setTarget(@NonNull final String hostAddr, final int hostPort) {
         if (!hostAddr.equalsIgnoreCase(mHostAddr) || mHostPort != hostPort) {
             disconnect("Target changed.");
         }
@@ -199,6 +207,38 @@ final class SenderService {
                 disconnect("Send failed.");
             }
         }
-
     }
+
+    private class KeepAliveTimer extends Timer {
+        private KeepAliveTimerTask task = new KeepAliveTimerTask();
+
+        private void restartKeepAliveTimer() {
+            stopKeepAliveTimer();
+
+            task = new KeepAliveTimerTask();
+            scheduleAtFixedRate(task, KEEPALIVE_TIMEOUT, KEEPALIVE_TIMEOUT);
+        }
+
+        private void stopKeepAliveTimer() {
+            task.cancel();
+            purge();
+        }
+
+        private class KeepAliveTimerTask extends TimerTask {
+            @Override
+            public void run() {
+                if (mOut != null) {
+                    String command =
+                            String.format(Locale.ENGLISH,"keepalive %d", KEEPALIVE_TIMEOUT);
+                    Log.d("TCP", String.format("Sending %s message", command));
+                    new SendCommandAsyncTask(command).execute();
+                } else {
+                    stopKeepAliveTimer();
+                }
+            }
+        }
+    }
+
+
 }
+
