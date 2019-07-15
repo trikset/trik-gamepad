@@ -241,6 +241,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
+                    {
+                        try {
+                            getSenderService().setKeepaliveTimeout(
+                                    Integer.parseInt(sharedPreferences.getString(
+                                            SettingsFragment.SK_KEEPALIVE,
+                                            Integer.toString(SenderService.DEFAULT_KEEPALIVE))));
+                        } catch (NumberFormatException e) {
+                            toast("Keep-alive timeout should be positive decimal");
+
+                            sharedPreferences
+                                    .edit()
+                                    .putString(
+                                            SettingsFragment.SK_KEEPALIVE,
+                                            Integer.toString(getSenderService().getKeepaliveTimeout()))
+                                    .apply();
+                        }
+                    }
                 }
             };
             mSharedPreferencesListener.onSharedPreferenceChanged(prefs, SettingsFragment.SK_HOST_ADDRESS);

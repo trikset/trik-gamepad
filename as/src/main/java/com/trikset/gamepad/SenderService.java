@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -35,7 +36,8 @@ public final class SenderService {
         void show(String text);
     }
 
-    private static final long KEEPALIVE_TIMEOUT = 7000;
+    public static final int DEFAULT_KEEPALIVE = 5000;
+    private int keepaliveTimeout = DEFAULT_KEEPALIVE;
     private KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
 
     private static final int TIMEOUT = 5000;
@@ -47,8 +49,8 @@ public final class SenderService {
     private OnEventListener<String> mOnDisconnectedListener;
 
     private String mHostAddr;
-
     private int mHostPort;
+
     @Nullable
     private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
@@ -142,6 +144,14 @@ public final class SenderService {
         mHostPort = hostPort;
     }
 
+    public void setKeepaliveTimeout(final int timeout) {
+        keepaliveTimeout = timeout;
+    }
+
+    public int getKeepaliveTimeout() {
+        return keepaliveTimeout;
+    }
+
     interface OnEventListener<ArgType> {
         void onEvent(ArgType arg);
     }
@@ -216,7 +226,7 @@ public final class SenderService {
             stopKeepAliveTimer();
 
             task = new KeepAliveTimerTask();
-            scheduleAtFixedRate(task, KEEPALIVE_TIMEOUT, KEEPALIVE_TIMEOUT);
+            scheduleAtFixedRate(task, keepaliveTimeout, keepaliveTimeout);
         }
 
         private void stopKeepAliveTimer() {
@@ -229,7 +239,7 @@ public final class SenderService {
             public void run() {
                 if (mOut != null) {
                     String command =
-                            String.format(Locale.ENGLISH,"keepalive %d", KEEPALIVE_TIMEOUT);
+                            String.format(Locale.ENGLISH,"keepalive %d", keepaliveTimeout);
                     Log.d("TCP", String.format("Sending %s message", command));
                     new SendCommandAsyncTask(command).execute();
                 } else {
@@ -238,7 +248,5 @@ public final class SenderService {
             }
         }
     }
-
-
 }
 
