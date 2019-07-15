@@ -38,7 +38,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 displayMetrics.widthPixels,
                 displayMetrics.ydpi,
                 displayMetrics.xdpi);
-        aboutSystem.setSummary(systemInfo);
+        aboutSystem.setSummary("Tap to copy: " + systemInfo);
 
         // Copying system info to the clipboard on click
         final Preference.OnPreferenceClickListener listener = new Preference.OnPreferenceClickListener() {
