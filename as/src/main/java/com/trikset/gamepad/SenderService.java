@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -145,6 +144,10 @@ public final class SenderService {
     }
 
     public void setKeepaliveTimeout(final int timeout) {
+        if (timeout != keepaliveTimeout) {
+            mKeepAliveTimer.restartKeepAliveTimer();
+        }
+
         keepaliveTimeout = timeout;
     }
 
