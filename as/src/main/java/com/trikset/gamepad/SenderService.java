@@ -36,6 +36,7 @@ public final class SenderService {
     }
 
     public static final int DEFAULT_KEEPALIVE = 5000;
+    public static final int MINIMAL_KEEPALIVE = 1000;
     private int keepaliveTimeout = DEFAULT_KEEPALIVE;
     private KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
 
@@ -131,6 +132,7 @@ public final class SenderService {
 
         Log.d("TCP", "Sending '" + command + '\'');
         new SendCommandAsyncTask(command).execute();
+
         mKeepAliveTimer.restartKeepAliveTimer();
     }
 
@@ -229,7 +231,9 @@ public final class SenderService {
             stopKeepAliveTimer();
 
             task = new KeepAliveTimerTask();
-            scheduleAtFixedRate(task, keepaliveTimeout, keepaliveTimeout);
+            // Using '300' in order to compensate ping
+            final int realTimeout = keepaliveTimeout - 300;
+            scheduleAtFixedRate(task, realTimeout, realTimeout);
         }
 
         private void stopKeepAliveTimer() {

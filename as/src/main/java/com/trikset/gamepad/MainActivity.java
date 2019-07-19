@@ -35,6 +35,7 @@ import com.demo.mjpeg.MjpegView;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -243,10 +244,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                     {
                         try {
-                            getSenderService().setKeepaliveTimeout(
-                                    Integer.parseInt(sharedPreferences.getString(
-                                            SettingsFragment.SK_KEEPALIVE,
-                                            Integer.toString(SenderService.DEFAULT_KEEPALIVE))));
+                            final int timeout = Integer.parseInt(sharedPreferences.getString(
+                                    SettingsFragment.SK_KEEPALIVE,
+                                    Integer.toString(SenderService.DEFAULT_KEEPALIVE)));
+                            if (timeout < SenderService.MINIMAL_KEEPALIVE) {
+                                toast(String.format(
+                                        Locale.US,
+                                        "Keep-alive timeout should >= %d ms",
+                                        SenderService.MINIMAL_KEEPALIVE));
+
+                                sharedPreferences
+                                        .edit()
+                                        .putString(
+                                                SettingsFragment.SK_KEEPALIVE,
+                                                Integer.toString(getSenderService().getKeepaliveTimeout()))
+                                        .apply();
+                            } else {
+                                getSenderService().setKeepaliveTimeout(timeout);
+                            }
                         } catch (NumberFormatException e) {
                             toast("Keep-alive timeout should be positive decimal");
 
