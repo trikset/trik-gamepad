@@ -148,9 +148,8 @@ public final class SenderService {
     public void setKeepaliveTimeout(final int timeout) {
         if (timeout != keepaliveTimeout) {
             mKeepAliveTimer.restartKeepAliveTimer();
+            keepaliveTimeout = timeout;
         }
-
-        keepaliveTimeout = timeout;
     }
 
     public int getKeepaliveTimeout() {

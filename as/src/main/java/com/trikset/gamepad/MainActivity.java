@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             if (timeout < SenderService.MINIMAL_KEEPALIVE) {
                                 toast(String.format(
                                         Locale.US,
-                                        "Keep-alive timeout should >= %d ms",
+                                        "Keep-alive timeout should be >= %d ms",
                                         SenderService.MINIMAL_KEEPALIVE));
 
                                 sharedPreferences
