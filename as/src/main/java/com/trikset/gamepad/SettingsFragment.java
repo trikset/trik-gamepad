@@ -22,6 +22,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String SK_VIDEO_URI     = "videoURI";
     public static final String SK_WHEEL_STEP    = "wheelSens";
     public static final String SK_ABOUT_SYSTEM  = "aboutSystem";
+    public static final String SK_KEEPALIVE     = "keepaliveTimeout";
 
     private void initializeAboutSystemField() {
         final Preference aboutSystem = findPreference(SK_ABOUT_SYSTEM);
@@ -70,7 +71,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         };
 
-        for (final String preferenceKey : new String[] { SK_HOST_ADDRESS, SK_HOST_PORT }) {
+        for (final String preferenceKey :
+                new String[] { SK_HOST_ADDRESS, SK_HOST_PORT, SK_KEEPALIVE }) {
             final Preference preference = findPreference(preferenceKey);
             preference.setSummary(
                     preference.getSharedPreferences().getString(preferenceKey, ""));

@@ -10,8 +10,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
-final class SenderService {
+public final class SenderService {
     private OnEventListener<String> getShowTextCallback() {
         return mShowTextCallback;
     }
@@ -32,6 +35,11 @@ final class SenderService {
         void show(String text);
     }
 
+    public static final int DEFAULT_KEEPALIVE = 5000;
+    public static final int MINIMAL_KEEPALIVE = 1000;
+    private int keepaliveTimeout = DEFAULT_KEEPALIVE;
+    private KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
+
     private static final int TIMEOUT = 5000;
     private final Object mSyncFlag = new Object();
     private OnEventListener<String> mShowTextCallback;
@@ -41,12 +49,13 @@ final class SenderService {
     private OnEventListener<String> mOnDisconnectedListener;
 
     private String mHostAddr;
-
     private int mHostPort;
+
     @Nullable
     private AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
-    SenderService() {
+
+    public SenderService() {
     }
 
     private void connectAsync() {
@@ -57,7 +66,6 @@ final class SenderService {
             mConnectTask.execute();
         }
     }
-
 
     // socket is closed from PrintWriter.close()
     @SuppressWarnings("resource")
@@ -79,6 +87,7 @@ final class SenderService {
                     //new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8):
                     new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
 
+            mKeepAliveTimer.restartKeepAliveTimer();
 
             // currently does nothing
             // socket.setPerformancePreferences(connectionTime, latency,
@@ -98,6 +107,8 @@ final class SenderService {
     }
 
     void disconnect(final String reason) {
+        mKeepAliveTimer.stopKeepAliveTimer();
+
         if (mOut != null) {
             mOut.close();
             mOut = null;
@@ -112,8 +123,7 @@ final class SenderService {
         return mHostAddr;
     }
 
-    void send(final String command) {
-
+    public void send(final String command) {
         if (mOut == null) {
             connectAsync();
             // Data loss here! Nevermind ...
@@ -121,17 +131,29 @@ final class SenderService {
         }
 
         Log.d("TCP", "Sending '" + command + '\'');
-
         new SendCommandAsyncTask(command).execute();
+
+        mKeepAliveTimer.restartKeepAliveTimer();
     }
 
-    void setTarget(@NonNull final String hostAddr, final int hostPort) {
+    public void setTarget(@NonNull final String hostAddr, final int hostPort) {
         if (!hostAddr.equalsIgnoreCase(mHostAddr) || mHostPort != hostPort) {
             disconnect("Target changed.");
         }
 
         mHostAddr = hostAddr;
         mHostPort = hostPort;
+    }
+
+    public void setKeepaliveTimeout(final int timeout) {
+        if (timeout != keepaliveTimeout) {
+            mKeepAliveTimer.restartKeepAliveTimer();
+            keepaliveTimeout = timeout;
+        }
+    }
+
+    public int getKeepaliveTimeout() {
+        return keepaliveTimeout;
     }
 
     interface OnEventListener<ArgType> {
@@ -199,6 +221,38 @@ final class SenderService {
                 disconnect("Send failed.");
             }
         }
+    }
 
+    private class KeepAliveTimer extends Timer {
+        private KeepAliveTimerTask task = new KeepAliveTimerTask();
+
+        private void restartKeepAliveTimer() {
+            stopKeepAliveTimer();
+
+            task = new KeepAliveTimerTask();
+            // Using '300' in order to compensate ping
+            final int realTimeout = keepaliveTimeout - 300;
+            scheduleAtFixedRate(task, realTimeout, realTimeout);
+        }
+
+        private void stopKeepAliveTimer() {
+            task.cancel();
+            purge();
+        }
+
+        private class KeepAliveTimerTask extends TimerTask {
+            @Override
+            public void run() {
+                if (mOut != null) {
+                    String command =
+                            String.format("keepalive %d", keepaliveTimeout);
+                    Log.d("TCP", String.format("Sending %s message", command));
+                    new SendCommandAsyncTask(command).execute();
+                } else {
+                    stopKeepAliveTimer();
+                }
+            }
+        }
     }
 }
+

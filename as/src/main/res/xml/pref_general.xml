@@ -15,7 +15,7 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="Robot TCP port" />
-   <!-- 
+   <!--
     <net.margaritov.preference.colorpicker.ColorPickerPreference
 	    android:key="targetColor"
 	    android:title="Target Color"
@@ -31,14 +31,23 @@
         android:numeric="integer"
         android:summary="0 for fully transparent, and 255 is opaque."
         android:title="Arrows transparancy" />
-    
-    <EditTextPreference 
+
+    <EditTextPreference
         android:defaultValue="7"
         android:hint="1..100"
         android:inputType="number"
         android:key="wheelSens"
         android:summary="5..10 as usual, 1 for very sensitive"
         android:title="Wheel sensitivity" />
+
+    <EditTextPreference
+        android:defaultValue="5000"
+        android:inputType="numberDecimal"
+        android:digits="0123456789"
+        android:key="keepaliveTimeout"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:title="Keep-alive timeout, ms" />
 
     <EditTextPreference
         android:inputType="textUri"
