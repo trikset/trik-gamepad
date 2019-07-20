@@ -245,7 +245,7 @@ public final class SenderService {
             public void run() {
                 if (mOut != null) {
                     String command =
-                            String.format(Locale.ENGLISH,"keepalive %d", keepaliveTimeout);
+                            String.format("keepalive %d", keepaliveTimeout);
                     Log.d("TCP", String.format("Sending %s message", command));
                     new SendCommandAsyncTask(command).execute();
                 } else {
