@@ -36,6 +36,7 @@ import com.demo.mjpeg.MjpegView;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -235,10 +236,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
 
                     {
-                        mWheelStep = Integer
+                        mWheelStep = Objects.requireNonNull(Integer
                                 .getInteger(
                                         sharedPreferences.getString(SettingsFragment.SK_WHEEL_STEP,
-                                                String.valueOf(mWheelStep)), mWheelStep);
+                                                String.valueOf(mWheelStep)), mWheelStep));
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
@@ -250,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             if (timeout < SenderService.MINIMAL_KEEPALIVE) {
                                 toast(String.format(
                                         Locale.US,
-                                        "Keep-alive timeout should be >= %d ms",
+                                        getString(R.string.keepalive_must_be_not_less),
                                         SenderService.MINIMAL_KEEPALIVE));
 
                                 sharedPreferences
@@ -263,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 getSenderService().setKeepaliveTimeout(timeout);
                             }
                         } catch (NumberFormatException e) {
-                            toast("Keep-alive timeout should be positive decimal");
+                            toast(getString(R.string.keepalive_must_be_positive_decimal));
 
                             sharedPreferences
                                     .edit()
@@ -287,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // TODO: remove this hack
         final CheckBox w = (CheckBox) MenuItemCompat.getActionView(menu.findItem(R.id.wheel));
-        w.setText("WHEEL");
+        w.setText(getResources().getString(R.string.menu_wheel));
 
         return true;
     }
