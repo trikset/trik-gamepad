@@ -4,5 +4,10 @@
     <string name="menu_settings_condensed">Settings</string>
     <string name="menu_wheel">Wheel</string>
     <string name="menu_wheel_condensed">Wheel</string>
-    <string name="appLabel">TRIK Gamepad Lite</string>
+    <string name="appLabel">TRIK Gamepad</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="about_system">About system</string>
+    <string name="keepalive_must_be_positive_decimal">Keep-alive timeout must be positive decimal integer</string>
+    <string name="keepalive_must_be_not_less">Keep-alive timeout must be not less than %d ms</string>
+    <string name="tap_to_copy">Tap to copy</string>
 </resources>

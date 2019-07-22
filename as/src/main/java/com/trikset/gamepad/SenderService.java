@@ -10,7 +10,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -244,8 +243,7 @@ public final class SenderService {
             @Override
             public void run() {
                 if (mOut != null) {
-                    String command =
-                            String.format("keepalive %d", keepaliveTimeout);
+                    String command = "keepalive " + Integer.toString(keepaliveTimeout);
                     Log.d("TCP", String.format("Sending %s message", command));
                     new SendCommandAsyncTask(command).execute();
                 } else {
