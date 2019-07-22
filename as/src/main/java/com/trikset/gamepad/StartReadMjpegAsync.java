@@ -15,7 +15,7 @@ import java.net.URI;
 import java.net.URL;
 
 
-class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
+class StartReadMjpegAsync extends AsyncTask<URL, Void, MjpegInputStream> {
     private final MjpegView mv;
 
     StartReadMjpegAsync(MjpegView mv) {
@@ -25,13 +25,11 @@ class StartReadMjpegAsync extends AsyncTask<URI, Void, MjpegInputStream> {
    // @Nullable
     @Nullable
     @Override
-    protected MjpegInputStream doInBackground(URI... uris) {
-        URI uri = uris[0];
-        if (uri != null) {
-
+    protected MjpegInputStream doInBackground(URL... urls) {
+        URL url = urls[0];
+        if (url != null) {
             try {
-                URL u = uri.toURL();
-                HttpURLConnection c = (HttpURLConnection) u.openConnection();
+                HttpURLConnection c = (HttpURLConnection) url.openConnection();
                 c.setConnectTimeout(5000);
                 c.setReadTimeout(5000);
                 MjpegInputStream s = new MjpegInputStream(c.getInputStream());
