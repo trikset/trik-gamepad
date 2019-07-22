@@ -33,8 +33,10 @@ import android.widget.Toast;
 
 import com.demo.mjpeg.MjpegView;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Nullable
     private MjpegView mVideo;
     @Nullable
-    private URI mVideoURI;
+    private URL mVideoURL;
     @Nullable
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
@@ -226,20 +228,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         // http://developer.android.com/guide/appendix/media-formats.html
 
                         try {
-                            mVideoURI = "".equals(videoStreamURI) ? null : new URI(
-                                    videoStreamURI);
-                        } catch (URISyntaxException e) {
-                            toast("Illegal video stream URI\n" + e.getReason());
-                            mVideoURI = null;
+                            mVideoURL = "".equals(videoStreamURI) ? null : new URI(
+                                    videoStreamURI).toURL();
+                        } catch (URISyntaxException | MalformedURLException e) {
+                            toast("Illegal video stream URL");
+                            Log.e(TAG, "onSharedPreferenceChanged: ", e);
+                            mVideoURL = null;
                         }
-
                     }
 
                     {
-                        mWheelStep = Objects.requireNonNull(Integer
+                        mWheelStep = Integer
                                 .getInteger(
                                         sharedPreferences.getString(SettingsFragment.SK_WHEEL_STEP,
-                                                String.valueOf(mWheelStep)), mWheelStep));
+                                                String.valueOf(mWheelStep)), mWheelStep);
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
@@ -336,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mRestartCallback = new Runnable() {
                 @Override
                 public void run() {
-                    new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+                    new StartReadMjpegAsync(mVideo).execute(mVideoURL);
                     if (mRestartCallback != null && mVideo != null)
                         // drop HTTP connection and restart
                         mVideo.postDelayed(mRestartCallback, 30000);
