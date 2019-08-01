@@ -51,58 +51,60 @@ public final class SenderService {
     private int mHostPort;
 
     @Nullable
-    private AsyncTask<Void, Void, PrintWriter> mConnectTask;
+    private volatile AsyncTask<Void, Void, PrintWriter> mConnectTask;
 
 
     public SenderService() {
     }
 
-    private void connectAsync() {
-        synchronized (this) {
+    private AsyncTask<Void, Void, PrintWriter> connectAsync() {
+        synchronized (mSyncFlag) {
             if (mConnectTask != null)
-                return;
+                return null;
             mConnectTask = new PrintWriterAsyncTask();
-            mConnectTask.execute();
+            return mConnectTask.execute();
         }
     }
 
     // socket is closed from PrintWriter.close()
     @SuppressWarnings("resource")
-    synchronized private PrintWriter connectToTRIK() {
+    private PrintWriter connectToTRIK() {
 
-        try {
-            Log.e("TCP Client", "C: Connecting...");
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(mHostAddr, mHostPort), TIMEOUT);
-
-            socket.setTcpNoDelay(true);
-            socket.setKeepAlive(true);
-            socket.setSoLinger(true, 0);
-            socket.setTrafficClass(0x0F); // high priority, no-delay
-            socket.setOOBInline(true);
-            socket.shutdownInput();
-            OutputStreamWriter osw =
-                    //Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
-                    //new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8):
-                    new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
-
-            mKeepAliveTimer.restartKeepAliveTimer();
-
-            // currently does nothing
-            // socket.setPerformancePreferences(connectionTime, latency,
-            // bandwidth);
+        synchronized (mSyncFlag) {
             try {
-                return new PrintWriter(osw, true);
-            } catch (@NonNull final Exception e) {
-                Log.e("TCP", "GetStream: Error", e);
-                socket.close();
-                osw.close();
+                Log.e("TCP Client", "C: Connecting...");
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(mHostAddr, mHostPort), TIMEOUT);
+
+                socket.setTcpNoDelay(true);
+                socket.setKeepAlive(true);
+                socket.setSoLinger(true, 0);
+                socket.setTrafficClass(0x0F); // high priority, no-delay
+                socket.setOOBInline(true);
+                socket.shutdownInput();
+                OutputStreamWriter osw =
+                        //Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
+                        //new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8):
+                        new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+
+                mKeepAliveTimer.restartKeepAliveTimer();
+
+                // currently does nothing
+                // socket.setPerformancePreferences(connectionTime, latency,
+                // bandwidth);
+                try {
+                    return new PrintWriter(osw, true);
+                } catch (@NonNull final Exception e) {
+                    Log.e("TCP", "GetStream: Error", e);
+                    socket.close();
+                    osw.close();
+                }
+            } catch (@NonNull final IOException e) {
+                Log.e("TCP", "Connect: Error", e);
             }
-        } catch (@NonNull final IOException e) {
-            Log.e("TCP", "Connect: Error", e);
+            // mLastConnectionAttemptTimestamp = currentTime;
+            return null;
         }
-        // mLastConnectionAttemptTimestamp = currentTime;
-        return null;
     }
 
     void disconnect(final String reason) {
@@ -124,9 +126,7 @@ public final class SenderService {
 
     public void send(final String command) {
         if (mOut == null) {
-            connectAsync();
-            // Data loss here! Nevermind ...
-            return;
+            connectAsync(); // is synchronized on the same object as SendCommandAsyncTask
         }
 
         Log.d("TCP", "Sending '" + command + '\'');
@@ -174,24 +174,9 @@ public final class SenderService {
                 cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
                         + (mOut != null ? " established." : " error."));
             }
-            (new ResetToNullAsyncTask()).execute();
+            mConnectTask = null;
         }
 
-        private class ResetToNullAsyncTask extends AsyncTask<Void, Void, Void> {
-            @Nullable
-            @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    Thread.sleep(TIMEOUT);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                synchronized (SenderService.this) {
-                    mConnectTask = null;
-                }
-                return null;
-            }
-        }
     }
 
     private class SendCommandAsyncTask extends AsyncTask<Void, Void, Void> {
