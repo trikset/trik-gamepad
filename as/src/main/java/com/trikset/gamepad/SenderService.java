@@ -58,7 +58,7 @@ public final class SenderService {
     }
 
     private AsyncTask<Void, Void, PrintWriter> connectAsync() {
-        synchronized (this) {
+        synchronized (mSyncFlag) {
             if (mConnectTask != null)
                 return null;
             mConnectTask = new PrintWriterAsyncTask();
