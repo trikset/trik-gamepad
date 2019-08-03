@@ -1,25 +1,93 @@
 version: 2
+
+aliases:
+  prepare_gradle: &prepare_gradle
+    run:
+      name: Make preparations for building and testing
+      command: | 
+        sudo chmod +x gradlew
+        printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | sdkmanager --licenses
+              
 jobs:
   build:
     working_directory: ~/code/as
     docker:
       - image: circleci/android:api-25-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout:
+          path: ~/code
+      - *prepare_gradle
+      - run:
+          name: Build debug APK and release APK
+          command: |
+            ./gradlew assembleDebug
+            ./gradlew assembleDebugAndroidTest
+      - save_cache:
+          paths:
+            - build/outputs
+          key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
+      - store_artifacts:
+          path: build/outputs/apk/
+          destination: apk
+      
+  test_local:
+    working_directory: ~/code/as
+    docker:
+      - image: circleci/android:api-25-alpha
+    steps:
+      - checkout:
+          path: ~/code
+      - *prepare_gradle
+      - restore_cache:
+          key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - run:
+          name: Run local tests
+          command: ./gradlew test
+      - store_artifacts: 
+          path: build/reports
+          destination: reports
+      - store_test_results: 
+          path: build/test-results
+
+  test_instrumented:
+    working_directory: ~/code/as
+    docker:
+      - image: circleci/android:api-25-alpha
     steps:
       - checkout:
           path: ~/code
       - restore_cache:
-          key: jars-{{ checksum  "build.gradle" }}
-      - run: sudo chmod +x gradlew
-      - run: printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | sdkmanager --licenses
+          key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
       - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}
+          name: Store Google Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
       - run:
-          name: Run Tests
-          command: ./gradlew test
+          name: Authorize gcloud and set config defaults
+          command: |
+            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Test with Firebase Test Lab
+          command: 
+            sudo gcloud firebase test android run --type instrumentation --app build/outputs/apk/debug/as-debug.apk --test build/outputs/apk/androidTest/debug/as-debug-androidTest.apk 
+      - run:
+          name: Install gsutil dependency and copy test results data
+          command: |
+            sudo pip install -U crcmod
+            sudo gsutil -m cp -r -U `sudo gsutil ls gs://[BUCKET_NAME]/[OBJECT_NAME] | tail -1` ${CIRCLE_ARTIFACTS}/ | true
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build
+      - test_local:
+          requires:
+            - build
+      - test_instrumented:
+          requires:
+            - build
+
