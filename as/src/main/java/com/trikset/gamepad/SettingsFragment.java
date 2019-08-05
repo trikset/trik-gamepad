@@ -8,10 +8,13 @@ import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -25,33 +28,35 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String SK_KEEPALIVE     = "keepaliveTimeout";
 
     private void initializeAboutSystemField() {
+        final FragmentActivity myActivity = getActivity();
+        if (myActivity == null)
+            return;
         final Preference aboutSystem = findPreference(SK_ABOUT_SYSTEM);
-
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        myActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         final String systemInfo = String.format(
                 Locale.ENGLISH,
-                "Android %s; SDK %d; Resolution %d x %d (%f x %f PPI)",
+                "Android %s; SDK %d; Resolution %dx%d; PPI %dx%d",
                 Build.VERSION.RELEASE,
                 Build.VERSION.SDK_INT,
                 displayMetrics.heightPixels,
                 displayMetrics.widthPixels,
-                displayMetrics.ydpi,
-                displayMetrics.xdpi);
-        aboutSystem.setSummary("Tap to copy: " + systemInfo);
+                (int)displayMetrics.ydpi,
+                (int)displayMetrics.xdpi);
+        aboutSystem.setSummary(getString(R.string.tap_to_copy) + ":" + systemInfo);
 
         // Copying system info to the clipboard on click
         final Preference.OnPreferenceClickListener listener = new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 ClipboardManager clipboard =
-                        (ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Info about system", systemInfo);
+                        (ClipboardManager) myActivity.getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText(getString(R.string.about_system), systemInfo);
                 clipboard.setPrimaryClip(clip);
 
                 final Toast copiedToClipboardToast = Toast.makeText(
-                        getActivity().getApplicationContext(),
-                        "Copied to clipboard",
+                        myActivity.getApplicationContext(),
+                        getString(R.string.copied_to_clipboard),
                         Toast.LENGTH_SHORT);
                 copiedToClipboardToast.show();
 

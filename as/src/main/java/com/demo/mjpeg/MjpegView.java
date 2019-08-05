@@ -182,11 +182,9 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
                     if (destRect == null)
                         continue;
 
+                    canvas = mSurfaceHolder.lockCanvas();
 
-                    if (null == (canvas = mSurfaceHolder.lockCanvas()))
-                        continue;
-
-                    if (mBitmap != null)
+                    if (canvas != null && mBitmap != null)
                         DrawToCanvas(canvas, destRect);
 
                 } catch (IOException e) {
@@ -195,17 +193,18 @@ public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
 
                     if (canvas != null) {
                         mSurfaceHolder.unlockCanvasAndPost(canvas);
-                        canvas = null;
                     }
-                    if (mFrame != null)
+                    if (mFrame != null) {
                         try {
                             // Stream is bound to mBitmap, but we do not need
                             // both of them later, mBitmap to be reused.
                             mFrame.close();
                         } catch (IOException e) {
                             mRun = false;
+                        } finally {
+                            mFrame = null;
                         }
-                    mFrame = null;
+                    }
                 }
             }
         }
