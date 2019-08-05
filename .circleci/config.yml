@@ -4,21 +4,34 @@ aliases:
   prepare_gradle: &prepare_gradle
     run:
       name: Accept all licenses
-      command: | 
-        printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | sdkmanager --licenses
+      command: printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | sdkmanager --licenses
 
-  build_settings: &build_settings
+  restore_dependensies: &restore_dependencies
+    restore_cache:
+      key: gradle-dependencies-{{ checksum "build.gradle" }}
+
+  save_dependencies: &save_dependencies
+    save_cache:
+      paths:
+        - ~/.gradle
+      key: gradle-dependencies-{{ checksum "build.gradle" }}
+
+  init_job: &init_job
     working_directory: ~/code/as
     docker:
-      - image: circleci/android:api-28              
+      - image: circleci/android:api-28
+
+  make_checkout: &make_checkout
+    checkout:
+      path: ~/code
 
 jobs:
   build:
-    <<: *build_settings
+    <<: *init_job
     steps:
-      - checkout:
-          path: ~/code
+      - *make_checkout      
       - *prepare_gradle
+      - *restore_dependencies
       - run:
           name: Build debug APK 
           command: |
@@ -26,7 +39,6 @@ jobs:
             ./gradlew assembleDebugAndroidTest
       - save_cache:
           paths:
-            - ~/.gradle
             - build/outputs
           key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
       - store_artifacts:
@@ -34,16 +46,18 @@ jobs:
           destination: apk
       
   test_local:
-    <<: *build_settings
+    <<: *init_job
     steps:
-      - checkout:
-          path: ~/code
+      - *make_checkout
       - *prepare_gradle
+      - *restore_dependencies
       - restore_cache:
-          key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
+          keys:
+            - apk-build-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Download Dependencies
           command: ./gradlew androidDependencies
+      - *save_dependencies
       - run:
           name: Run local tests
           command: ./gradlew test
@@ -54,10 +68,9 @@ jobs:
           path: build/test-results
 
   test_instrumented:
-    <<: *build_settings
+    <<: *init_job
     steps:
-      - checkout:
-          path: ~/code
+      - *make_checkout
       - restore_cache:
           key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
       - run:
