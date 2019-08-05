@@ -3,27 +3,30 @@ version: 2
 aliases:
   prepare_gradle: &prepare_gradle
     run:
-      name: Make preparations for building and testing
+      name: Accept all licenses
       command: | 
-        sudo chmod +x gradlew
         printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | sdkmanager --licenses
-              
-jobs:
-  build:
+
+  build_settings: &build_settings
     working_directory: ~/code/as
     docker:
-      - image: circleci/android:api-25-alpha
+      - image: circleci/android:api-28              
+
+jobs:
+  build:
+    <<: *build_settings
     steps:
       - checkout:
           path: ~/code
       - *prepare_gradle
       - run:
-          name: Build debug APK and release APK
+          name: Build debug APK 
           command: |
             ./gradlew assembleDebug
             ./gradlew assembleDebugAndroidTest
       - save_cache:
           paths:
+            - ~/.gradle
             - build/outputs
           key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
       - store_artifacts:
@@ -31,9 +34,7 @@ jobs:
           destination: apk
       
   test_local:
-    working_directory: ~/code/as
-    docker:
-      - image: circleci/android:api-25-alpha
+    <<: *build_settings
     steps:
       - checkout:
           path: ~/code
@@ -53,9 +54,7 @@ jobs:
           path: build/test-results
 
   test_instrumented:
-    working_directory: ~/code/as
-    docker:
-      - image: circleci/android:api-25-alpha
+    <<: *build_settings
     steps:
       - checkout:
           path: ~/code
@@ -67,17 +66,17 @@ jobs:
       - run:
           name: Authorize gcloud and set config defaults
           command: |
-            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
       - run:
           name: Test with Firebase Test Lab
           command: 
-            sudo gcloud firebase test android run --type instrumentation --app build/outputs/apk/debug/as-debug.apk --test build/outputs/apk/androidTest/debug/as-debug-androidTest.apk 
+            gcloud firebase test android run --type instrumentation --app build/outputs/apk/debug/as-debug.apk --test build/outputs/apk/androidTest/debug/as-debug-androidTest.apk 
       - run:
           name: Install gsutil dependency and copy test results data
           command: |
-            sudo pip install -U crcmod
-            sudo gsutil -m cp -r -U `sudo gsutil ls gs://[BUCKET_NAME]/[OBJECT_NAME] | tail -1` ${CIRCLE_ARTIFACTS}/ | true
+            pip install -U crcmod
+            gsutil -m cp -r -U `gsutil ls gs://[BUCKET_NAME]/[OBJECT_NAME] | tail -1` ${CIRCLE_ARTIFACTS}/ | true
 
 workflows:
   version: 2
