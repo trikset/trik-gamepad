@@ -34,6 +34,7 @@ public class SenderServiceTest {
         SimpleDummyServer server = new SimpleDummyServer(1, 0);
         SenderService client = new SenderService();
         client.setTarget(KeepaliveDummyServer.IP, KeepaliveDummyServer.DEFAULT_PORT);
+        client.setKeepaliveTimeout(10000000); // in order not to receive keepalives
 
         client.send("Test; check");
         Thread.sleep(100);
@@ -45,6 +46,7 @@ public class SenderServiceTest {
         SimpleDummyServer server = new SimpleDummyServer(5, 1);
         SenderService client = new SenderService();
         client.setTarget(KeepaliveDummyServer.IP, KeepaliveDummyServer.DEFAULT_PORT + 1);
+        client.setKeepaliveTimeout(10000000); // in order not to receive keepalives
 
         for (int i = 0; i < 5; ++i) {
             client.send(String.format("%d checking", i));
@@ -117,35 +119,35 @@ public class SenderServiceTest {
     }
 
     private class SimpleDummyServer extends DummyServerBase {
-            private boolean isConnected = false;
-            public boolean isConnected() { return isConnected; }
+        private boolean isConnected = false;
+        public boolean isConnected() { return isConnected; }
 
-            private String lastCommand;
-            public String getLastCommand() { return lastCommand; }
+        private String lastCommand;
+        public String getLastCommand() { return lastCommand; }
 
 
-            SimpleDummyServer(final int cmdNumber, final int portShift) {
-                super(portShift);
+        SimpleDummyServer(final int cmdNumber, final int portShift) {
+            super(portShift);
 
-                Thread serverThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try (ServerSocket server = new ServerSocket(port)) {
-                            Socket client = server.accept();
-                            isConnected = true;
+            Thread serverThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try (ServerSocket server = new ServerSocket(port)) {
+                        Socket client = server.accept();
+                        isConnected = true;
 
-                            BufferedReader clientInput =
-                                    new BufferedReader(new InputStreamReader(client.getInputStream()));
-                            for (int i = 0; i < cmdNumber; ++i) {
-                                lastCommand = clientInput.readLine();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        BufferedReader clientInput =
+                                new BufferedReader(new InputStreamReader(client.getInputStream()));
+                        for (int i = 0; i < cmdNumber; ++i) {
+                            lastCommand = clientInput.readLine();
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                });
-                serverThread.start();
-            }
+                }
+            });
+            serverThread.start();
+        }
     }
 
     private class KeepaliveDummyServer extends DummyServerBase {
