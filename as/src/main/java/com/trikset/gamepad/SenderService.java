@@ -3,6 +3,7 @@ package com.trikset.gamepad;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import android.util.Log;
 
 import java.io.IOException;
@@ -228,7 +229,7 @@ public final class SenderService {
             @Override
             public void run() {
                 if (mOut != null) {
-                    String command = "keepalive " + Integer.toString(keepaliveTimeout);
+                    final String command = "keepalive " + Integer.toString(keepaliveTimeout);
                     Log.d("TCP", String.format("Sending %s message", command));
                     new SendCommandAsyncTask(command).execute();
                 } else {
