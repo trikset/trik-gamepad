@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import java.io.IOException;
@@ -233,13 +231,7 @@ public final class SenderService {
                 if (mOut != null) {
                     final String command = "keepalive " + Integer.toString(keepaliveTimeout);
                     Log.d("TCP", String.format("Sending %s message", command));
-                    new Handler(Looper.getMainLooper()).post(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    new SendCommandAsyncTask(command).execute();
-                                }
-                            });
+                    new SendCommandAsyncTask(command).execute();
                 } else {
                     stopKeepAliveTimer();
                 }
