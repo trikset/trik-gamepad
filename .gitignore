@@ -35,5 +35,3 @@ as/app/build/
 as/build
 as/.navigation
 *.iml
-as/gradle*
-!as/gradle.properties

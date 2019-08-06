@@ -33,9 +33,12 @@ import android.widget.Toast;
 
 import com.demo.mjpeg.MjpegView;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Nullable
     private MjpegView mVideo;
     @Nullable
-    private URI mVideoURI;
+    private URL mVideoURL;
     @Nullable
     private SharedPreferences.OnSharedPreferenceChangeListener mSharedPreferencesListener;
 
@@ -225,13 +228,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         // http://developer.android.com/guide/appendix/media-formats.html
 
                         try {
-                            mVideoURI = "".equals(videoStreamURI) ? null : new URI(
-                                    videoStreamURI);
-                        } catch (URISyntaxException e) {
-                            toast("Illegal video stream URI\n" + e.getReason());
-                            mVideoURI = null;
+                            mVideoURL = "".equals(videoStreamURI) ? null : new URI(
+                                    videoStreamURI).toURL();
+                        } catch (URISyntaxException | MalformedURLException e) {
+                            toast("Illegal video stream URL");
+                            Log.e(TAG, "onSharedPreferenceChanged: ", e);
+                            mVideoURL = null;
                         }
-
                     }
 
                     {
@@ -250,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             if (timeout < SenderService.MINIMAL_KEEPALIVE) {
                                 toast(String.format(
                                         Locale.US,
-                                        "Keep-alive timeout should be >= %d ms",
+                                        getString(R.string.keepalive_must_be_not_less),
                                         SenderService.MINIMAL_KEEPALIVE));
 
                                 sharedPreferences
@@ -263,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 getSenderService().setKeepaliveTimeout(timeout);
                             }
                         } catch (NumberFormatException e) {
-                            toast("Keep-alive timeout should be positive decimal");
+                            toast(getString(R.string.keepalive_must_be_positive_decimal));
 
                             sharedPreferences
                                     .edit()
@@ -287,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // TODO: remove this hack
         final CheckBox w = (CheckBox) MenuItemCompat.getActionView(menu.findItem(R.id.wheel));
-        w.setText("WHEEL");
+        w.setText(getResources().getString(R.string.menu_wheel));
 
         return true;
     }
@@ -335,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mRestartCallback = new Runnable() {
                 @Override
                 public void run() {
-                    new StartReadMjpegAsync(mVideo).execute(mVideoURI);
+                    new StartReadMjpegAsync(mVideo).execute(mVideoURL);
                     if (mRestartCallback != null && mVideo != null)
                         // drop HTTP connection and restart
                         mVideo.postDelayed(mRestartCallback, 30000);
