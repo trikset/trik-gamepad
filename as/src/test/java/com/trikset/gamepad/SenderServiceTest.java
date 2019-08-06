@@ -32,7 +32,7 @@ public class SenderServiceTest {
         DummyServer server = new DummyServer(1, 0);
         SenderService client = new SenderService();
         client.setTarget(DummyServer.IP, DummyServer.DEFAULT_PORT);
-        client.setKeepaliveTimeout(10000000); // in order not to receive keepalives
+        client.setKeepaliveTimeout(10000000); // to disable keep-alive messages
 
         client.send("Test; check");
         Thread.sleep(100);
@@ -44,7 +44,7 @@ public class SenderServiceTest {
         DummyServer server = new DummyServer(5, 1);
         SenderService client = new SenderService();
         client.setTarget(DummyServer.IP, DummyServer.DEFAULT_PORT + 1);
-        client.setKeepaliveTimeout(10000000); // in order not to receive keepalives
+        client.setKeepaliveTimeout(10000000); // to disable keep-alive messages
 
         for (int i = 0; i < 5; ++i) {
             client.send(String.format("%d checking", i));
