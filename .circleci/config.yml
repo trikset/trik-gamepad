@@ -1,0 +1,105 @@
+version: 2
+
+aliases:
+  prepare_gradle: &prepare_gradle
+    run:
+      name: Accept all licenses
+      command: printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | sdkmanager --licenses
+
+  restore_dependensies: &restore_dependencies
+    restore_cache:
+      key: gradle-dependencies-{{ checksum "build.gradle" }}
+
+  save_dependencies: &save_dependencies
+    save_cache:
+      paths:
+        - ~/.gradle
+      key: gradle-dependencies-{{ checksum "build.gradle" }}
+
+  init_job: &init_job
+    working_directory: ~/code/as
+    docker:
+      - image: circleci/android:api-28
+
+  make_checkout: &make_checkout
+    checkout:
+      path: ~/code
+
+jobs:
+  build:
+    <<: *init_job
+    steps:
+      - *make_checkout      
+      - *prepare_gradle
+      - *restore_dependencies
+      - run:
+          name: Build debug APK 
+          command: |
+            ./gradlew assembleDebug
+            ./gradlew assembleDebugAndroidTest
+      - save_cache:
+          paths:
+            - build/outputs
+          key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
+      - store_artifacts:
+          path: build/outputs/apk/
+          destination: apk
+      
+  test_local:
+    <<: *init_job
+    steps:
+      - *make_checkout
+      - *prepare_gradle
+      - *restore_dependencies
+      - restore_cache:
+          keys:
+            - apk-build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - *save_dependencies
+      - run:
+          name: Run local tests
+          command: ./gradlew test
+      - store_artifacts: 
+          path: build/reports
+          destination: reports
+      - store_test_results: 
+          path: build/test-results
+
+  test_instrumented:
+    <<: *init_job
+    steps:
+      - *make_checkout
+      - restore_cache:
+          key: apk-build-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Store Google Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run:
+          name: Authorize gcloud and set config defaults
+          command: |
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Test with Firebase Test Lab
+          command: 
+            gcloud firebase test android run --type instrumentation --app build/outputs/apk/debug/as-debug.apk --test build/outputs/apk/androidTest/debug/as-debug-androidTest.apk 
+      - run:
+          name: Install gsutil dependency and copy test results data
+          command: |
+            pip install -U crcmod
+            gsutil -m cp -r -U `gsutil ls gs://[BUCKET_NAME]/[OBJECT_NAME] | tail -1` ${CIRCLE_ARTIFACTS}/ | true
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build
+      - test_local:
+          requires:
+            - build
+      - test_instrumented:
+          requires:
+            - build
+
