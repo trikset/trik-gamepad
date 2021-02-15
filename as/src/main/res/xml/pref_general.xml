@@ -26,11 +26,10 @@
     <EditTextPreference
         android:defaultValue="100"
         android:hint="0..255"
-        android:inputType="number"
         android:key="showPads"
-        android:numeric="integer"
+        android:inputType="number"
         android:summary="0 for fully transparent, and 255 is opaque."
-        android:title="Arrows transparancy" />
+        android:title="Arrows transparency" />
 
     <EditTextPreference
         android:defaultValue="7"

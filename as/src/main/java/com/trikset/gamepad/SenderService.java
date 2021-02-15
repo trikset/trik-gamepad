@@ -229,7 +229,7 @@ public final class SenderService {
             @Override
             public void run() {
                 if (mOut != null) {
-                    final String command = "keepalive " + Integer.toString(keepaliveTimeout);
+                    final String command = "keepalive " + keepaliveTimeout;
                     Log.d("TCP", String.format("Sending %s message", command));
                     new SendCommandAsyncTask(command).execute();
                 } else {

@@ -38,7 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -111,31 +110,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         recreateMagicButtons(5);
 
         {
-            getSenderService().setOnDisconnectedListener(new SenderService.OnEventListener<String>() {
-                @Override
-                public void onEvent(String reason) {
-                    toast("Disconnected." + reason);
-                }
-            });
-            getSenderService().setShowTextCallback(new SenderService.OnEventListener<String>() {
-                @Override
-                public void onEvent(String text) {
-                    toast(text);
-                }
-            });
+            getSenderService().setOnDisconnectedListener(reason -> toast("Disconnected." + reason));
+            getSenderService().setShowTextCallback(text -> toast(text));
         }
 
         {
             final Button btnSettings = findViewById(R.id.btnSettings);
             if (btnSettings != null) {
-                btnSettings.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(final View v) {
-                        ActionBar a = getSupportActionBar();
-                        if (a != null)
-                            setSystemUiVisibility(!a.isShowing());
-                    }
+                btnSettings.setOnClickListener(v -> {
+                    ActionBar a = getSupportActionBar();
+                    if (a != null)
+                        setSystemUiVisibility(!a.isShowing());
                 });
             }
         }
@@ -335,15 +320,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 mVideo.removeCallbacks(mRestartCallback);
             }
 
-            mRestartCallback = new Runnable() {
-                @Override
-                public void run() {
-                    new StartReadMjpegAsync(mVideo).execute(mVideoURL);
-                    if (mRestartCallback != null && mVideo != null)
-                        // drop HTTP connection and restart
-                        mVideo.postDelayed(mRestartCallback, 30000);
-                 }
-            };
+            mRestartCallback = () -> {
+                new StartReadMjpegAsync(mVideo).execute(mVideoURL);
+                if (mRestartCallback != null && mVideo != null)
+                    // drop HTTP connection and restart
+                    mVideo.postDelayed(mRestartCallback, 30000);
+             };
 
             mVideo.post(mRestartCallback);
         }
@@ -402,16 +384,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             btn.setText(name);
             btn.setBackgroundResource(R.drawable.button_shape);
 
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View arg0) {
-                    SenderService sender = getSenderService();
-                    if (sender != null) {
-                        sender.send("btn " + name + " down"); // TODO: "up" via
-                        // TouchListner
-                        btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-                                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
-                    }
+            btn.setOnClickListener(arg0 -> {
+                SenderService sender = getSenderService();
+                if (sender != null) {
+                    sender.send("btn " + name + " down"); // TODO: "up" via
+                    // TouchListner
+                    btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 }
             });
             buttonsView.addView(btn);
@@ -464,12 +443,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void toast(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
-            }
-        });
+        runOnUiThread(() -> Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show());
     }
 
     public SenderService getSenderService() {
