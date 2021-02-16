@@ -1,5 +1,4 @@
-version: 2
-
+version: 2.1
 aliases:
   prepare_gradle: &prepare_gradle
     run:
@@ -19,7 +18,7 @@ aliases:
   init_job: &init_job
     working_directory: ~/code/as
     docker:
-      - image: circleci/android:api-28
+      - image: circleci/android:api-30
 
   make_checkout: &make_checkout
     checkout:
@@ -92,8 +91,7 @@ jobs:
             gsutil -m cp -r -U `gsutil ls gs://[BUCKET_NAME]/[OBJECT_NAME] | tail -1` ${CIRCLE_ARTIFACTS}/ | true
 
 workflows:
-  version: 2
-  workflow:
+  main:
     jobs:
       - build
       - test_local:

@@ -13,8 +13,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -46,34 +44,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         aboutSystem.setSummary(getString(R.string.tap_to_copy) + ":" + systemInfo);
 
         // Copying system info to the clipboard on click
-        final Preference.OnPreferenceClickListener listener = new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                ClipboardManager clipboard =
-                        (ClipboardManager) myActivity.getSystemService(CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText(getString(R.string.about_system), systemInfo);
-                clipboard.setPrimaryClip(clip);
+        final Preference.OnPreferenceClickListener listener = preference -> {
+            ClipboardManager clipboard =
+                    (ClipboardManager) myActivity.getSystemService(CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText(getString(R.string.about_system), systemInfo);
+            clipboard.setPrimaryClip(clip);
 
-                final Toast copiedToClipboardToast = Toast.makeText(
-                        myActivity.getApplicationContext(),
-                        getString(R.string.copied_to_clipboard),
-                        Toast.LENGTH_SHORT);
-                copiedToClipboardToast.show();
+            final Toast copiedToClipboardToast = Toast.makeText(
+                    myActivity.getApplicationContext(),
+                    getString(R.string.copied_to_clipboard),
+                    Toast.LENGTH_SHORT);
+            copiedToClipboardToast.show();
 
-                return true;
-            }
+            return true;
         };
         aboutSystem.setOnPreferenceClickListener(listener);
     }
 
     private void initializeDynamicPreferenceSummary() {
-        final Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(@NonNull final Preference preference,
-                                              @NonNull final Object value) {
-                preference.setSummary(value.toString());
-                return true;
-            }
+        final Preference.OnPreferenceChangeListener listener = (preference, value) -> {
+            preference.setSummary(value.toString());
+            return true;
         };
 
         for (final String preferenceKey :

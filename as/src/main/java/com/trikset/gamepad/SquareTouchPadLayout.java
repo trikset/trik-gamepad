@@ -64,15 +64,8 @@ public class SquareTouchPadLayout extends RelativeLayout {
         paint.setStyle(Paint.Style.STROKE);
         paint.setAlpha(255);
         setOnTouchListener(new TouchPadListener());
-        setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
-                        HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
-
-            }
-        });
+        setOnClickListener(v -> performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING));
         setWillNotDraw(false);
         setHapticFeedbackEnabled(true);
         setBackgroundDrawable(getResources().getDrawable(R.drawable.oxygen_actions_transform_move_icon));

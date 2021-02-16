@@ -73,7 +73,7 @@ public class SenderServiceTest {
         assertEquals(1234, client.getKeepaliveTimeout());
     }
 
-    private class DummyServer {
+    private static class DummyServer {
         static final String IP = "localhost";
         static final int DEFAULT_PORT = 12345;
 
@@ -89,21 +89,18 @@ public class SenderServiceTest {
         DummyServer(final int cmdNumber, final int portShift) {
             port = DEFAULT_PORT + portShift;
 
-            Thread serverThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try (ServerSocket server = new ServerSocket(port)) {
-                        Socket client = server.accept();
-                        isConnected = true;
+            Thread serverThread = new Thread(() -> {
+                try (ServerSocket server = new ServerSocket(port)) {
+                    Socket client = server.accept();
+                    isConnected = true;
 
-                        BufferedReader clientInput =
-                                new BufferedReader(new InputStreamReader(client.getInputStream()));
-                        for (int i = 0; i < cmdNumber; ++i) {
-                            lastCommand = clientInput.readLine();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    BufferedReader clientInput =
+                            new BufferedReader(new InputStreamReader(client.getInputStream()));
+                    for (int i = 0; i < cmdNumber; ++i) {
+                        lastCommand = clientInput.readLine();
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
             serverThread.start();
