@@ -1,8 +1,11 @@
 package com.trikset.gamepad;
 
+import android.os.Build;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.OLDEST_SDK}) // -- runs on Java8
+//@Config(sdk = {Config.OLDEST_SDK, Config.TARGET_SDK, CONFIG.NEWEST_SDK}) -- commented until Java 9
 public class SenderServiceTest {
     @Test
     public void senderServiceShouldConnectToServerSuccessfullyAfterSendingCommand()

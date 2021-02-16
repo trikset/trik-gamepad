@@ -52,13 +52,13 @@ public final class SenderService {
     private int mHostPort;
 
     @Nullable
-    private volatile AsyncTask<Void, Void, PrintWriter> mConnectTask;
+    private volatile AsyncTask<Void, Void, Void> mConnectTask;
 
 
     public SenderService() {
     }
 
-    private AsyncTask<Void, Void, PrintWriter> connectAsync() {
+    private AsyncTask<Void, Void, Void> connectAsync() {
         synchronized (mSyncFlag) {
             if (mConnectTask != null)
                 return null;
@@ -69,7 +69,7 @@ public final class SenderService {
 
     // socket is closed from PrintWriter.close()
     @SuppressWarnings("resource")
-    private PrintWriter connectToTRIK() {
+    private Void connectToTRIK() {
 
         synchronized (mSyncFlag) {
             try {
@@ -94,7 +94,8 @@ public final class SenderService {
                 // socket.setPerformancePreferences(connectionTime, latency,
                 // bandwidth);
                 try {
-                    return new PrintWriter(osw, true);
+                    mOut =  new PrintWriter(osw, true);
+                    return null;
                 } catch (@NonNull final Exception e) {
                     Log.e("TCP", "GetStream: Error", e);
                     socket.close();
@@ -160,16 +161,16 @@ public final class SenderService {
         void onEvent(ArgType arg);
     }
 
-    private class PrintWriterAsyncTask extends AsyncTask<Void, Void, PrintWriter> {
+    private class PrintWriterAsyncTask extends AsyncTask<Void, Void, Void> {
         @Nullable
         @Override
-        protected PrintWriter doInBackground(final Void... params) {
-            return connectToTRIK();
+        protected Void doInBackground(final Void... params) {
+            connectToTRIK();
+            return null;
         }
 
         @Override
-        protected void onPostExecute(PrintWriter result) {
-            mOut = result;
+        protected void onPostExecute(Void result) {
             OnEventListener<String> cb = getShowTextCallback();
             if (cb != null) {
                 cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
