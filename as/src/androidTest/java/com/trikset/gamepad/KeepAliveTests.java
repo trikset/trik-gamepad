@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class KeepAliveTests {
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule =
+    public final ActivityTestRule<MainActivity> mActivityTestRule =
             new ActivityTestRule<>(MainActivity.class);
 
     @Test

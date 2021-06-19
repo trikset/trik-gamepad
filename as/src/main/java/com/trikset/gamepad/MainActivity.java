@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         {
             getSenderService().setOnDisconnectedListener(reason -> toast("Disconnected." + reason));
-            getSenderService().setShowTextCallback(text -> toast(text));
+            getSenderService().setShowTextCallback(this::toast);
         }
 
         {

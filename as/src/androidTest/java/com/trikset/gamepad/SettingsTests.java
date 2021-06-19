@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
 public class SettingsTests {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule =
+    public final ActivityTestRule<MainActivity> mActivityTestRule =
             new ActivityTestRule<MainActivity>(MainActivity.class) {
                 @Override
                 protected void beforeActivityLaunched() {
