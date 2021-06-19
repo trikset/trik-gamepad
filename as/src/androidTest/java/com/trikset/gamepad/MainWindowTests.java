@@ -42,7 +42,7 @@ public class MainWindowTests {
     @RunWith(Parameterized.class)
     public static class SquareButtonTest {
         @Rule
-        public ActivityTestRule<MainActivity> mActivityTestRule =
+        public final ActivityTestRule<MainActivity> mActivityTestRule =
                 new ActivityTestRule<>(MainActivity.class);
 
         @Parameters
@@ -223,7 +223,7 @@ public class MainWindowTests {
     @RunWith(JUnit4.class)
     public static class MagicButtonsTests {
         @Rule
-        public ActivityTestRule<MainActivity> mActivityTestRule =
+        public final ActivityTestRule<MainActivity> mActivityTestRule =
                 new ActivityTestRule<>(MainActivity.class);
 
         @Before

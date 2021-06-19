@@ -38,7 +38,7 @@ public final class SenderService {
     public static final int DEFAULT_KEEPALIVE = 5000;
     public static final int MINIMAL_KEEPALIVE = 1000;
     private int keepaliveTimeout = DEFAULT_KEEPALIVE;
-    private KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
+    private final KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
 
     private static final int TIMEOUT = 5000;
     private final Object mSyncFlag = new Object();
