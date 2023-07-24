@@ -1,7 +1,5 @@
 package com.trikset.gamepad;
 
-import android.os.Build;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;

@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
@@ -68,7 +70,7 @@ public class SquareTouchPadLayout extends RelativeLayout {
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING));
         setWillNotDraw(false);
         setHapticFeedbackEnabled(true);
-        setBackgroundDrawable(getResources().getDrawable(R.drawable.oxygen_actions_transform_move_icon));
+        setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.oxygen_actions_transform_move_icon, null));
 
     }
 

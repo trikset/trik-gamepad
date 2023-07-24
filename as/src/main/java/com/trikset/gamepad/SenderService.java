@@ -15,44 +15,40 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public final class SenderService {
-    private OnEventListener<String> getShowTextCallback() {
+    private static OnEventListener<String> getShowTextCallback() {
         return mShowTextCallback;
     }
 
     void setShowTextCallback(OnEventListener<String> mShowTextCallback) {
-        this.mShowTextCallback = mShowTextCallback;
+        SenderService.mShowTextCallback = mShowTextCallback;
     }
 
-    private OnEventListener<String> getOnDisconnectedListener() {
+    private static OnEventListener<String> getOnDisconnectedListener() {
         return mOnDisconnectedListener;
     }
 
     void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
-        this.mOnDisconnectedListener = mOnDisconnectedListener;
-    }
-
-    interface IShowTextCallback {
-        void show(String text);
+        SenderService.mOnDisconnectedListener = mOnDisconnectedListener;
     }
 
     public static final int DEFAULT_KEEPALIVE = 5000;
     public static final int MINIMAL_KEEPALIVE = 1000;
-    private int keepaliveTimeout = DEFAULT_KEEPALIVE;
-    private final KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
+    private static int keepaliveTimeout = DEFAULT_KEEPALIVE;
+    private static final KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
 
     private static final int TIMEOUT = 5000;
-    private final Object mSyncFlag = new Object();
-    private OnEventListener<String> mShowTextCallback;
+    private static final Object mSyncFlag = new Object();
+    private static OnEventListener<String> mShowTextCallback;
     @Nullable
-    private PrintWriter mOut;
+    private static PrintWriter mOut;
 
-    private OnEventListener<String> mOnDisconnectedListener;
+    private static OnEventListener<String> mOnDisconnectedListener;
 
-    private String mHostAddr;
-    private int mHostPort;
+    private static String mHostAddr;
+    private static int mHostPort;
 
     @Nullable
-    private volatile AsyncTask<Void, Void, Void> mConnectTask;
+    private static volatile AsyncTask<Void, Void, Void> mConnectTask;
 
 
     public SenderService() {
@@ -68,8 +64,7 @@ public final class SenderService {
     }
 
     // socket is closed from PrintWriter.close()
-    @SuppressWarnings("resource")
-    private Void connectToTRIK() {
+    private static Void connectToTRIK() {
 
         synchronized (mSyncFlag) {
             try {
@@ -90,9 +85,6 @@ public final class SenderService {
 
                 mKeepAliveTimer.restartKeepAliveTimer();
 
-                // currently does nothing
-                // socket.setPerformancePreferences(connectionTime, latency,
-                // bandwidth);
                 try {
                     mOut =  new PrintWriter(osw, true);
                     return null;
@@ -109,7 +101,7 @@ public final class SenderService {
         }
     }
 
-    void disconnect(final String reason) {
+    static void disconnect(final String reason) {
         mKeepAliveTimer.stopKeepAliveTimer();
 
         if (mOut != null) {
@@ -161,7 +153,7 @@ public final class SenderService {
         void onEvent(ArgType arg);
     }
 
-    private class PrintWriterAsyncTask extends AsyncTask<Void, Void, Void> {
+    private static class PrintWriterAsyncTask extends AsyncTask<Void, Void, Void> {
         @Nullable
         @Override
         protected Void doInBackground(final Void... params) {
@@ -181,7 +173,7 @@ public final class SenderService {
 
     }
 
-    private class SendCommandAsyncTask extends AsyncTask<Void, Void, Void> {
+    private static class SendCommandAsyncTask extends AsyncTask<Void, Void, Void> {
         private final String command;
 
         SendCommandAsyncTask(String command) {
@@ -209,7 +201,7 @@ public final class SenderService {
         }
     }
 
-    private class KeepAliveTimer extends Timer {
+    private static class KeepAliveTimer extends Timer {
         private KeepAliveTimerTask task = new KeepAliveTimerTask();
 
         private void restartKeepAliveTimer() {
