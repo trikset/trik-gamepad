@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen.multitouch.distinct" android:required="true" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
+    <uses-feature android:name="android.hardware.gamepad" android:required="false" />
+
   <!--  <uses-permission android:name="android.permission.VIBRATE" /> -->
 
     <application
-        android:allowBackup="false"
         android:icon="@drawable/trik_gamepad_logo_512x512"
         android:label="@string/appLabel"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        >
+        tools:targetApi="m">
        <!--  <service android:name=".SenderService" />  -->
 
        <activity
@@ -24,7 +29,7 @@
             android:name="com.trikset.gamepad.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />

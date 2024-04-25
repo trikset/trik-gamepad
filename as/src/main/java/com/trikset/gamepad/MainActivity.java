@@ -11,11 +11,6 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
@@ -31,6 +26,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
+
 import com.demo.mjpeg.MjpegView;
 
 import java.net.MalformedURLException;
@@ -38,6 +39,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         // http://developer.android.com/guide/appendix/media-formats.html
 
                         try {
-                            mVideoURL = "".equals(videoStreamURI) ? null : new URI(
+                            mVideoURL = videoStreamURI.isEmpty() ? null : new URI(
                                     videoStreamURI).toURL();
                         } catch (URISyntaxException | MalformedURLException e) {
                             toast("Illegal video stream URL");
@@ -223,10 +225,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
 
                     {
-                        mWheelStep = Integer
-                                .getInteger(
+                        mWheelStep = Objects.requireNonNull(Integer.getInteger(
                                         sharedPreferences.getString(SettingsFragment.SK_WHEEL_STEP,
-                                                String.valueOf(mWheelStep)), mWheelStep);
+                                                String.valueOf(mWheelStep)), mWheelStep));
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 
@@ -282,16 +283,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(settings);
-                return true;
-            case R.id.wheel:
+        if (item.getItemId() == R.id.settings) {
+            final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
+        } else if (item.getItemId() == R.id.wheel) {
                 mWheelEnabled = !mWheelEnabled;
                 item.setChecked(mWheelEnabled);
                 return true;
-            default:
+        } else {
                 return super.onOptionsItemSelected(item);
         }
 
@@ -454,11 +454,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.mSender = sender;
     }
 
-    public HideRunnable getHideRunnable() {
+    private HideRunnable getHideRunnable() {
         return mHideRunnable;
     }
 
-    public void setHideRunnable(HideRunnable r) {
+    private void setHideRunnable(HideRunnable r) {
         this.mHideRunnable = r;
     }
 

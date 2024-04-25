@@ -1,11 +1,27 @@
 package com.trikset.gamepad;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.longClick;
+import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -17,22 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.action.ViewActions.longClick;
-import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
-import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 
 @LargeTest
 @RunWith(JUnit4.class)
@@ -84,7 +84,7 @@ public class SettingsTests {
                 allOf(withId(R.id.settings), withText("Settings"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.action_bar),
+                                        withId(androidx.appcompat.R.id.action_bar),
                                         1),
                                 1),
                         isDisplayed()));
@@ -101,7 +101,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -125,7 +125,7 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText.perform(scrollTo(), longClick());
+        appCompatEditText.perform(scrollTo(), click());
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -189,10 +189,10 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText5.perform(scrollTo(), replaceText("127.0.0.1"));
+        appCompatEditText5.perform(scrollTo(), replaceText("localhost"));
 
         ViewInteraction appCompatEditText6 = onView(
-                allOf(withId(android.R.id.edit), withText("127.0.0.1"),
+                allOf(withId(android.R.id.edit), withText("localhost"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("android.widget.ScrollView")),
@@ -214,14 +214,14 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton2.perform(scrollTo(), click());
 
         ViewInteraction linearLayout2 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -245,7 +245,7 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText7.perform(scrollTo(), longClick());
+        appCompatEditText7.perform(scrollTo(), click());
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -306,7 +306,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton3.perform(scrollTo(), click());
@@ -322,7 +322,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout3 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -346,7 +346,7 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText11.perform(scrollTo(), longClick());
+        appCompatEditText11.perform(scrollTo(), click());
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -407,7 +407,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton4.perform(scrollTo(), click());
@@ -423,7 +423,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout4 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -481,7 +481,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton5.perform(scrollTo(), click());
@@ -497,7 +497,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout5 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -620,7 +620,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton6.perform(scrollTo(), click());
@@ -636,7 +636,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout6 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -750,7 +750,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton7.perform(scrollTo(), click());
@@ -764,22 +764,13 @@ public class SettingsTests {
             e.printStackTrace();
         }
 
-        ViewInteraction appCompatImageButton = onView(
-                allOf(withContentDescription("Navigate up"),
-                        childAtPosition(
-                                allOf(withId(R.id.action_bar),
-                                        childAtPosition(
-                                                withId(R.id.action_bar_container),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        appCompatImageButton.perform(click());
+        Espresso.pressBack();
 
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mActivityTestRule.getActivity());
 
         assertEquals(
-                "127.0.0.1",
+                "localhost",
                 preferences.getString(SettingsFragment.SK_HOST_ADDRESS, ""));
         assertEquals(
                 "12345",
@@ -836,7 +827,7 @@ public class SettingsTests {
                 allOf(withId(R.id.settings), withText("Settings"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.action_bar),
+                                        withId(androidx.appcompat.R.id.action_bar),
                                         1),
                                 1),
                         isDisplayed()));
@@ -853,7 +844,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -902,7 +893,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton2.perform(scrollTo(), click());
@@ -916,16 +907,7 @@ public class SettingsTests {
             e.printStackTrace();
         }
 
-        ViewInteraction appCompatImageButton = onView(
-                allOf(withContentDescription("Navigate up"),
-                        childAtPosition(
-                                allOf(withId(R.id.action_bar),
-                                        childAtPosition(
-                                                withId(R.id.action_bar_container),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        appCompatImageButton.perform(click());
+        Espresso.pressBack();
 
         assertEquals(initialKeepaliveTimeout,
                 mActivityTestRule.getActivity().getSenderService().getKeepaliveTimeout());

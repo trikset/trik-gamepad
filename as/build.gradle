@@ -1,6 +1,11 @@
 apply plugin: 'idea'
 apply plugin: 'checkstyle'
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+def abiCode = 0 // just for fun
+def appMajorVersion = 1 // single digit for each SDK/ABI
+def appMinorVersion = 40 // two digits for each major version
 
 buildscript {
     repositories {
@@ -8,7 +13,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.9.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
     }
 }
 
@@ -26,17 +32,46 @@ android {
             storeFile file('../../android-keystorage.jks')
         }
     }
-    compileSdkVersion 33
+    compileSdk 35
     defaultConfig {
         applicationId "com.trikset.gamepad"
-        minSdkVersion 16
-        targetSdkVersion 33
-        versionCode 38
-        versionName '1.38'
-        resConfigs 'en'
+        minSdk 21
+        targetSdk (compileSdk - 1)
+        maxSdk compileSdk
+        versionCode (minSdk * 10000 + abiCode * 1000 +  appMajorVersion * 100  + appMinorVersion)
+        versionName ('' + appMajorVersion + '.' + appMinorVersion)
+        versionNameSuffix ('-API' + minSdk)
+        resourceConfigurations += ['en']
         signingConfig signingConfigs.config
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
+    buildFeatures {
+        buildConfig = true // to use BuildConfig.VERSION_NAME in About
+    }
+/*
+    flavorDimensions "api"
+    productFlavors {
+        latest {
+            dimension "api"
+            targetSdk (compileSdk - 1)
+            minSdk 21 // (compileSdk - 3)
+        }
+        legacy {
+            dimension "api"
+            maxSdk (compileSdk - 4)
+            minSdk 21
+            targetSdk compileSdk
+            versionNameSuffix ('-compat' + minSdk)
+
+        }
+    }
+    productFlavors.configureEach {
+        flavor ->
+            defaultConfig.versionCode (flavor.minSdk * 10000 + abiCode * 1000 +  appMajorVersion * 100  + appMinorVersion)
+            defaultConfig.versionName ('' + appMajorVersion + '.' + appMinorVersion)
+    }
+*/
     buildTypes {
         release {
             minifyEnabled true
@@ -53,31 +88,37 @@ android {
 
     }
     testOptions {
+        animationsDisabled true
         unitTests {
             includeAndroidResources = true
         }
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 
     namespace 'com.trikset.gamepad'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.10.1'
-    implementation 'androidx.annotation:annotation:1.6.0'
-    implementation 'androidx.preference:preference:1.2.0'
-    implementation 'commons-io:commons-io:2.13.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'commons-io:commons-io:2.16.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.robolectric:robolectric:4.10.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test:rules:1.6.0-alpha01'
-        constraints {
-            implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
-                because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
-            }
-            implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
-                because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
-            }
-        }
+    testImplementation 'org.robolectric:robolectric:4.14'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestUtil 'androidx.test:orchestrator:1.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+    androidTestImplementation 'junit:junit:4.13.2'
+    // Same as https://github.com/android/testing-samples/blob/a76330ba879cd671bf31012c79a9321e87097e64/ui/espresso/ScreenshotSample/app/build.gradle#L60
+    implementation 'androidx.tracing:tracing:1.2.0'
 }
