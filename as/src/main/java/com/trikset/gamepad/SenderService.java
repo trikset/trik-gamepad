@@ -1,70 +1,85 @@
 package com.trikset.gamepad;
 
 import android.os.AsyncTask;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public final class SenderService {
-    private static OnEventListener<String> getShowTextCallback() {
+
+    private OnEventListener<String> getShowTextCallback() {
         return mShowTextCallback;
     }
 
-    void setShowTextCallback(OnEventListener<String> mShowTextCallback) {
-        SenderService.mShowTextCallback = mShowTextCallback;
+    void setShowTextCallback(OnEventListener<String> showTextCallback) {
+        mShowTextCallback = showTextCallback;
     }
 
-    private static OnEventListener<String> getOnDisconnectedListener() {
+    private OnEventListener<String> getOnDisconnectedListener() {
         return mOnDisconnectedListener;
     }
 
-    void setOnDisconnectedListener(OnEventListener<String> mOnDisconnectedListener) {
-        SenderService.mOnDisconnectedListener = mOnDisconnectedListener;
+    void setOnDisconnectedListener(OnEventListener<String> onDisconnectedListener) {
+        mOnDisconnectedListener = onDisconnectedListener;
     }
 
     public static final int DEFAULT_KEEPALIVE = 5000;
     public static final int MINIMAL_KEEPALIVE = 1000;
     private static int keepaliveTimeout = DEFAULT_KEEPALIVE;
-    private static final KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
+    private final KeepAliveTimer mKeepAliveTimer = new KeepAliveTimer();
 
     private static final int TIMEOUT = 5000;
-    private static final Object mSyncFlag = new Object();
-    private static OnEventListener<String> mShowTextCallback;
+    private final Object mSyncFlag = new Object();
+    private OnEventListener<String> mShowTextCallback;
     @Nullable
-    private static PrintWriter mOut;
+    private PrintWriter mOut;
 
-    private static OnEventListener<String> mOnDisconnectedListener;
+    private OnEventListener<String> mOnDisconnectedListener;
 
-    private static String mHostAddr;
-    private static int mHostPort;
+    private String mHostAddr;
+    private int mHostPort;
+
+    public void setExecutor(@Nullable Executor executor) {
+        if (executor != null) {
+            SenderService.mExecutor = executor;
+        }
+    }
+
+    @Nullable
+    private static Executor mExecutor = Executors.newSingleThreadExecutor();
 
     @Nullable
     private static volatile AsyncTask<Void, Void, Void> mConnectTask;
-
 
     public SenderService() {
     }
 
     private AsyncTask<Void, Void, Void> connectAsync() {
         synchronized (mSyncFlag) {
-            if (mConnectTask != null)
+            if (mConnectTask != null) {
                 return null;
-            mConnectTask = new PrintWriterAsyncTask();
-            return mConnectTask.execute();
+            } else {
+                mConnectTask = new PrintWriterAsyncTask();
+                return Objects.requireNonNull(mConnectTask).executeOnExecutor(mExecutor);
+            }
         }
     }
 
     // socket is closed from PrintWriter.close()
-    private static Void connectToTRIK() {
+    private Void connectToTRIK() {
 
         synchronized (mSyncFlag) {
             try {
@@ -79,14 +94,12 @@ public final class SenderService {
                 socket.setOOBInline(true);
                 socket.shutdownInput();
                 OutputStreamWriter osw =
-                        //Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ?
-                        //new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8):
-                        new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
+                        new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
 
                 mKeepAliveTimer.restartKeepAliveTimer();
 
                 try {
-                    mOut =  new PrintWriter(osw, true);
+                    mOut = new PrintWriter(osw, true);
                     return null;
                 } catch (@NonNull final Exception e) {
                     Log.e("TCP", "GetStream: Error", e);
@@ -101,7 +114,7 @@ public final class SenderService {
         }
     }
 
-    static void disconnect(final String reason) {
+    void disconnect(final String reason) {
         mKeepAliveTimer.stopKeepAliveTimer();
 
         if (mOut != null) {
@@ -109,8 +122,7 @@ public final class SenderService {
             mOut = null;
             Log.d("TCP", "Disconnected.");
             OnEventListener<String> l = getOnDisconnectedListener();
-            if (l != null)
-                l.onEvent(reason);
+            if (l != null) l.onEvent(reason);
         }
     }
 
@@ -124,7 +136,7 @@ public final class SenderService {
         }
 
         Log.d("TCP", "Sending '" + command + '\'');
-        new SendCommandAsyncTask(command).execute();
+        new SendCommandAsyncTask(command).executeOnExecutor(mExecutor);
 
         mKeepAliveTimer.restartKeepAliveTimer();
     }
@@ -153,7 +165,7 @@ public final class SenderService {
         void onEvent(ArgType arg);
     }
 
-    private static class PrintWriterAsyncTask extends AsyncTask<Void, Void, Void> {
+    private class PrintWriterAsyncTask extends AsyncTask<Void, Void, Void> {
         @Nullable
         @Override
         protected Void doInBackground(final Void... params) {
@@ -165,15 +177,14 @@ public final class SenderService {
         protected void onPostExecute(Void result) {
             OnEventListener<String> cb = getShowTextCallback();
             if (cb != null) {
-                cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort
-                        + (mOut != null ? " established." : " error."));
+                cb.onEvent("Connection to " + mHostAddr + ':' + mHostPort + (mOut != null ? " established." : " error."));
             }
             mConnectTask = null;
         }
 
     }
 
-    private static class SendCommandAsyncTask extends AsyncTask<Void, Void, Void> {
+    private class SendCommandAsyncTask extends AsyncTask<Void, Void, Void> {
         private final String command;
 
         SendCommandAsyncTask(String command) {
@@ -186,8 +197,7 @@ public final class SenderService {
             synchronized (mSyncFlag) {
                 // TODO: reimplement with Handle instead of multiple chaotic
                 // AsyncTasks
-                if (mOut != null)
-                    mOut.println(command);
+                if (mOut != null) mOut.println(command);
             }
             return null;
         }
@@ -201,7 +211,7 @@ public final class SenderService {
         }
     }
 
-    private static class KeepAliveTimer extends Timer {
+    private class KeepAliveTimer extends Timer {
         private KeepAliveTimerTask task = new KeepAliveTimerTask();
 
         private void restartKeepAliveTimer() {
@@ -210,7 +220,7 @@ public final class SenderService {
             task = new KeepAliveTimerTask();
             // Using '300' in order to compensate ping
             final int realTimeout = keepaliveTimeout - 300;
-            scheduleAtFixedRate(task, realTimeout, realTimeout);
+            schedule(task, realTimeout, realTimeout);
         }
 
         private void stopKeepAliveTimer() {
@@ -224,7 +234,7 @@ public final class SenderService {
                 if (mOut != null) {
                     final String command = "keepalive " + keepaliveTimeout;
                     Log.d("TCP", String.format("Sending %s message", command));
-                    new SendCommandAsyncTask(command).execute();
+                    new SendCommandAsyncTask(command).executeOnExecutor(mExecutor);
                 } else {
                     stopKeepAliveTimer();
                 }

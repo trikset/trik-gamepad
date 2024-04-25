@@ -1,5 +1,7 @@
 package com.trikset.gamepad;
 
+import static android.content.Context.CLIPBOARD_SERVICE;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.os.Build;
@@ -12,8 +14,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Locale;
-
-import static android.content.Context.CLIPBOARD_SERVICE;
+import java.util.Objects;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String SK_HOST_ADDRESS  = "hostAddress";
@@ -28,20 +29,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         final FragmentActivity myActivity = getActivity();
         if (myActivity == null)
             return;
-        final Preference aboutSystem = findPreference(SK_ABOUT_SYSTEM);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         myActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         final String systemInfo = String.format(
                 Locale.ENGLISH,
-                "Android %s; SDK %d; Resolution %dx%d; PPI %dx%d",
+                "Version:%s; Android %s; SDK %d; Resolution %dx%d; PPI %dx%d",
+                BuildConfig.VERSION_NAME,
                 Build.VERSION.RELEASE,
                 Build.VERSION.SDK_INT,
                 displayMetrics.heightPixels,
                 displayMetrics.widthPixels,
                 (int)displayMetrics.ydpi,
                 (int)displayMetrics.xdpi);
+        final Preference aboutSystem = Objects.requireNonNull(findPreference(SK_ABOUT_SYSTEM));
         aboutSystem.setSummary(getString(R.string.tap_to_copy) + ":" + systemInfo);
-
         // Copying system info to the clipboard on click
         final Preference.OnPreferenceClickListener listener = preference -> {
             ClipboardManager clipboard =
@@ -68,9 +69,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         for (final String preferenceKey :
                 new String[] { SK_HOST_ADDRESS, SK_HOST_PORT, SK_KEEPALIVE }) {
-            final Preference preference = findPreference(preferenceKey);
+            final Preference preference = Objects.requireNonNull(findPreference(preferenceKey));
             preference.setSummary(
-                    preference.getSharedPreferences().getString(preferenceKey, ""));
+                    Objects.requireNonNull(preference.getSharedPreferences()).getString(preferenceKey, ""));
             preference.setOnPreferenceChangeListener(listener);
         }
     }
