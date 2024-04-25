@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
   <!--  <uses-permission android:name="android.permission.VIBRATE" /> -->
 
     <application
-        android:allowBackup="false"
         android:icon="@drawable/trik_gamepad_logo_512x512"
         android:label="@string/appLabel"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        >
+        tools:targetApi="m">
        <!--  <service android:name=".SenderService" />  -->
 
        <activity

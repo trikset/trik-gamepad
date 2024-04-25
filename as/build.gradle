@@ -1,6 +1,7 @@
 apply plugin: 'idea'
 apply plugin: 'checkstyle'
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 buildscript {
     repositories {
@@ -8,7 +9,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
     }
 }
 
@@ -26,14 +28,13 @@ android {
             storeFile file('../../android-keystorage.jks')
         }
     }
-    compileSdkVersion 33
+    compileSdk 34
     defaultConfig {
         applicationId "com.trikset.gamepad"
-        minSdkVersion 16
-        targetSdkVersion 33
-        versionCode 38
-        versionName '1.38'
-        resConfigs 'en'
+        minSdkVersion 19
+        versionCode 39
+        versionName '1.39'
+        resourceConfigurations += ['en']
         signingConfig signingConfigs.config
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

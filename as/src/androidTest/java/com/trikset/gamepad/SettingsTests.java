@@ -84,7 +84,7 @@ public class SettingsTests {
                 allOf(withId(R.id.settings), withText("Settings"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.action_bar),
+                                        withId(androidx.appcompat.R.id.action_bar),
                                         1),
                                 1),
                         isDisplayed()));
@@ -101,7 +101,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -214,14 +214,14 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton2.perform(scrollTo(), click());
 
         ViewInteraction linearLayout2 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -306,7 +306,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton3.perform(scrollTo(), click());
@@ -322,7 +322,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout3 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -407,7 +407,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton4.perform(scrollTo(), click());
@@ -423,7 +423,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout4 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -481,7 +481,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton5.perform(scrollTo(), click());
@@ -497,7 +497,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout5 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -620,7 +620,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton6.perform(scrollTo(), click());
@@ -636,7 +636,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout6 = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -750,7 +750,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton7.perform(scrollTo(), click());
@@ -767,9 +767,9 @@ public class SettingsTests {
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Navigate up"),
                         childAtPosition(
-                                allOf(withId(R.id.action_bar),
+                                allOf(withId(androidx.appcompat.R.id.action_bar),
                                         childAtPosition(
-                                                withId(R.id.action_bar_container),
+                                                withId(androidx.appcompat.R.id.action_bar_container),
                                                 0)),
                                 1),
                         isDisplayed()));
@@ -836,7 +836,7 @@ public class SettingsTests {
                 allOf(withId(R.id.settings), withText("Settings"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.action_bar),
+                                        withId(androidx.appcompat.R.id.action_bar),
                                         1),
                                 1),
                         isDisplayed()));
@@ -853,7 +853,7 @@ public class SettingsTests {
 
         ViewInteraction linearLayout = onView(
                 allOf(childAtPosition(
-                        allOf(withId(R.id.recycler_view),
+                        allOf(withId(androidx.preference.R.id.recycler_view),
                                 childAtPosition(
                                         withId(android.R.id.list_container),
                                         0)),
@@ -902,7 +902,7 @@ public class SettingsTests {
                 allOf(withId(android.R.id.button1), withText("OK"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.buttonPanel),
+                                        withId(androidx.appcompat.R.id.buttonPanel),
                                         0),
                                 3)));
         appCompatButton2.perform(scrollTo(), click());
@@ -919,9 +919,9 @@ public class SettingsTests {
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Navigate up"),
                         childAtPosition(
-                                allOf(withId(R.id.action_bar),
+                                allOf(withId(androidx.appcompat.R.id.action_bar),
                                         childAtPosition(
-                                                withId(R.id.action_bar_container),
+                                                withId(androidx.appcompat.R.id.action_bar_container),
                                                 0)),
                                 1),
                         isDisplayed()));

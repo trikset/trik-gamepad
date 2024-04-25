@@ -1,9 +1,14 @@
 package com.trikset.gamepad;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,12 +16,9 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = {Config.OLDEST_SDK}) // -- runs on Java8
-//@Config(sdk = {Config.OLDEST_SDK, Config.TARGET_SDK, CONFIG.NEWEST_SDK}) -- commented until Java 9
+@LooperMode(LooperMode.Mode.LEGACY)
+@Config(sdk = {Config.OLDEST_SDK, Config.TARGET_SDK, Config.NEWEST_SDK})
 public class SenderServiceTest {
     @Test
     public void senderServiceShouldConnectToServerSuccessfullyAfterSendingCommand()
@@ -26,8 +28,8 @@ public class SenderServiceTest {
         client.setTarget(DummyServer.IP, DummyServer.DEFAULT_PORT + 4);
 
         client.send("");
-        Thread.sleep(200);
-        assertTrue(server.isConnected());
+        Robolectric.flushBackgroundThreadScheduler();
+        Assert.assertTrue(server.isConnected());
     }
 
     @Test
@@ -38,7 +40,7 @@ public class SenderServiceTest {
         client.setKeepaliveTimeout(10000000); // to disable keep-alive messages
 
         client.send("Test; check");
-        Thread.sleep(100);
+        Robolectric.flushBackgroundThreadScheduler();
         assertEquals("Test; check", server.getLastCommand());
     }
 
@@ -51,9 +53,8 @@ public class SenderServiceTest {
 
         for (int i = 0; i < 5; ++i) {
             client.send(String.format("%d checking", i));
-            Thread.sleep(100);
         }
-
+        Robolectric.flushBackgroundThreadScheduler();
         assertEquals("4 checking", server.getLastCommand());
     }
 
