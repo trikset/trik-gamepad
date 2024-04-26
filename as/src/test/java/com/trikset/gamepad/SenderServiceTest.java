@@ -1,8 +1,8 @@
 package com.trikset.gamepad;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -29,7 +29,7 @@ public class SenderServiceTest {
 
         client.send("");
         Robolectric.flushBackgroundThreadScheduler();
-        Assert.assertTrue(server.isConnected());
+        assertTrue(server.isConnected());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class SenderServiceTest {
     @Test
     public void setTargetShouldSetServerSuccessfully() {
         SenderService client = new SenderService();
-        client.setTarget("someaddr-test", 12345);
+        client.setTarget("someaddr-test", DummyServer.DEFAULT_PORT);
 
         assertEquals("someaddr-test", client.getHostAddr());
     }

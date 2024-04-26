@@ -4,15 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
-
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.Locale;
 
@@ -138,10 +138,12 @@ public class SquareTouchPadLayout extends RelativeLayout {
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                     send("up");
                     v.performClick();
                     return true;
                 case MotionEvent.ACTION_DOWN:
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
                     v.performClick();
                 case MotionEvent.ACTION_MOVE:
                     setAbsXY(Math.max(0, Math.min(event.getX(), mMaxX)), Math.max(0, Math.min(event.getY(), mMaxY)));

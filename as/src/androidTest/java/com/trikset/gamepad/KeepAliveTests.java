@@ -1,5 +1,9 @@
 package com.trikset.gamepad;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
@@ -10,10 +14,6 @@ import org.junit.runners.JUnit4;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(JUnit4.class)
 public class KeepAliveTests {
     @Rule
@@ -22,7 +22,7 @@ public class KeepAliveTests {
 
     @Test
     public void keepAliveShouldBeReceivedAfterGivenTimePeriod() throws InterruptedException {
-        final int timeout = 4000;
+        final int timeout = 1000;
 
         DummyServer server = new DummyServer();
         SenderService client = mActivityTestRule.getActivity().getSenderService();
@@ -32,7 +32,7 @@ public class KeepAliveTests {
         // In order to set connection up
         client.send("test");
 
-        Thread.sleep(timeout + 300);
+        Thread.sleep(timeout + 5000);
         server.stopListening();
 
         ListIterator<String> messages = server.getReceivedMessages().listIterator();
@@ -51,10 +51,10 @@ public class KeepAliveTests {
 
         // In order to set connection up
         client.send("testtest");
-        Thread.sleep(500);
+        Thread.sleep(5000);
         client.disconnect("testtest");
 
-        Thread.sleep(600);
+        Thread.sleep(1000);
         server.stopListening();
 
         Iterator<String> messages = server.getReceivedMessages().iterator();

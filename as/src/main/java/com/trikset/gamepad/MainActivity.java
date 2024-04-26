@@ -11,11 +11,6 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
@@ -30,6 +25,12 @@ import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
 
 import com.demo.mjpeg.MjpegView;
 
@@ -282,16 +283,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(settings);
-                return true;
-            case R.id.wheel:
+        if (item.getItemId() == R.id.settings) {
+            final Intent settings = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(settings);
+            return true;
+        } else if (item.getItemId() == R.id.wheel) {
                 mWheelEnabled = !mWheelEnabled;
                 item.setChecked(mWheelEnabled);
                 return true;
-            default:
+        } else {
                 return super.onOptionsItemSelected(item);
         }
 

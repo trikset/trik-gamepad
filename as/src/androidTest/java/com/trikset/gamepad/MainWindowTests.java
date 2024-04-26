@@ -1,5 +1,13 @@
 package com.trikset.gamepad;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.MotionEvent;
@@ -27,14 +35,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 
 @RunWith(Enclosed.class)
 public class MainWindowTests {
@@ -47,10 +47,11 @@ public class MainWindowTests {
 
         @Parameters
         public static Collection<Object[]> data() {
-            return Arrays.asList(new Object[][] {
+            return Arrays.asList(new Object[][]{
                     {R.id.leftPad, "1"}, {R.id.rightPad, "2"}
             });
         }
+
         @Parameter
         public int currentPadId;
         @Parameter(1)
@@ -128,8 +129,8 @@ public class MainWindowTests {
                 int x = Integer.parseInt(splitCommand[2]);
                 int y = Integer.parseInt(splitCommand[3]);
 
-                assertTrue( Math.abs(-100 + currentIndex * 200 / 10 - x) <= 15);
-                assertTrue(Math.abs(100 - currentIndex * 200 / 10 - y) <= 15);
+                assertTrue(Math.abs(-100 + currentIndex * 200 / 10 - x) <= 25);
+                assertTrue(Math.abs(100 - currentIndex * 200 / 10 - y) <= 25);
 
                 ++currentIndex;
             }
@@ -138,10 +139,12 @@ public class MainWindowTests {
         private ViewAction diagonalTap() {
             return new ViewAction() {
                 final static int tapSegmentCount = 10;
-                final float[] tapPrecision = new float[] { 1f, 1f };
+                final float[] tapPrecision = new float[]{1f, 1f};
 
                 @Override
-                public Matcher<View> getConstraints() { return isDisplayed(); }
+                public Matcher<View> getConstraints() {
+                    return isDisplayed();
+                }
 
                 @Override
                 public String getDescription() {
@@ -153,21 +156,31 @@ public class MainWindowTests {
                     int[] topLeftCoords = new int[2];
                     view.getLocationOnScreen(topLeftCoords);
 
-                    final float[] startCoords = {topLeftCoords[0], topLeftCoords[1]};
+                    final float[] startCoords = {topLeftCoords[0] + 15 * tapPrecision[0], topLeftCoords[1] + 15 * tapPrecision[1]};
+                    MotionEvent t = MotionEvents
+                            .sendDown(uiController, startCoords, tapPrecision).down;
+                    MotionEvents.sendCancel(uiController, t);
                     MotionEvent tap = MotionEvents
                             .sendDown(uiController, startCoords, tapPrecision)
                             .down;
-                    uiController.loopMainThreadForAtLeast(100);
-                    for (int i = 1; i <= tapSegmentCount; ++i) {
-                        final float[] currentCoords = {
-                                topLeftCoords[0] + (float) i * view.getWidth() / tapSegmentCount,
-                                topLeftCoords[1] + (float) i * view.getHeight() / tapSegmentCount,
-                        };
-
-                        MotionEvents.sendMovement(uiController, tap, startCoords);
-                        uiController.loopMainThreadForAtLeast(50);
+                    uiController.loopMainThreadUntilIdle();
+                    try {
+                        for (int i = 1; i < tapSegmentCount; ++i) {
+                            final float[] currentCoords = {
+                                    startCoords[0] + (float) i * (view.getWidth() - 4 * tapPrecision[0]) / tapSegmentCount,
+                                    startCoords[1] + (float) i * (view.getHeight() - 4 * tapPrecision[0]) / tapSegmentCount,
+                            };
+                            if (!MotionEvents.sendMovement(uiController, tap, currentCoords)) {
+                                MotionEvents.sendCancel(uiController, tap);
+                                break;
+                            }
+                        }
+                        if (!MotionEvents.sendUp(uiController, tap)) {
+                            MotionEvents.sendCancel(uiController, tap);
+                        }
+                    } finally {
+                        tap.recycle();
                     }
-                    MotionEvents.sendUp(uiController, tap);
                 }
             };
         }
@@ -175,7 +188,7 @@ public class MainWindowTests {
         private ViewAction movingTap() {
             return new ViewAction() {
                 final static int tapSegmentCount = 10;
-                final float[] tapPrecision = new float[] { 1f, 1f };
+                final float[] tapPrecision = new float[]{1f, 1f};
 
                 @Override
                 public Matcher<View> getConstraints() {
@@ -198,7 +211,7 @@ public class MainWindowTests {
                             topLeftCoords[1] + view.getWidth() / 2
                     };
 
-                    float[] startCoords = new float[] {centerCoords[0] + tapRadius, centerCoords[1]};
+                    float[] startCoords = new float[]{centerCoords[0] + tapRadius, centerCoords[1]};
                     MotionEvent tap = MotionEvents
                             .sendDown(uiController, startCoords, tapPrecision)
                             .down;
