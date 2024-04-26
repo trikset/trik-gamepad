@@ -454,11 +454,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.mSender = sender;
     }
 
-    public HideRunnable getHideRunnable() {
+    private HideRunnable getHideRunnable() {
         return mHideRunnable;
     }
 
-    public void setHideRunnable(HideRunnable r) {
+    private void setHideRunnable(HideRunnable r) {
         this.mHideRunnable = r;
     }
 

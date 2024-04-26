@@ -40,6 +40,7 @@ public class SenderServiceTest {
         client.setKeepaliveTimeout(10000000); // to disable keep-alive messages
 
         client.send("Test; check");
+        Robolectric.flushForegroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
         assertEquals("Test; check", server.getLastCommand());
     }
@@ -54,6 +55,7 @@ public class SenderServiceTest {
         for (int i = 0; i < 5; ++i) {
             client.send(String.format("%d checking", i));
         }
+        Robolectric.flushForegroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
         assertEquals("4 checking", server.getLastCommand());
     }

@@ -42,14 +42,11 @@ public class MainWindowTests {
     @RunWith(Parameterized.class)
     public static class SquareButtonTest {
         @Rule
-        public final ActivityTestRule<MainActivity> mActivityTestRule =
-                new ActivityTestRule<>(MainActivity.class);
+        public final ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
         @Parameters
         public static Collection<Object[]> data() {
-            return Arrays.asList(new Object[][]{
-                    {R.id.leftPad, "1"}, {R.id.rightPad, "2"}
-            });
+            return Arrays.asList(new Object[][]{{R.id.leftPad, "1"}, {R.id.rightPad, "2"}});
         }
 
         @Parameter
@@ -156,20 +153,12 @@ public class MainWindowTests {
                     int[] topLeftCoords = new int[2];
                     view.getLocationOnScreen(topLeftCoords);
 
-                    final float[] startCoords = {topLeftCoords[0] + 15 * tapPrecision[0], topLeftCoords[1] + 15 * tapPrecision[1]};
-                    MotionEvent t = MotionEvents
-                            .sendDown(uiController, startCoords, tapPrecision).down;
-                    MotionEvents.sendCancel(uiController, t);
-                    MotionEvent tap = MotionEvents
-                            .sendDown(uiController, startCoords, tapPrecision)
-                            .down;
+                    final float[] startCoords = {topLeftCoords[0] + tapPrecision[0], topLeftCoords[1] - tapPrecision[1]};
+                    MotionEvent tap = MotionEvents.sendDown(uiController, startCoords, tapPrecision).down;
                     uiController.loopMainThreadUntilIdle();
                     try {
                         for (int i = 1; i < tapSegmentCount; ++i) {
-                            final float[] currentCoords = {
-                                    startCoords[0] + (float) i * (view.getWidth() - 4 * tapPrecision[0]) / tapSegmentCount,
-                                    startCoords[1] + (float) i * (view.getHeight() - 4 * tapPrecision[0]) / tapSegmentCount,
-                            };
+                            final float[] currentCoords = {startCoords[0] + (float) i * (view.getWidth()) / tapSegmentCount, startCoords[1] - (float) i * (view.getHeight()) / tapSegmentCount,};
                             if (!MotionEvents.sendMovement(uiController, tap, currentCoords)) {
                                 MotionEvents.sendCancel(uiController, tap);
                                 break;
@@ -206,22 +195,14 @@ public class MainWindowTests {
 
                     int[] topLeftCoords = new int[2];
                     view.getLocationOnScreen(topLeftCoords);
-                    int[] centerCoords = {
-                            topLeftCoords[0] + view.getWidth() / 2,
-                            topLeftCoords[1] + view.getWidth() / 2
-                    };
+                    int[] centerCoords = {topLeftCoords[0] + view.getWidth() / 2, topLeftCoords[1] + view.getWidth() / 2};
 
                     float[] startCoords = new float[]{centerCoords[0] + tapRadius, centerCoords[1]};
-                    MotionEvent tap = MotionEvents
-                            .sendDown(uiController, startCoords, tapPrecision)
-                            .down;
+                    MotionEvent tap = MotionEvents.sendDown(uiController, startCoords, tapPrecision).down;
                     uiController.loopMainThreadForAtLeast(100);
                     for (int i = 1; i <= tapSegmentCount; ++i) {
                         double currentAngle = 2 * i * Math.PI / tapSegmentCount;
-                        float[] currentCoords = {
-                                centerCoords[0] + tapRadius * (float) Math.cos(currentAngle),
-                                centerCoords[1] + tapRadius * (float) Math.sin(currentAngle)
-                        };
+                        float[] currentCoords = {centerCoords[0] + tapRadius * (float) Math.cos(currentAngle), centerCoords[1] + tapRadius * (float) Math.sin(currentAngle)};
 
                         MotionEvents.sendMovement(uiController, tap, currentCoords);
                         uiController.loopMainThreadForAtLeast(50);
@@ -236,19 +217,15 @@ public class MainWindowTests {
     @RunWith(JUnit4.class)
     public static class MagicButtonsTests {
         @Rule
-        public final ActivityTestRule<MainActivity> mActivityTestRule =
-                new ActivityTestRule<>(MainActivity.class);
+        public final ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
         @Before
         public void initNetworkSettings() {
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(mActivityTestRule.getActivity());
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mActivityTestRule.getActivity());
             SharedPreferences.Editor preferenceEditor = preferences.edit();
 
             preferenceEditor.putString(SettingsFragment.SK_HOST_ADDRESS, DummyServer.IP);
-            preferenceEditor.putString(
-                    SettingsFragment.SK_HOST_PORT,
-                    Integer.toString(DummyServer.DEFAULT_PORT));
+            preferenceEditor.putString(SettingsFragment.SK_HOST_PORT, Integer.toString(DummyServer.DEFAULT_PORT));
             // In order not to receive keep-alive messages
             preferenceEditor.putString(SettingsFragment.SK_KEEPALIVE, "100000000");
 
@@ -295,13 +272,9 @@ public class MainWindowTests {
 
                         int[] buttonTopLeftCoords = new int[2];
                         currentButton.getLocationOnScreen(buttonTopLeftCoords);
-                        float[] clickCoords = {
-                                buttonTopLeftCoords[0] + (float) currentButton.getWidth() / 2,
-                                buttonTopLeftCoords[1] + (float) currentButton.getHeight() / 2
-                        };
+                        float[] clickCoords = {buttonTopLeftCoords[0] + (float) currentButton.getWidth() / 2, buttonTopLeftCoords[1] + (float) currentButton.getHeight() / 2};
 
-                        MotionEvent tap =
-                                MotionEvents.sendDown(uiController, clickCoords, tapPrecision).down;
+                        MotionEvent tap = MotionEvents.sendDown(uiController, clickCoords, tapPrecision).down;
                         uiController.loopMainThreadForAtLeast(50);
                         MotionEvents.sendUp(uiController, tap);
                     }
