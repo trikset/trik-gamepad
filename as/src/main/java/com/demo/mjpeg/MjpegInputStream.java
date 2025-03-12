@@ -12,8 +12,9 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Properties;
 
 public class MjpegInputStream extends DataInputStream {
@@ -23,17 +24,12 @@ public class MjpegInputStream extends DataInputStream {
     private final static int FRAME_MAX_LENGTH = 300000 + HEADER_MAX_LENGTH;
     private final static byte[] SOI_MARKER = {(byte) 0xFF, (byte) 0xD8};
     //private final byte[] EOF_MARKER = {(byte) 0xFF, (byte) 0xD9};
-    @Nullable
-    private final static byte[] CONTENT_LENGTH_MARKER = getUTF8Bytes(CONTENT_LENGTH);
+    @NonNull
+    private final static byte[] CONTENT_LENGTH_MARKER = Objects.requireNonNull(getUTF8Bytes(CONTENT_LENGTH));
     private final Properties props = new Properties();
     @Nullable
     private static byte[] getUTF8Bytes(@NonNull String s) {
-        try {
-            return s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return s.getBytes(StandardCharsets.UTF_8);
     }
 
     public MjpegInputStream(@NonNull InputStream in) {

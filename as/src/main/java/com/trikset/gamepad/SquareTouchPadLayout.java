@@ -125,6 +125,9 @@ public class SquareTouchPadLayout extends RelativeLayout {
 
     final class TouchPadListener implements OnTouchListener {
 
+        /**
+         * @noinspection DefaultNotLastCaseInSwitch
+         */
         @Override
         public boolean onTouch(@NonNull final View v, @NonNull final MotionEvent event) {
             if (v != SquareTouchPadLayout.this) {

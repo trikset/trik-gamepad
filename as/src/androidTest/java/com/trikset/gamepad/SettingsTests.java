@@ -8,7 +8,6 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
-import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
@@ -22,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -125,7 +125,7 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText.perform(scrollTo(), longClick());
+        appCompatEditText.perform(scrollTo(), click());
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -189,10 +189,10 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText5.perform(scrollTo(), replaceText("127.0.0.1"));
+        appCompatEditText5.perform(scrollTo(), replaceText("localhost"));
 
         ViewInteraction appCompatEditText6 = onView(
-                allOf(withId(android.R.id.edit), withText("127.0.0.1"),
+                allOf(withId(android.R.id.edit), withText("localhost"),
                         childAtPosition(
                                 childAtPosition(
                                         withClassName(is("android.widget.ScrollView")),
@@ -245,7 +245,7 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText7.perform(scrollTo(), longClick());
+        appCompatEditText7.perform(scrollTo(), click());
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -346,7 +346,7 @@ public class SettingsTests {
                                         withClassName(is("android.widget.ScrollView")),
                                         0),
                                 1)));
-        appCompatEditText11.perform(scrollTo(), longClick());
+        appCompatEditText11.perform(scrollTo(), click());
 
         // Added a sleep statement to match the app's execution delay.
         // The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -764,22 +764,13 @@ public class SettingsTests {
             e.printStackTrace();
         }
 
-        ViewInteraction appCompatImageButton = onView(
-                allOf(withContentDescription("Navigate up"),
-                        childAtPosition(
-                                allOf(withId(androidx.appcompat.R.id.action_bar),
-                                        childAtPosition(
-                                                withId(androidx.appcompat.R.id.action_bar_container),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        appCompatImageButton.perform(click());
+        Espresso.pressBack();
 
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mActivityTestRule.getActivity());
 
         assertEquals(
-                "127.0.0.1",
+                "localhost",
                 preferences.getString(SettingsFragment.SK_HOST_ADDRESS, ""));
         assertEquals(
                 "12345",
@@ -916,16 +907,7 @@ public class SettingsTests {
             e.printStackTrace();
         }
 
-        ViewInteraction appCompatImageButton = onView(
-                allOf(withContentDescription("Navigate up"),
-                        childAtPosition(
-                                allOf(withId(androidx.appcompat.R.id.action_bar),
-                                        childAtPosition(
-                                                withId(androidx.appcompat.R.id.action_bar_container),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        appCompatImageButton.perform(click());
+        Espresso.pressBack();
 
         assertEquals(initialKeepaliveTimeout,
                 mActivityTestRule.getActivity().getSenderService().getKeepaliveTimeout());

@@ -39,6 +39,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -214,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         // http://developer.android.com/guide/appendix/media-formats.html
 
                         try {
-                            mVideoURL = "".equals(videoStreamURI) ? null : new URI(
+                            mVideoURL = videoStreamURI.isEmpty() ? null : new URI(
                                     videoStreamURI).toURL();
                         } catch (URISyntaxException | MalformedURLException e) {
                             toast("Illegal video stream URL");
@@ -224,10 +225,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
 
                     {
-                        mWheelStep = Integer
-                                .getInteger(
+                        mWheelStep = Objects.requireNonNull(Integer.getInteger(
                                         sharedPreferences.getString(SettingsFragment.SK_WHEEL_STEP,
-                                                String.valueOf(mWheelStep)), mWheelStep);
+                                                String.valueOf(mWheelStep)), mWheelStep));
                         mWheelStep = Math.max(1, Math.min(100, mWheelStep));
                     }
 

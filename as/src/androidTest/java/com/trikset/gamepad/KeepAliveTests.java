@@ -47,14 +47,14 @@ public class KeepAliveTests {
         DummyServer server = new DummyServer();
         SenderService client = mActivityTestRule.getActivity().getSenderService();
         client.setTarget(DummyServer.IP, DummyServer.DEFAULT_PORT);
-        client.setKeepaliveTimeout(5000);
+        client.setKeepaliveTimeout(2000);
 
         // In order to set connection up
         client.send("testtest");
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         client.disconnect("testtest");
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         server.stopListening();
 
         Iterator<String> messages = server.getReceivedMessages().iterator();
