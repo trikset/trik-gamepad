@@ -1,6 +1,6 @@
 # TRIK Gamepad (Android)
 
-[![CI](https://github.com/iakov/trik-gamepad/actions/workflows/ci.yml/badge.svg)](https://github.com/iakov/trik-gamepad/actions/workflows/ci.yml)
+[![CI](https://github.com/trikset/trik-gamepad/actions/workflows/ci.yml/badge.svg)](https://github.com/trikset/trik-gamepad/actions/workflows/ci.yml)
 
 ![TRIK Gamepad connected to a robot](docs/img/hud_connected.jpg)
 
