@@ -23,7 +23,7 @@
 
     <application
         android:name=".App"
-        android:icon="@mipmap/trik_gamepad_logo_512x512"
+        android:icon="@mipmap/trik_gamepad_logo"
         android:label="@string/appLabel"
         android:localeConfig="@xml/locales_config"
         android:networkSecurityConfig="@xml/network_security_config"
