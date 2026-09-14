@@ -1,3 +1,4 @@
+**/*.p12
 **/*.jks
 
 # built application files

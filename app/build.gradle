@@ -12,10 +12,10 @@ def appMajorVersion = 2 // single digit for each SDK/ABI
 def appMinorVersion = 42 // two digits for each major version
 
 // The signing keystore deliberately lives OUTSIDE the repo workdir (one level
-// above the repo root, next to the checkout). It is gitignored via **/*.jks and
+// above the repo root, next to the checkout). It is gitignored via **/*.p12 and
 // never enters CI. Debug builds in CI fall back to the auto-generated debug
 // keystore; release signing stays local-only and keystore-gated.
-def keystoreFile = file('../android-keystorage.jks')
+def keystoreFile = file('../../android-keystorage.p12')
 
 android {
     signingConfigs {
