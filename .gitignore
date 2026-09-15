@@ -2,8 +2,9 @@
 **/*.jks
 
 # built application files
-# *.apk
 *.ap_
+_apk/
+app/release/
 
 # files for the dex VM
 *.dex
