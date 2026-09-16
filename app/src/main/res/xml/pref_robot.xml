@@ -1,0 +1,84 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Robot/target settings: everything about the robot the gamepad connects to (host, port,
+         video, network, presets). App-behavior settings live in SettingsActivity (pref_app.xml). -->
+    <Preference
+        android:key="openAppSettings"
+        android:summary="@string/pref_open_app_settings_summary"
+        android:title="@string/pref_open_app_settings" />
+
+    <PreferenceCategory android:title="@string/pref_category_robot_connection">
+        <EditTextPreference
+            android:defaultValue="192.168.77.1"
+            android:inputType="textUri"
+            android:key="hostAddress"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_host_address" />
+        <EditTextPreference
+            android:defaultValue="4444"
+            android:inputType="number"
+            android:key="hostPort"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_host_port" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_video">
+        <EditTextPreference
+            android:inputType="textUri"
+            android:key="videoURI"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_video_uri" />
+        <!-- Video-source preset chips: Camera 1 / Camera 2 / USB / No video. Each chip rewrites the
+             video URI's port (or fills it from the robot host when empty); "No video" clears it.
+             The row is populated by VideoSourceChipsPreference from the bundled smart-glyph core. -->
+        <com.trikset.gamepad2.VideoSourceChipsPreference
+            android:key="videoSourceChips" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_network">
+        <EditTextPreference
+            android:defaultValue="5000"
+            android:digits="0123456789"
+            android:inputType="numberDecimal"
+            android:key="keepaliveTimeout"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:title="@string/pref_keepalive_timeout" />
+        <ListPreference
+            android:defaultValue="tcp"
+            android:entries="@array/transport_labels"
+            android:entryValues="@array/transport_values"
+            android:key="transport"
+            android:summary="@string/pref_transport_summary"
+            android:title="@string/pref_transport" />
+        <EditTextPreference
+            android:dialogTitle="@string/pref_custom_message"
+            android:key="customMessage"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_custom_message" />
+        <Preference
+            android:key="copyRobotIp"
+            android:summary="@string/pref_copy_robot_ip_summary"
+            android:title="@string/pref_copy_robot_ip" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="robotPresets" android:title="@string/pref_category_presets">
+        <EditTextPreference
+            android:key="saveRobotPreset"
+            android:summary="@string/pref_save_preset_summary"
+            android:title="@string/pref_save_preset" />
+        <Preference
+            android:key="deleteRobotPreset"
+            android:summary="@string/pref_delete_preset_summary"
+            android:title="@string/pref_delete_preset" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

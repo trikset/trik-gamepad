@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Русский перевод. Машинный черновик + обратный перевод для проверки; окончательное
+         рецензирование носителем языка ожидается перед выпуском (см. DECISIONS.md Campaign 15). -->
+    <string name="menu_settings">Настройки</string>
+    <string name="appLabel">TRIK Gamepad</string>
+    <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
+    <string name="about_system">О системе</string>
+    <string name="keepalive_must_be_positive_decimal">Таймаут keep-alive должен быть положительным целым числом</string>
+    <string name="keepalive_must_be_not_less">Таймаут keep-alive не может быть меньше %d мс</string>
+    <string name="tap_to_copy">Нажмите, чтобы скопировать</string>
+    <string name="video_source_chip_needs_host">Сначала укажите IP-адрес робота</string>
+    <string name="settings_button_description">Переключить системные панели</string>
+    <string name="left_pad_description">Левая площадка</string>
+    <string name="right_pad_description">Правая площадка</string>
+    <string name="video_description">Видеопоток робота</string>
+    <string name="video_placeholder">Видеопоток отсутствует — укажите URI видео в настройках</string>
+    <string name="connection_status_connecting">Подключение к %1$s…</string>
+    <string name="connection_status_disconnected">Нажмите, чтобы подключиться…</string>
+    <string name="connection_status_disconnected_icon">⏻</string>
+    <string name="connection_status_connecting_icon">↺</string>
+    <string name="settings_gear_glyph">⚙</string>
+    <string name="video_stream_unavailable">Видеопоток недоступен</string>
+    <string name="video_reconnecting">Переподключение видео…</string>
+    <string name="preset_name_required">Имя пресета не может быть пустым</string>
+    <string name="preset_saved">Пресет «%1$s» сохранён</string>
+    <string name="preset_deleted">Пресет «%1$s» удалён</string>
+    <string name="preset_applied">Пресет «%1$s» применён</string>
+    <string name="preset_row_summary">%1$s:%2$s · нажмите, чтобы применить</string>
+    <string name="no_presets_saved">Пресетов пока нет</string>
+    <string name="delete_preset_dialog_title">Удалить пресет</string>
+    <string name="report_issue">Сообщить о проблеме</string>
+    <string name="report_issue_summary">Создать диагностический отчёт; откроется в текстовом редакторе, чтобы вы могли просмотреть его перед отправкой</string>
+    <string name="copy_report">Скопировать отчёт</string>
+    <string name="copy_report_summary">Скопировать полный диагностический отчёт в буфер обмена</string>
+    <string name="view_log">Просмотр журнала</string>
+    <string name="view_log_summary">Показать недавние журналы работы приложения</string>
+    <string name="view_log_title">Журнал приложения</string>
+    <string name="view_log_empty">Записей в журнале пока нет</string>
+    <string name="share_without_editing">Отправлять журналы без редактирования</string>
+    <string name="share_without_editing_off">Отметьте, чтобы отправлять без изменений</string>
+    <string name="share_without_editing_on">Снимите отметку, чтобы открыть в редакторе для просмотра</string>
+    <string name="report_editor_chooser_title">Выберите текстовый редактор для просмотра и редактирования перед отправкой разработчикам</string>
+    <string name="share_report">Отправить диагностический отчёт</string>
+    <string name="share_receiver_label">TRIK Gamepad — прикрепить к отчёту</string>
+    <string name="share_receiver_packing">Подготовка отчёта…</string>
+    <string name="crash_dialog_title">TRIK Gamepad неожиданно остановился</string>
+    <string name="crash_dialog_message">Отчёт с деталями сбоя готов. Вы можете просмотреть и отредактировать его перед отправкой разработчикам.</string>
+    <string name="review_and_share">Просмотреть и отправить</string>
+    <string name="share">Отправить</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="diag_level">Подробность диагностики…</string>
+    <string name="diag_level_summary">%1$s · Насколько подробны диагностические отчёты: только ошибки, общие, отладочные, подробные</string>
+    <string name="diag_level_label_errors">Только ошибки</string>
+    <string name="diag_level_label_info">Инфо</string>
+    <string name="diag_level_label_debug">Отладочная</string>
+    <string name="diag_level_label_verbose">Подробная</string>
+    <string-array name="diag_level_labels">
+        <item>@string/diag_level_label_errors</item>
+        <item>@string/diag_level_label_info</item>
+        <item>@string/diag_level_label_debug</item>
+        <item>@string/diag_level_label_verbose</item>
+    </string-array>
+    <string-array name="diag_level_values">
+        <item>errors</item>
+        <item>info</item>
+        <item>debug</item>
+        <item>verbose</item>
+    </string-array>
+
+    <string name="pref_category_robot_connection">Подключение робота</string>
+    <string name="pref_host_address">IP-адрес робота…</string>
+    <string name="pref_host_port">TCP-порт робота…</string>
+    <string name="pref_category_video">Видео</string>
+    <string name="pref_video_uri">URI видеопотока для воспроизведения…</string>
+    <string name="video_chip_camera_1">Камера 1 робота</string>
+    <string name="video_chip_camera_2">Камера 2 робота</string>
+    <string name="video_chip_usb">USB-источник видео</string>
+    <string name="video_chip_none">Без видео</string>
+    <string name="pref_category_controls">Управление</string>
+    <string name="pref_category_appearance">Внешний вид</string>
+    <string name="pref_hud_theme">Тема HUD</string>
+    <string name="pref_hud_theme_summary">Тип 1 · скоро появятся новые темы</string>
+    <string name="pref_recenter_glyphs">Умное выравнивание символов</string>
+    <string name="pref_recenter_glyphs_on">Символы центрируются по своему точному визуальному центру</string>
+    <string name="pref_recenter_glyphs_off">Символы используют базовое выравнивание</string>
+    <string name="pref_magic_size">Размер кнопок</string>
+    <string name="pref_magic_size_summary">%d</string>
+    <string name="pref_keep_screen_on">Не выключать экран</string>
+    <string name="pref_keep_screen_on_on">Экран остаётся включённым, пока открыт геймпад</string>
+    <string name="pref_keep_screen_on_off">Экран может засыпать, пока открыт геймпад</string>
+    <string name="pref_advanced">Дополнительные настройки</string>
+    <string name="pref_advanced_summary">Колесо, площадки, аппаратный геймпад, кнопки с символами, диагностика</string>
+    <string name="robot_settings">Настройки робота</string>
+    <string name="pref_open_robot_settings_summary">Хост, порт, видеопоток, сеть и пресеты</string>
+    <string name="pref_open_app_settings">Настройки приложения</string>
+    <string name="pref_open_app_settings_summary">Внешний вид, управление, дополнительные опции</string>
+    <string name="target_chip_description">Открыть настройки робота</string>
+    <string name="target_chip_status_format">%1$s, управление: %2$s, видео: %3$s</string>
+    <string name="chip_control_connected">@string/connection_status_connected</string>
+    <string name="chip_control_connecting">подключение</string>
+    <string name="chip_control_standby">ожидание</string>
+    <string name="chip_control_disconnected">отключено</string>
+    <string name="chip_video_playing">поток идёт</string>
+    <string name="chip_video_loading">загрузка</string>
+    <string name="chip_video_reconnecting">переподключение</string>
+    <string name="chip_video_unavailable">недоступно</string>
+    <string name="chip_video_disabled">@string/chip_control_disconnected</string>
+    <string name="pref_category_wheel">Колесо</string>
+    <string name="pref_wheel_enabled">@string/pref_category_wheel</string>
+    <string name="pref_wheel_enabled_on">Акселерометр-колесо включено</string>
+    <string name="pref_wheel_enabled_off">Акселерометр-колесо выключено</string>
+    <string name="pref_wheel_sens">Чувствительность колеса…</string>
+    <string name="pref_wheel_sens_summary">%1$d · Меньше = чувствительнее; обычно 5..10</string>
+    <string name="pref_category_pads_video">Площадки и видео</string>
+    <string name="pref_show_pads">Прозрачность стрелок…</string>
+    <string name="pref_show_pads_summary">%1$d · 0 — полностью прозрачно, 255 — непрозрачно</string>
+    <string name="pref_hide_controls">Скрыть площадки и кнопки</string>
+    <string name="pref_hide_controls_on">Площадки и кнопки скрыты</string>
+    <string name="pref_hide_controls_off">Площадки и кнопки видны</string>
+    <string name="pref_show_fps">Показывать FPS</string>
+    <string name="pref_show_fps_on">Счётчик FPS показан поверх видео</string>
+    <string name="pref_show_fps_off">Счётчик FPS скрыт</string>
+    <string name="pref_video_crop">Обрезать до экрана</string>
+    <string name="pref_video_crop_on">Видео заполняет дисплей (края могут быть обрезаны)</string>
+    <string name="pref_video_crop_off">Видео вписывается в дисплей (чёрные полосы)</string>
+    <string name="pref_category_hardware">Аппаратный геймпад</string>
+    <string name="pref_gamepad_swap">Поменять стики местами</string>
+    <string name="pref_gamepad_swap_on">Левый и правый стики меняются местами</string>
+    <string name="pref_gamepad_swap_off">Левый стик управляет левой площадкой</string>
+    <string name="pref_category_network">Сеть</string>
+    <string name="pref_keepalive_timeout">Таймаут keep-alive, мс…</string>
+    <string name="pref_transport">Транспорт команд…</string>
+    <string name="pref_transport_summary">%1$s · Как приложение отправляет команды роботу</string>
+    <string name="transport_label_tcp">TCP</string>
+    <string name="transport_label_udp">UDP</string>
+    <string name="pref_custom_message">Пользовательское сообщение…</string>
+    <string name="pref_copy_robot_ip">Скопировать IP робота</string>
+    <string name="pref_copy_robot_ip_summary">Скопировать настроенный IP-адрес робота</string>
+    <string name="pref_category_presets">Пресеты робота</string>
+    <string name="pref_save_preset">Сохранить текущего робота как пресет…</string>
+    <string name="pref_save_preset_summary">Сохранить текущие адрес, порт и URI видео под именем</string>
+    <string name="pref_delete_preset">Удалить пресет…</string>
+    <string name="pref_delete_preset_summary">Удалить сохранённый пресет</string>
+    <string name="pref_category_magic">Кнопки с символами</string>
+    <string name="pref_magic_count">Число кнопок…</string>
+    <string name="pref_magic_count_summary">%1$d · 0 скрывает ряд; 1..5 кнопок</string>
+    <string name="pref_magic_symbols">Символы кнопок…</string>
+    <string name="pref_category_about">О приложении</string>
+    <string name="video_uri_summary_empty">URI видеопотока не задан</string>
+    <string name="magic_symbols_dialog_title">Символы кнопок</string>
+    <string name="magic_symbols_dialog_hint">Символ, показываемый на кнопке %1$d</string>
+    <string name="magic_symbols_use_defaults">Использовать стандартные символы</string>
+    <string name="magic_symbols_save">Сохранить</string>
+    <string name="about_system_summary">%1$s — %2$s</string>
+    <string name="about_system_info_format">Версия:%1$s; Android %2$s; SDK %3$d; Разрешение %4$dx%5$d; PPI %6$dx%7$d</string>
+    <string name="open_source_licenses">Открытые лицензии</string>
+    <string name="open_source_licenses_summary">Шрифты и символы, включённые в приложение</string>
+    <string name="button_number_description">Кнопка %1$s · %2$s</string>
+    <string name="connection_status_connected">Подключено</string>
+    <string name="settings_button_description_connected">Подключено. Переключить системные панели</string>
+    <string name="settings_button_description_connecting">Подключение. Переключить системные панели</string>
+    <string name="settings_button_description_disconnected">Отключено. Переключить системные панели</string>
+    <string name="port_number_incorrect">Номер порта «%1$s» неверен.</string>
+    <string name="disconnected_notice">Отключено. %1$s</string>
+</resources>

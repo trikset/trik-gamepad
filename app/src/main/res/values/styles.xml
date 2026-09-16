@@ -1,0 +1,71 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        Parent is DayNight so the app follows the system theme (light/dark).
+    -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.DayNight">
+        <item name="colorPrimary">@color/hud_accent_connected_dark</item>
+        <item name="colorPrimaryDark">@color/hud_accent_connected_dark</item>
+        <item name="colorAccent">@color/hud_accent_connected</item>
+    </style>
+
+    <!-- Application theme (the gamepad). The screen is full-screen robot video with a
+         translucent dark HUD, so the window background stays black in BOTH themes
+         (see DESIGN.md "System theme"): only the system chrome and the action bar
+         follow the system light/dark mode. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- Support library compatibility -->
+        <item name="windowActionBarOverlay">true</item>
+        <!-- Explicit HUD backdrop: without a stream the SurfaceView is transparent and would
+             otherwise show the theme's (light) window background behind the placeholder/HUD. -->
+        <item name="android:windowBackground">@android:color/black</item>
+        <!-- Our HUD is deliberately dark-over-video; never let the system force-dark invert it.
+             No-op before API 29 (force-dark did not exist). -->
+        <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <!-- Settings: a DayNight theme (no action bar, fullscreen). Unlike the gamepad screen this
+         follows the system light/dark mode for the preference surfaces and dialogs. -->
+    <style name="Theme.AppCompat.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
+        <item name="colorPrimary">@color/hud_accent_connected_dark</item>
+        <item name="colorPrimaryDark">@color/hud_accent_connected_dark</item>
+        <item name="colorAccent">@color/hud_accent_connected</item>
+    </style>
+
+    <!-- Type 1 HUD theme styles (the "hud_" resource family; a future Type 2/3 theme = a parallel
+         drawable/style/color set with no Kotlin changes — see DESIGN.md "HUD themes"). -->
+    <style name="Hud.GlassPill" parent="">
+        <item name="android:background">@drawable/hud_pill_bg</item>
+        <item name="android:minHeight">@dimen/touch_target_min</item>
+        <item name="android:paddingStart">@dimen/hud_pill_padding_h</item>
+        <item name="android:paddingEnd">@dimen/hud_pill_padding_h</item>
+        <item name="android:paddingTop">@dimen/hud_pill_padding_v</item>
+        <item name="android:paddingBottom">@dimen/hud_pill_padding_v</item>
+        <item name="android:textColor">@color/hud_accent_connected</item>
+        <item name="android:textSize">@dimen/connection_status_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Top-left robot-target chip: a compact glass capsule (reuses the pill background) holding
+         [control-glyph][host text][video-glyph]. Tap opens the robot/target settings screen.
+         Compact (28dp min-height, tight padding) so it does not dominate the HUD over the video;
+         the sub-48dp touch target is an accepted deviation for this read-only row (the settings
+         screens are the primary interaction surface — see DESIGN.md "Robot-target chip"). The host
+         text is neutral white; the flanking status glyphs carry the connection-state colors. -->
+    <style name="Hud.Chip" parent="">
+        <item name="android:background">@drawable/hud_pill_bg</item>
+        <item name="android:minHeight">@dimen/hud_chip_min_height</item>
+        <item name="android:paddingStart">@dimen/hud_chip_padding_h</item>
+        <item name="android:paddingEnd">@dimen/hud_chip_padding_h</item>
+        <item name="android:paddingTop">@dimen/hud_chip_padding_v</item>
+        <item name="android:paddingBottom">@dimen/hud_chip_padding_v</item>
+    </style>
+</resources>

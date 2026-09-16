@@ -1,0 +1,89 @@
+# detekt configuration for trik-gamepad.
+#
+# build.gradle sets buildUponDefaultConfig = true, so this file only
+# *deviates* from detekt's bundled default ruleset. Keep it minimal; any
+# relaxation carries a rationale comment or a recorded entry in MEMORY.md
+# (AGENTS.md suppression policy).
+
+config:
+  validation: true
+
+build:
+  # Fail the gate on any issue (strict, like checkstyle/pmd).
+  maxIssues: 0
+
+complexity:
+  NestedBlockDepth:
+    # Byte-parsing loops (MjpegInputStream.getEndOfSequence, MjpegView.renderNextFrame
+    # read markers / match sequences and nest try/for/if/if naturally); a
+    # faithful port keeps the recovery structure. Detekt's default is 4; this
+    # stays 5 because those two parser/render functions cannot flatten without
+    # a rewrite (a tightening attempt was reverted on that evidence).
+    threshold: 5
+  LongParameterList:
+    # Test helpers (e.g. HardwareGamepadControllerTest.stickEvent) carry
+    # optional axis/action/source parameters, all with defaults; defaulted
+    # params are the caller-facing default surface, not mandatory arity.
+    ignoreDefaultParameters: true
+  CyclomaticComplexMethod:
+    # Legacy Android lifecycle methods (MainActivity.onCreate wires pads, menu,
+    # settings listeners and the sensor/video paths) are inherently complex; the
+    # Java equivalents passed checkstyle/pmd with the same shapes. Tightened
+    # from 25 to 20 after the settings/wheel extraction moved the biggest
+    # branches into MainActivitySettingsController / WheelController.
+    threshold: 20
+  LongMethod:
+    # Same rationale as CyclomaticComplexMethod: faithful ports of large Android
+    # lifecycle wiring methods. Tightened from 200 to 150.
+    threshold: 150
+  TooManyFunctions:
+    # Android protocol/activity classes legitimately expose a large method
+    # surface (SenderService, MainActivity); the Java equivalents passed the
+    # checkstyle/pmd gates with the same shapes. MainActivity additionally
+    # implements many thin SettingsUi overrides (wheel/keep-screen-on getters
+    # and setters, video URL, title, alpha) and the Campaign 10 hardware-gamepad
+    # key/motion overrides (dispatchKeyEvent/onGenericMotionEvent) plus the
+    # magic-button/controls/FPS setters, so the threshold keeps that adapter
+    # pattern within a class (25 -> 31 in Campaign 10).
+    thresholdInClasses: 31
+    # SettingsUi is the view-adapter contract: each settings-backed toggle adds
+    # one setter override, so the interface threshold must track the class one.
+    thresholdInInterfaces: 15
+  LargeClass:
+    # MainActivityTest is a single integration surface over the activity
+    # (connection state, settings, video gate, haptics) sharing one activity +
+    # reflection helper set; splitting it would fragment those helpers and trip
+    # the jscpd duplication gate. Raised from the 600-line default to 800.
+    threshold: 800
+
+empty-blocks:
+  EmptyFunctionBlock:
+    active: true
+    # X509TrustManager/URLConnection overrides whose empty body IS the contract:
+    # the accept-all trust policy (WifiConnectionOpener) and a fake connection
+    # (WifiConnectionOpenerTest). Forcing a statement in would break the
+    # "do nothing" semantics, so overridden empty functions are allowed.
+    ignoreOverridden: true
+
+style:
+  ReturnCount:
+    # Faithful Java→Kotlin ports of parser/network code legitimately use
+    # early returns for sentinel values (e.g. "not found" / "give up") — the
+    # Java originals did too. Raised from the default 2 so ports are not
+    # contorted into single-return shapes that obscure the recovery flow.
+    max: 3
+  LoopWithTooManyJumpStatements:
+    # Parser loops break on both "stream end" and "sequence found".
+    maxJumpCount: 2
+  # Campaign 20 (Java→Kotlin idiom pass): syntax-only rules that flag Java-conversion
+  # leftovers and need no type resolution (type-resolution rules like
+  # CanBeNonNullable/UseDataClass are gated on the detekt 2.0 bump — see .PLAN.md).
+  ExpressionBodySyntax:
+    active: true
+    # `fun x(): T { return v }` -> `fun x() = v` (Java's `return` habit).
+  UseIfInsteadOfWhen:
+    active: true
+    # A `when` over two boolean outcomes is an `if` (Kotlin convention).
+  UseLet:
+    active: true
+    # `if (x != null) { ... } else null` -> `x?.let { ... }`.

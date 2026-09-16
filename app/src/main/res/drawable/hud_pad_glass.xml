@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Type 1 HUD: pad panel outline (no glass fill — P8 resolved). A brand-green stroke
+     defines the pad boundary; the crosshair/arrow chrome is a separate tintable vector
+     (hud_pad_chrome) so the connection-state accent can recolor it without touching XML. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="@dimen/hud_pad_stroke"
+        android:color="@color/hud_accent_connected" />
+    <corners android:radius="@dimen/hud_pad_corner" />
+</shape>

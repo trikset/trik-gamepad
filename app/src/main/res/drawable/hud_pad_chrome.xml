@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Type 1 HUD: single tintable pad-chrome vector (crosshair rings, full crosshair lines and the
+     four edge arrows), matching the v0.dev mockup. All strokes share one color so the whole chrome
+     recolor via one ColorFilter in SquareTouchPadLayout.setAccent (green=Connected / amber=
+     Connecting / sepia=idle / red=error). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- inner solid ring, ~26% of the pad -->
+    <path
+        android:pathData="M50,37 A13,13 0 1 1 49.99,37 Z"
+        android:strokeColor="#FF6FC555"
+        android:strokeWidth="1.2"
+        android:fillColor="@android:color/transparent" />
+    <!-- full crosshair lines through the center, spanning ~70% of the pad -->
+    <path
+        android:pathData="M50,15 L50,85 M15,50 L85,50"
+        android:strokeColor="#FF6FC555"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+    <!-- directional arrows: up / down / left / right at the pad edges -->
+    <path android:pathData="M50,6 L55,14 L45,14 Z" android:fillColor="#FF6FC555" />
+    <path android:pathData="M50,94 L45,86 L55,86 Z" android:fillColor="#FF6FC555" />
+    <path android:pathData="M6,50 L14,45 L14,55 Z" android:fillColor="#FF6FC555" />
+    <path android:pathData="M94,50 L86,45 L86,55 Z" android:fillColor="#FF6FC555" />
+</vector>

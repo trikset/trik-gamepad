@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Expose only the report files in cacheDir/diagnostics; nothing else in
+         the cache or files dir is shareable through this provider. -->
+    <cache-path
+        name="diagnostics"
+        path="diagnostics/" />
+</paths>

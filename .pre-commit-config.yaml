@@ -1,0 +1,42 @@
+exclude: ^xamarin/
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.21
+    hooks:
+      - id: mdformat
+  # Format Kotlin at commit time so spotlessCheck never fails the gate on
+  # formatting (AGENTS.md "Format before you gate"). Cross-platform:
+  # `python scripts/spotless_apply.py` (language: system) picks gradlew.bat vs
+  # ./gradlew by OS. The old `cmd /c gradlew.bat` entry was Windows-only
+  # (language: system has no shell lookup for .bat, but python.exe resolves fine
+  # -- probed on Windows 2026-08-08). pass_filenames=false + files \.kt$ so the
+  # hook fires only when a Kotlin file changes but formats the whole tree.
+  - repo: local
+    hooks:
+      - id: spotless-apply
+        name: spotless apply (ktfmt)
+        entry: python scripts/spotless_apply.py
+        language: system
+        pass_filenames: false
+        files: \.kt$
+      # aapt2 hard-fails on "--" inside XML comments; nothing else catches it at
+      # commit time (hit twice in one session, Campaign 15). See check_xml_comments.py.
+      - id: xml-comment-double-hyphen
+        name: no double hyphen in XML comments
+        entry: python scripts/check_xml_comments.py
+        language: system
+        files: \.xml$
+      # A device serial/model/IMEI must never enter repo content (AGENTS.md
+      # "Repo hygiene"; violated twice before, 2026-08-15 and 2026-08-20). The
+      # push-prep scan stays as the final gate; this hook catches it at commit.
+      - id: device-identifiers
+        name: no device identifiers
+        entry: python scripts/check_device_identifiers.py
+        language: system
+        files: \.(kt|java|md|xml|yml|yaml|json|gradle|toml)$

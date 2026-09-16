@@ -1,9 +1,10 @@
+**/*.p12
 **/*.jks
 
-
 # built application files
-# *.apk
 *.ap_
+_apk/
+app/release/
 
 # files for the dex VM
 *.dex
@@ -15,23 +16,45 @@
 bin/
 gen/
 obj/
+
 # Local configuration file (sdk path, etc)
 local.properties
 
-# Eclipse project files
-#.classpath
-#.project
+# Work-in-progress plan (contains local paths / account names; not for version control)
+.PLAN.md
+
+# Machine-local tooling notes (fallback for local-host hacks; see AGENTS.md)
+.tooling.md
+
+# Eclipse project files (machine-specific, contain local tool paths)
+.classpath
+.project
+.settings/
 proguard/
+
+# Local development database
+.local_development.db
 
 # Xamarin related
 *.designer.fs
 *.userprefs
 
-# Android Studio
-as/.gradle
-as/local.properties
-as/.idea
-as/app/build/
-as/build
-as/.navigation
+# Python tooling (repo-local uv venv)
+.venv/
+
+# Python bytecode caches (scripts regenerate on every run)
+__pycache__/
+
+# Gradle
+.gradle/
+build/
+app/build/
+app/.gradle
+
+# Android Studio / IDE
+.idea/
 *.iml
+
+# Scratch (repo-local temp files; see AGENTS.md)
+.tmp/
+.opencode/opencode.json

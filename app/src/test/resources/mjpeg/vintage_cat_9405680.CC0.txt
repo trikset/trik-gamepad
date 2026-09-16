@@ -1,0 +1,20 @@
+vintage_cat_9405680.jpg (three sizes) - test fixture
+=====================================================
+
+Work:    "Lying cat, Mosse, (1872-1873), vintage"
+Source:  https://www.rawpixel.com/image/9405680/image-cat-illustration-vintage
+License: CC0 1.0 Universal (Public Domain Dedication)
+Deed:    https://creativecommons.org/publicdomain/zero/1.0/
+Openverse record:
+  https://api.openverse.org/v1/images/187aa956-2e5e-4101-9415-2595d4f72406/
+
+This image is marked with CC0 1.0 by rawpixel (provider of the public-domain
+artwork index that records it). Under CC0 the creator has waived all rights and
+related rights to the work worldwide; you may use it for any purpose without
+attribution, including for commercial and test use.
+
+The three files here (vintage_cat_9405680_640x480.jpg, _320x200.jpg,
+_1000x600.jpg) are downscaled and center-cropped versions of the same CC0
+source image, re-encoded as low-quality JPEG for test fixtures only. They are
+used exclusively by the Robolectric unit suite as MJPEG video frames; they are
+NOT shipped in the APK.

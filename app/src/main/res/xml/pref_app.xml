@@ -1,0 +1,164 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- App settings: how the app looks and behaves on THIS device. Robot/target prefs (host, port,
+         video, network, presets) live in RobotSettingsActivity (pref_robot.xml). -->
+    <PreferenceCategory android:title="@string/pref_category_controls">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="keepScreenOn"
+            android:summaryOff="@string/pref_keep_screen_on_off"
+            android:summaryOn="@string/pref_keep_screen_on_on"
+            android:title="@string/pref_keep_screen_on" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_appearance">
+        <!-- Single theme today: the row is greyed out (enabled=false) because there is no
+             choice yet. It still shows the current value (Type 1) per DESIGN.md "Every setting
+             shows its current value"; more themes light it up later (see DESIGN.md "HUD themes"). -->
+        <Preference
+            android:enabled="false"
+            android:key="hudTheme"
+            android:selectable="false"
+            android:summary="@string/pref_hud_theme_summary"
+            android:title="@string/pref_hud_theme" />
+    </PreferenceCategory>
+
+    <!-- Cross-link: the robot/target settings are a separate screen (chip on the gamepad also
+         opens it); this row makes them reachable from within Settings too. -->
+    <Preference
+        android:key="openRobotSettings"
+        android:summary="@string/pref_open_robot_settings_summary"
+        android:title="@string/robot_settings" />
+
+    <!-- Nested sub-screen: androidx preferences cannot nest PreferenceCategory
+         directly, so the Advanced groups open as their own screen. findPreference
+         traverses the nested hierarchy, so SettingsFragment.init* helpers still
+         resolve every key. -->
+    <PreferenceScreen
+        android:key="advancedSettings"
+        android:summary="@string/pref_advanced_summary"
+        android:title="@string/pref_advanced">
+
+        <PreferenceCategory android:title="@string/pref_category_wheel">
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="wheelEnabled"
+                android:summaryOff="@string/pref_wheel_enabled_off"
+                android:summaryOn="@string/pref_wheel_enabled_on"
+                android:title="@string/pref_wheel_enabled" />
+            <SeekBarPreference
+                android:defaultValue="7"
+                android:key="wheelSens"
+                android:max="100"
+                app:min="1"
+                android:summary="@string/pref_wheel_sens_summary"
+                android:title="@string/pref_wheel_sens" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_category_pads_video">
+            <SeekBarPreference
+                android:defaultValue="100"
+                android:key="showPads"
+                android:max="255"
+                android:summary="@string/pref_show_pads_summary"
+                android:title="@string/pref_show_pads" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="hideControls"
+                android:summaryOff="@string/pref_hide_controls_off"
+                android:summaryOn="@string/pref_hide_controls_on"
+                android:title="@string/pref_hide_controls" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="showFps"
+                android:summaryOff="@string/pref_show_fps_off"
+                android:summaryOn="@string/pref_show_fps_on"
+                android:title="@string/pref_show_fps" />
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="videoCropToFill"
+                android:summaryOff="@string/pref_video_crop_off"
+                android:summaryOn="@string/pref_video_crop_on"
+                android:title="@string/pref_video_crop" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_category_hardware">
+            <SwitchPreference
+                android:defaultValue="false"
+                android:key="gamepadSwap"
+                android:summaryOff="@string/pref_gamepad_swap_off"
+                android:summaryOn="@string/pref_gamepad_swap_on"
+                android:title="@string/pref_gamepad_swap" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_category_magic">
+            <SeekBarPreference
+                android:defaultValue="3"
+                android:key="magicButtonCount"
+                android:max="5"
+                android:summary="@string/pref_magic_count_summary"
+                android:title="@string/pref_magic_count" />
+            <!-- One consolidated row for the 5 per-button glyphs (stored under the legacy
+                 magicSymbol1..5 keys; see MagicSymbolsStore + DESIGN.md "Magic button symbols"). -->
+            <Preference
+                android:key="magicSymbols"
+                android:title="@string/pref_magic_symbols" />
+            <!-- "Smart glyph alignment" (default ON): how each bundled symbol sits inside its tile.
+                 ON centers the glyph on its runtime ink box (the uniform normalized look — magic
+                 buttons + video-source chips); OFF falls back to the metric-table median centering.
+                 See GlyphRendering. -->
+            <SwitchPreference
+                android:defaultValue="true"
+                android:key="recenterGlyphs"
+                android:summaryOff="@string/pref_recenter_glyphs_off"
+                android:summaryOn="@string/pref_recenter_glyphs_on"
+                android:title="@string/pref_recenter_glyphs" />
+            <SeekBarPreference
+                android:defaultValue="100"
+                android:key="magicButtonSize"
+                android:max="150"
+                app:min="70"
+                android:summary="@string/pref_magic_size_summary"
+                android:title="@string/pref_magic_size" />
+        </PreferenceCategory>
+
+        <PreferenceCategory android:title="@string/pref_category_about">
+            <Preference
+                android:enabled="true"
+                android:key="aboutSystem"
+                android:title="@string/about_system" />
+            <Preference
+                android:key="openSourceLicenses"
+                android:summary="@string/open_source_licenses_summary"
+                android:title="@string/open_source_licenses" />
+            <ListPreference
+                android:defaultValue="info"
+                android:entries="@array/diag_level_labels"
+                android:entryValues="@array/diag_level_values"
+                android:key="diagLevel"
+                android:summary="@string/diag_level_summary"
+                android:title="@string/diag_level" />
+            <Preference
+                android:key="reportIssue"
+                android:summary="@string/report_issue_summary"
+                android:title="@string/report_issue" />
+            <SwitchPreference
+                android:defaultValue="true"
+                android:key="shareWithoutEditing"
+                android:summaryOff="@string/share_without_editing_off"
+                android:summaryOn="@string/share_without_editing_on"
+                android:title="@string/share_without_editing" />
+            <Preference
+                android:key="copyReport"
+                android:summary="@string/copy_report_summary"
+                android:title="@string/copy_report" />
+            <Preference
+                android:key="viewLog"
+                android:summary="@string/view_log_summary"
+                android:title="@string/view_log" />
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+
+</PreferenceScreen>

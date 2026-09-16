@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Type 1 HUD: circular settings button (no glass fill — P8 resolved). Keeps the @+id/settingsButtonBg
+     layer id so ConnectionFeedback.paintGearBorder can recolor the stroke by connection state
+     (green/amber/sepia/red) exactly as before. The gear glyph itself is the bundled ⚙ character
+     (U+2699, set as the button text at runtime with the symbols_mono font), not a drawable. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/settingsButtonBg">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="@dimen/settings_button_stroke"
+                android:color="@color/hud_accent_connected_dark" />
+        </shape>
+    </item>
+</layer-list>

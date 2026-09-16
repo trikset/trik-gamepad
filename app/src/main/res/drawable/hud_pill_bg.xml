@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Type 1 HUD: pill / badge outline (no glass fill — P8 resolved). A border-only
+     pill; the video shows through cleanly behind the text. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="1.5dp"
+        android:color="@color/hud_accent_connected" />
+    <corners android:radius="@dimen/hud_pill_corner" />
+</shape>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Per-app language preferences (Android 13+): the locales the app ships and offers in the
+     system per-app language picker. Kept in sync with resourceConfigurations in app/build.gradle
+     and values-*/strings.xml by scripts/check_translations.py. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ru" />
+    <locale android:name="fr" />
+    <locale android:name="de" />
+    <locale android:name="vi" />
+</locale-config>

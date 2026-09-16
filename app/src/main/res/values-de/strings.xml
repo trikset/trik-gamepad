@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">Einstellungen</string>
+    <string name="appLabel">TRIK Gamepad</string>
+    <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
+    <string name="about_system">Über das System</string>
+    <string name="keepalive_must_be_positive_decimal">Der Keep-alive-Timeout muss eine positive ganze Zahl sein</string>
+    <string name="keepalive_must_be_not_less">Der Keep-alive-Timeout darf nicht kleiner als %d ms sein</string>
+    <string name="tap_to_copy">Zum Kopieren tippen</string>
+    <string name="video_source_chip_needs_host">Zuerst die Roboter-IP-Adresse festlegen</string>
+    <string name="settings_button_description">Systemleisten ein-/ausblenden</string>
+    <string name="left_pad_description">Linkes Pad</string>
+    <string name="right_pad_description">Rechtes Pad</string>
+    <string name="video_description">Videostream des Roboters</string>
+    <string name="video_placeholder">Kein Videostream — konfiguriere eine Video-URI in den Einstellungen</string>
+    <string name="connection_status_connecting">Verbinde mit %1$s…</string>
+    <string name="connection_status_disconnected">Zum Verbinden tippen…</string>
+    <string name="connection_status_disconnected_icon">⏻</string>
+    <string name="connection_status_connecting_icon">↺</string>
+    <string name="settings_gear_glyph">⚙</string>
+    <string name="video_stream_unavailable">Videostream nicht verfügbar</string>
+    <string name="video_reconnecting">Video wird neu verbunden…</string>
+    <string name="preset_name_required">Der Preset-Name darf nicht leer sein</string>
+    <string name="preset_saved">Preset „%1$s“ gespeichert</string>
+    <string name="preset_deleted">Preset „%1$s“ gelöscht</string>
+    <string name="preset_applied">Preset „%1$s“ angewendet</string>
+    <string name="preset_row_summary">%1$s:%2$s · zum Anwenden tippen</string>
+    <string name="no_presets_saved">Noch keine Presets gespeichert</string>
+    <string name="delete_preset_dialog_title">Preset löschen</string>
+    <string name="report_issue">Problem melden</string>
+    <string name="report_issue_summary">Erstellt einen Diagnosebericht; öffnet ihn in einem Texteditor, damit du ihn zuerst prüfen kannst</string>
+    <string name="copy_report">Bericht kopieren</string>
+    <string name="copy_report_summary">Kopiert den vollständigen Diagnosebericht in die Zwischenablage</string>
+    <string name="view_log">Log anzeigen</string>
+    <string name="view_log_summary">Zeigt die letzten App-Aktivitätsprotokolle</string>
+    <string name="view_log_title">App-Log</string>
+    <string name="view_log_empty">Noch keine Logeinträge</string>
+    <string name="share_without_editing">Logs ohne Bearbeitung teilen</string>
+    <string name="share_without_editing_off">Aktivieren, um direkt unverändert zu teilen</string>
+    <string name="share_without_editing_on">Deaktivieren, um zur Prüfung in einen Editor zu senden</string>
+    <string name="report_editor_chooser_title">Wähle einen Texteditor, um den Bericht vor dem Senden an Entwickler zu prüfen und zu bearbeiten</string>
+    <string name="share_report">Diagnosebericht teilen</string>
+    <string name="share_receiver_label">TRIK Gamepad — an Bericht anhängen</string>
+    <string name="share_receiver_packing">Bericht wird erstellt…</string>
+    <string name="crash_dialog_title">TRIK Gamepad wurde unerwartet beendet</string>
+    <string name="crash_dialog_message">Ein Bericht mit den Absturzdaten ist fertig. Du kannst ihn prüfen und bearbeiten, bevor du ihn an die Entwickler sendest.</string>
+    <string name="review_and_share">Prüfen und teilen</string>
+    <string name="share">Teilen</string>
+    <string name="dismiss">Schließen</string>
+    <string name="diag_level">Detailgrad der Diagnose…</string>
+    <string name="diag_level_summary">%1$s · Wie viel Detail die Diagnoseberichte enthalten: Fehler, Info, Debug, Verbose</string>
+    <string name="diag_level_label_errors">Nur Fehler</string>
+    <string name="diag_level_label_info">Info</string>
+    <string name="diag_level_label_debug">Debug</string>
+    <string name="diag_level_label_verbose">Verbose</string>
+    <string-array name="diag_level_labels">
+        <item>@string/diag_level_label_errors</item>
+        <item>@string/diag_level_label_info</item>
+        <item>@string/diag_level_label_debug</item>
+        <item>@string/diag_level_label_verbose</item>
+    </string-array>
+    <string-array name="diag_level_values">
+        <item>errors</item>
+        <item>info</item>
+        <item>debug</item>
+        <item>verbose</item>
+    </string-array>
+
+    <string name="pref_category_robot_connection">Roboter-Verbindung</string>
+    <string name="pref_host_address">Roboter-IP-Adresse…</string>
+    <string name="pref_host_port">Roboter-TCP-Port…</string>
+    <string name="pref_category_video">Video</string>
+    <string name="pref_video_uri">URI für den abzuspielenden Videostream…</string>
+    <string name="video_chip_camera_1">Roboter-Kamera 1</string>
+    <string name="video_chip_camera_2">Roboter-Kamera 2</string>
+    <string name="video_chip_usb">USB-Videoquelle</string>
+    <string name="video_chip_none">Kein Video</string>
+    <string name="pref_category_controls">Steuerung</string>
+    <string name="pref_category_appearance">Darstellung</string>
+    <string name="pref_hud_theme">HUD-Design</string>
+    <string name="pref_hud_theme_summary">Typ 1 · weitere Designs folgen</string>
+    <string name="pref_recenter_glyphs">Smarte Symbolausrichtung</string>
+    <string name="pref_recenter_glyphs_on">Symbole werden exakt auf ihre visuelle Mitte zentriert</string>
+    <string name="pref_recenter_glyphs_off">Symbole behalten die Basisausrichtung</string>
+    <string name="pref_magic_size">Tastengröße</string>
+    <string name="pref_magic_size_summary">%d</string>
+    <string name="pref_keep_screen_on">Bildschirm an lassen</string>
+    <string name="pref_keep_screen_on_on">Der Bildschirm bleibt an, solange das Gamepad geöffnet ist</string>
+    <string name="pref_keep_screen_on_off">Der Bildschirm kann bei geöffnetem Gamepad in den Ruhemodus gehen</string>
+    <string name="pref_advanced">Erweiterte Einstellungen</string>
+    <string name="pref_advanced_summary">Rad, Pads, Hardware-Gamepad, Magic-Buttons, Diagnose</string>
+    <string name="robot_settings">Roboter-Einstellungen</string>
+    <string name="pref_open_robot_settings_summary">Host, Port, Videostream, Netzwerk und Presets</string>
+    <string name="pref_open_app_settings">App-Einstellungen</string>
+    <string name="pref_open_app_settings_summary">Darstellung, Steuerung, erweiterte Optionen</string>
+    <string name="target_chip_description">Roboter-Einstellungen öffnen</string>
+    <string name="target_chip_status_format">%1$s, Steuerung %2$s, Video %3$s</string>
+    <string name="chip_control_connected">@string/connection_status_connected</string>
+    <string name="chip_control_connecting">verbindet</string>
+    <string name="chip_control_standby">bereit</string>
+    <string name="chip_control_disconnected">getrennt</string>
+    <string name="chip_video_playing">wird gestreamt</string>
+    <string name="chip_video_loading">lädt</string>
+    <string name="chip_video_reconnecting">verbindet erneut</string>
+    <string name="chip_video_unavailable">nicht verfügbar</string>
+    <string name="chip_video_disabled">deaktiviert</string>
+    <string name="pref_category_wheel">Rad</string>
+    <string name="pref_wheel_enabled">@string/pref_category_wheel</string>
+    <string name="pref_wheel_enabled_on">Beschleunigungsmesser-Rad aktiviert</string>
+    <string name="pref_wheel_enabled_off">Beschleunigungsmesser-Rad deaktiviert</string>
+    <string name="pref_wheel_sens">Empfindlichkeit des Rads…</string>
+    <string name="pref_wheel_sens_summary">%1$d · Kleiner = empfindlicher; normalerweise 5..10</string>
+    <string name="pref_category_pads_video">Pads und Video</string>
+    <string name="pref_show_pads">Transparenz der Pfeile…</string>
+    <string name="pref_show_pads_summary">%1$d · 0 = komplett transparent, 255 = undurchsichtig</string>
+    <string name="pref_hide_controls">Pads und Buttons ausblenden</string>
+    <string name="pref_hide_controls_on">Pads und Buttons sind ausgeblendet</string>
+    <string name="pref_hide_controls_off">Pads und Buttons sind sichtbar</string>
+    <string name="pref_show_fps">FPS anzeigen</string>
+    <string name="pref_show_fps_on">FPS-Zähler über dem Video anzeigen</string>
+    <string name="pref_show_fps_off">FPS-Zähler ausgeblendet</string>
+    <string name="pref_video_crop">Bildschirmfüllender Zuschnitt</string>
+    <string name="pref_video_crop_on">Video füllt den Bildschirm (Ränder werden ggf. beschnitten)</string>
+    <string name="pref_video_crop_off">Video passt in den Bildschirm (schwarze Balken)</string>
+    <string name="pref_category_hardware">Hardware-Gamepad</string>
+    <string name="pref_gamepad_swap">Sticks tauschen</string>
+    <string name="pref_gamepad_swap_on">Linker und rechter Stick sind getauscht</string>
+    <string name="pref_gamepad_swap_off">Der linke Stick steuert das linke Pad</string>
+    <string name="pref_category_network">Netzwerk</string>
+    <string name="pref_keepalive_timeout">Keep-alive-Timeout, ms…</string>
+    <string name="pref_transport">Befehlsübertragung…</string>
+    <string name="pref_transport_summary">%1$s · Wie die App Steuerbefehle an den Roboter sendet</string>
+    <string name="transport_label_tcp">TCP</string>
+    <string name="transport_label_udp">UDP</string>
+    <string name="pref_custom_message">Benutzerdefinierte Nachricht…</string>
+    <string name="pref_copy_robot_ip">Roboter-IP kopieren</string>
+    <string name="pref_copy_robot_ip_summary">Kopiert die konfigurierte Roboter-IP-Adresse</string>
+    <string name="pref_category_presets">Roboter-Presets</string>
+    <string name="pref_save_preset">Aktuellen Roboter als Preset speichern…</string>
+    <string name="pref_save_preset_summary">Speichert aktuellen Host, Port und Video-URI unter einem Namen</string>
+    <string name="pref_delete_preset">Preset löschen…</string>
+    <string name="pref_delete_preset_summary">Entfernt ein gespeichertes Preset</string>
+    <string name="pref_category_magic">Magic-Buttons</string>
+    <string name="pref_magic_count">Anzahl der Buttons…</string>
+    <string name="pref_magic_count_summary">%1$d · 0 blendet die Reihe aus; 1..5 Buttons</string>
+    <string name="pref_magic_symbols">Buttonsymbole…</string>
+    <string name="pref_category_about">Über</string>
+    <string name="video_uri_summary_empty">Keine Stream-URI festgelegt</string>
+    <string name="magic_symbols_dialog_title">Buttonsymbole</string>
+    <string name="magic_symbols_dialog_hint">Symbol, das auf Button %1$d angezeigt wird</string>
+    <string name="magic_symbols_use_defaults">Standardsymbole verwenden</string>
+    <string name="magic_symbols_save">Speichern</string>
+    <string name="about_system_summary">%1$s — %2$s</string>
+    <string name="about_system_info_format">Version:%1$s; Android %2$s; SDK %3$d; Auflösung %4$dx%5$d; PPI %6$dx%7$d</string>
+    <string name="open_source_licenses">Open-Source-Lizenzen</string>
+    <string name="open_source_licenses_summary">Mit der App gebündelte Schriftarten und Symbole</string>
+    <string name="button_number_description">Button %1$s · %2$s</string>
+    <string name="connection_status_connected">Verbunden</string>
+    <string name="settings_button_description_connected">Verbunden. Systemleisten ein-/ausblenden</string>
+    <string name="settings_button_description_connecting">Verbindung wird hergestellt. Systemleisten ein-/ausblenden</string>
+    <string name="settings_button_description_disconnected">Getrennt. Systemleisten ein-/ausblenden</string>
+    <string name="port_number_incorrect">Portnummer „%1$s“ ist falsch.</string>
+    <string name="disconnected_notice">Getrennt. %1$s</string>
+</resources>

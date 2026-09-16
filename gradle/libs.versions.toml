@@ -1,0 +1,41 @@
+[versions]
+agp = "9.2.1"
+detekt = "1.23.8"
+spotbugs = "6.5.11"
+spotbugsTool = "4.10.3"
+spotless = "8.10.0"
+ktfmt = "0.63"
+googleJavaFormat = "1.22.0"
+jacoco = "0.8.12"
+findsecbugs = "1.14.0"
+junit = "4.13.2"
+robolectric = "4.16.1"
+appcompat = "1.7.1"
+coreKtx = "1.16.0"
+annotation = "1.10.0"
+preferenceKtx = "1.2.1"
+commonsIo = "2.22.0"
+androidxTestRunner = "1.7.0"
+androidxTestOrchestrator = "1.6.1"
+androidxTestRules = "1.7.0"
+espressoCore = "3.7.0"
+
+[libraries]
+junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+coreKtx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidxAnnotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+preferenceKtx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
+commonsIo = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+androidxTestRunner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+androidxTestOrchestrator = { module = "androidx.test:orchestrator", version.ref = "androidxTestOrchestrator" }
+androidxTestRules = { module = "androidx.test:rules", version.ref = "androidxTestRules" }
+espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+espressoContrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoCore" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

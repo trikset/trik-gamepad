@@ -1,0 +1,319 @@
+plugins {
+    id 'idea'
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.detekt)
+    id 'jacoco'
+    alias(libs.plugins.spotbugs)
+    alias(libs.plugins.spotless)
+}
+
+def abiCode = 0 // just for fun
+def appMajorVersion = 2 // single digit for each SDK/ABI
+def appMinorVersion = 42 // two digits for each major version
+
+// The signing keystore deliberately lives OUTSIDE the repo workdir (one level
+// above the repo root, next to the checkout). It is gitignored via **/*.p12 and
+// never enters CI. Debug builds in CI fall back to the auto-generated debug
+// keystore; release signing stays local-only and keystore-gated.
+def keystoreFile = file('../../android-keystorage.p12')
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'gamepad'
+            storeFile keystoreFile
+        }
+    }
+    compileSdk 36
+    defaultConfig {
+        applicationId "com.trikset.gamepad2"
+        minSdk 21
+        targetSdk 36
+        maxSdk compileSdk
+        versionCode (minSdk * 10000 + abiCode * 1000 +  appMajorVersion * 100  + appMinorVersion)
+        versionName ('' + appMajorVersion + '.' + appMinorVersion)
+        versionNameSuffix ('-API' + minSdk)
+        resourceConfigurations += ['en', 'ru', 'fr', 'de', 'vi']
+        // Only sign with the local keystore when it actually exists (CI has no
+        // keystore and must fall back to the debug keystore). See MEMORY.md.
+        if (keystoreFile.exists()) {
+            signingConfig = signingConfigs.config
+        }
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
+    }
+    buildFeatures {
+        buildConfig = true // to use BuildConfig.VERSION_NAME in About
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            debuggable false
+            signingConfig = signingConfigs.config
+        }
+        releaseDebug {
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            // Installable CI artifact for early adopters: the debug keystore is
+            // auto-generated per machine/CI, so this stays installable while the
+            // real release keystore never enters CI (R4).
+            signingConfig = signingConfigs.debug
+        }
+    }
+    testOptions {
+        animationsDisabled = true
+        unitTests {
+            includeAndroidResources = true
+            all {
+                // HUD theme screenshots (HudThemeTest) land here as build-output artifacts,
+                // alongside the XML/HTML test reports (gitignored under build/).
+                systemProperty 'screenshots.dir', "$buildDir/outputs/screenshots"
+                jacoco {
+                    // Robolectric loads classes without a file location via its
+                    // own classloader; without this the exec file records nothing
+                    // and coverage is always 0%.
+                    includeNoLocationClasses = true
+                    excludes = [
+                            'jdk.internal.*',
+                            '**/R.class',
+                            '**/R$*.class',
+                            '**/BuildConfig.*',
+                            '**/Manifest*.*',
+                            '**/*Test*.*',
+                            'android/**/*.*',
+                    ]
+                }
+            }
+        }
+        execution = 'ANDROIDX_TEST_ORCHESTRATOR'
+    }
+
+    namespace = 'com.trikset.gamepad2'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    lint {
+        // MissingTranslation is downgraded in lint.xml; key + format-specifier
+        // parity across the shipped locales is enforced by
+        // scripts/check_translations.py --sync (gate.py + CI). Everything else
+        // fails the build.
+        abortOnError = true
+        // Report warnings too (checkAllWarnings) and ratchet via a baseline:
+        // the current warnings (pinned dep versions, AsyncTask leak patterns to
+        // be rewritten in the Kotlin migration, densityless icons) are recorded
+        // in lint-baseline.xml; any NEW warning fails the build.
+        checkAllWarnings = true
+        baseline = file('lint-baseline.xml')
+        warningsAsErrors = true
+    }
+}
+
+// K2's extra compiler checks (-Wextra): additional declaration, expression and
+// type checks that emit warnings. Configured at the kotlin-extension level so
+// it covers every Kotlin compilation in this module (main, unit test,
+// androidTest). AGP 9's built-in Kotlin wires the real KGP
+// KotlinAndroidProjectExtension (AGP 9.2.1 bundles KGP 2.2.10).
+//
+// allWarningsAsErrors promotes every warning (including -Wextra) to an error, so
+// a new warning fails the build. Deliberately-kept deprecation usage is
+// suppressed per-site with a rationale comment (search "@Suppress("DEPRECATION")"
+// / "PLATFORM_CLASS_MAPPED_TO_KOTLIN"); the accepted set lives in TESTING.md.
+kotlin {
+    compilerOptions {
+        extraWarnings.set(true)
+        allWarningsAsErrors.set(true)
+    }
+}
+
+// javac -Xlint:all as the baseline static-analysis safety net (D8; Error Prone
+// deferred). Warnings do not fail the build yet.
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:all']
+}
+
+spotbugs {
+    toolVersion = libs.versions.spotbugsTool.get()
+    effort = com.github.spotbugs.snom.Effort.MAX
+    reportLevel = com.github.spotbugs.snom.Confidence.valueOf('MEDIUM')
+    excludeFilter = file('findbugs-android-exclude.xml')
+    // Restrict analysis to the app's own packages: SpotBugs on JDK 17+ cannot
+    // resolve java.rmi.Remote and other JDK-platform types that android.jar
+    // references, which aborts analysis with a missing-class error. Only our
+    // own code is of interest anyway.
+    onlyAnalyze = ['com.trikset.*']
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config = files('config/detekt/detekt.yml')
+    // Start from detekt's bundled default ruleset and layer only the curated
+    // deviations in config/detekt/detekt.yml on top.
+    buildUponDefaultConfig = true
+}
+
+// find-sec-bugs as the security SAST detector on the SpotBugs classpath. The
+// SpotBugs engine itself is pulled in via toolVersion above.
+dependencies {
+    spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${libs.versions.findsecbugs.get()}"
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    reports {
+        html {
+            required = true
+            outputLocation = file("$buildDir/reports/spotbugs/${name}.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat(libs.versions.googleJavaFormat.get())
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlin {
+        target 'src/**/*.kt'
+        // ktfmt (Google's Kotlin formatter, google-java-format's sibling) rather
+        // than ktlint: ktlint 0.51 (the last com.pinterest:ktlint artifact)
+        // embeds a Kotlin 1.9 compiler that cannot parse Kotlin 2.0.21 sources.
+        // 0.63 is the version Spotless 8.9.0 was built against.
+        ktfmt(libs.versions.ktfmt.get())
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+// Coverage is measured on the debug unit tests; the report is always produced
+// and a verification gate enforces a minimum (95% line / 84% branch). The gate is
+// a ratchet — it has been raised over time as the render logic became testable
+// (extraction + constructor injection); ratchet history lives in MEMORY.md.
+// MjpegView's render-thread plumbing is excluded (see coverageExcludes) with
+// the rationale recorded in MEMORY.md.
+def coverageExcludes = [
+        '**/R.class',
+        '**/R$*.class',
+        '**/BuildConfig.*',
+        '**/Manifest*.*',
+        '**/*Test*.*',
+        'android/**/*.*',
+        // Kotlin-inline synthetic classes generated by `by viewModels()` live in
+        // the app package (MainActivity$special$$inlined$viewModels$default$N)
+        // and carry the delegate's internal null-check branches — framework
+        // boilerplate, not app logic. Excluded with rationale (see MEMORY.md
+        // "Coverage" design decisions).
+        '**/*$special$$inlined$*.class',
+        // The MJPEG render-thread plumbing (thread lifecycle, lockCanvas) is
+        // untestable in Robolectric; its logic lives in the covered
+        // MjpegFrameRenderer. Excluded with rationale (see MEMORY.md
+        // "Coverage" design decisions).
+        '**/MjpegView$MjpegRenderThread.class',
+        '**/MjpegView$MjpegViewThread.class',
+        // The RTSP adapter (MediaPlayer + TextureView surface lifecycle) needs a
+        // hardware-accelerated Surface + MediaCodec to run its playback path;
+        // Robolectric has no ShadowTextureView surface simulation, so prepareAndStart
+        // and the surface listener are untestable there. Same rationale as the MJPEG
+        // render-thread exclusion; the class still carries unit tests for its
+        // null/lifecycle logic (see MEMORY.md "Coverage" design decisions).
+        '**/MediaPlayerVideoPlayer*.class',
+]
+
+def debugClasses = fileTree(dir: "${buildDir}/intermediates/javac/debug/compileDebugJavaWithJavac/classes", excludes: coverageExcludes)
+// AGP 9's built-in Kotlin outputs to intermediates/built_in_kotlinc (the old
+// tmp/kotlin-classes/debug dir went stale under the migration — new classes
+// were invisible to the coverage gate). Verified against the compileDebugKotlin
+// output on AGP 9.2.1; if AGP relocates it, the report will show ~0% and the
+// gate will fail loudly (better than silently passing).
+def debugKotlinClasses = fileTree(dir: "${buildDir}/intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes", excludes: coverageExcludes)
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(files([debugClasses, debugKotlinClasses]))
+    sourceDirectories.setFrom(files(["${projectDir}/src/main/java", "${projectDir}/src/main/kotlin"]))
+    // Only the debug unit-test exec file: the report declares testDebugUnitTest
+    // as its dependency, so mixing in other variants' exec files would be an
+    // implicit-dependency violation (and would double-count coverage).
+    executionData.setFrom(file("${buildDir}/jacoco/testDebugUnitTest.exec"))
+}
+
+tasks.register('jacocoTestCoverageVerification', JacocoCoverageVerification) {
+    dependsOn 'testDebugUnitTest'
+    classDirectories.setFrom(files([debugClasses, debugKotlinClasses]))
+    sourceDirectories.setFrom(files(["${projectDir}/src/main/java", "${projectDir}/src/main/kotlin"]))
+    executionData.setFrom(file("${buildDir}/jacoco/testDebugUnitTest.exec"))
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.95
+            }
+        }
+        rule {
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.85
+            }
+        }
+    }
+}
+
+// Host-side mock of a TRIK robot for on-device smoke tests and profiling (pure
+// Kotlin in the test source set; see DummyRobotServer.kt). Runs both fixed ports
+// (TCP 4444 log-only + MJPEG 8080) so the phone only needs the host LAN IP.
+tasks.register('runDummyRobotServer', JavaExec) {
+    dependsOn 'compileDebugUnitTestKotlin'
+    // The unit-test task's classpath carries app + test classes and the
+    // Android unit-test dependencies (Robolectric, junit, commons-io) in one
+    // collection; read lazily at execution time (config-cache safe).
+    classpath = files { tasks.named('testDebugUnitTest').get().classpath }
+    mainClass = 'com.trikset.gamepad2.DummyRobotServer'
+}
+
+// One-shot: writes the unit-test runtime classpath to a file so the detached
+// .tmp/launch_dummy.ps1 can run `java -cp ...` directly. The detached launcher
+// is invoked via scripts/run_bounded.py — a bare tool call blocks forever
+// because ANY detached long-lived child (plain `java` included, not just a
+// Gradle daemon) inherits the caller's output-pipe handle and EOF never comes.
+def dummyServerClasspath = files { tasks.named('testDebugUnitTest').get().classpath }
+// Capture the repo-root path at configuration time: referencing layout/projectDir from the
+// execution-time closure breaks the configuration cache.
+def repoRootDir = layout.projectDirectory.asFile.parentFile
+tasks.register('writeDummyServerClasspath') {
+    dependsOn 'compileDebugUnitTestKotlin'
+    doLast {
+        new File(repoRootDir, '.tmp/dummy_server_cp.txt').text = dummyServerClasspath.asPath
+    }
+}
+
+dependencies {
+    implementation libs.appcompat
+    implementation libs.coreKtx
+    implementation libs.androidxAnnotation
+    implementation libs.preferenceKtx
+    implementation libs.commonsIo
+    testImplementation libs.junit
+    testImplementation libs.robolectric
+    androidTestImplementation libs.androidxTestRunner
+    androidTestUtil libs.androidxTestOrchestrator
+    androidTestImplementation libs.espressoCore
+    androidTestImplementation libs.espressoContrib
+    androidTestImplementation libs.androidxTestRules
+    androidTestImplementation libs.junit
+}

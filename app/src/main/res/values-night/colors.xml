@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Night-mode variants of the brand-accent greens keep contrast on dark backgrounds. -->
+    <color name="hud_accent_connected">#8BD866</color>
+    <color name="hud_accent_connected_dark">#6FA855</color>
+    <!-- Video-source preset chip glyph on the dark settings list (see chip_glyph in values/). -->
+    <color name="chip_glyph">#FFFFFF</color>
+</resources>

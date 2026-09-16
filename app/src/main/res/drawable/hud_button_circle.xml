@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Type 1 HUD: round magic-button background. Material ripple over a circular glass gradient
+     (green-tinted) with a brand-green stroke; press glow via the ripple's overlay. The glyph is
+     drawn by MagicButtonPanel (count + user symbols unchanged). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight">
+    <item>
+        <selector>
+            <item android:state_pressed="true">
+                <shape android:shape="oval">
+                    <gradient
+                        android:angle="315"
+                        android:centerColor="#4D6FC555"
+                        android:endColor="#33101010"
+                        android:startColor="#806FC555" />
+                    <stroke
+                        android:width="1.5dp"
+                        android:color="@color/hud_accent_connected" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <gradient
+                        android:angle="315"
+                        android:centerColor="#4D6FC555"
+                        android:endColor="#B3101010"
+                        android:startColor="#666FC555" />
+                    <stroke
+                        android:width="1.5dp"
+                        android:color="@color/hud_accent_connected" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

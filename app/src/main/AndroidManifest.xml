@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen.multitouch.distinct" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
+    <uses-feature android:name="android.hardware.gamepad" android:required="false" />
+
+    <!-- Package visibility: ReportSharer probes for text editors handling the
+         report file (ACTION_EDIT + text/plain) to decide between the
+         review-in-editor flow and the direct share sheet. Without this the
+         query returns empty on API 30+ and the editor flow silently dies. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
+
+  <!--  <uses-permission android:name="android.permission.VIBRATE" /> -->
+
+    <application
+        android:name=".App"
+        android:icon="@mipmap/trik_gamepad_logo"
+        android:label="@string/appLabel"
+        android:localeConfig="@xml/locales_config"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/AppTheme"
+        tools:targetApi="33">
+       <!--  <service android:name=".SenderService" />  -->
+
+       <!-- Shares the diagnostic report file with other apps (text editor for
+            review, or mail/IM for the final report); exported=false and limited
+            to cacheDir/diagnostics via res/xml/file_paths.xml. -->
+       <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+       <activity
+            android:name="com.trikset.gamepad2.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.trikset.gamepad2.SettingsActivity"
+            android:label="@string/menu_settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar.FullScreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name="com.trikset.gamepad2.RobotSettingsActivity"
+            android:label="@string/robot_settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar.FullScreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <!-- Share-in target: other apps' share sheets offer TRIK Gamepad for photos/screenshots
+             ("attach to report"); the receiver packs them with a fresh diagnostic report into a
+             ZIP (ReportZipWriter) and forwards it through ReportSharer's mail share sheet. No
+             launcher entry; exported because the system launches it with the sender's image URIs. -->
+        <activity
+            android:name="com.trikset.gamepad2.ShareReceiverActivity"
+            android:label="@string/share_receiver_label"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar.FullScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

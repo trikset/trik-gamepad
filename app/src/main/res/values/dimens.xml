@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="settings_button_stroke">3dp</dimen>
+    <dimen name="connection_status_text_size">20sp</dimen>
+    <dimen name="video_loading_size">120dp</dimen>
+    <dimen name="touch_target_min">48dp</dimen>
+
+    <!-- Type 1 HUD theme sizing. -->
+    <dimen name="hud_pad_size">260dp</dimen>
+    <dimen name="hud_pad_stroke">2dp</dimen>
+    <dimen name="hud_pad_corner">24dp</dimen>
+    <dimen name="hud_pill_corner">32dp</dimen>
+    <!-- HUD edge inset shared by the status chip (top), the settings gear (left + bottom) and the
+         magic-button cluster (bottom): roughly half a caption glyph (14sp / 2) so the HUD reads as
+         one consistent margin instead of per-element paddings. -->
+    <dimen name="hud_half_glyph">7dp</dimen>
+    <dimen name="hud_pill_padding_h">14dp</dimen>
+    <dimen name="hud_pill_padding_v">10dp</dimen>
+    <!-- Compact robot-target chip (14sp text kept; tight chrome so the chip stays out of the video
+         view). Sub-48dp touch target is an accepted deviation (DESIGN.md "Robot-target chip"). -->
+    <dimen name="hud_chip_min_height">28dp</dimen>
+    <dimen name="hud_chip_padding_h">8dp</dimen>
+    <dimen name="hud_chip_padding_v">4dp</dimen>
+    <!-- Connection-status badges inside the robot chip: a round glass disc per connection, sized to
+         sit next to the 14sp host text without inflating the chip's height. -->
+    <dimen name="hud_status_badge_size">18dp</dimen>
+    <dimen name="hud_status_glyph_size">14dp</dimen>
+    <dimen name="hud_chip_badge_gap">6dp</dimen>
+    <!-- Horizontal gap between the borderless magic-button circles (the cluster's capsule background
+         and its 6dp padding were dropped in a45b34c; the row padding is now 2dp). -->
+    <dimen name="hud_magic_button_margin_start">10dp</dimen>
+    <!-- Connection-error Snackbar text: caption scale (the pill's 20sp is too loud for a transient
+         error bar; white on the glass fill keeps it readable over bright video). -->
+    <dimen name="hud_snackbar_text_size">14sp</dimen>
+</resources>

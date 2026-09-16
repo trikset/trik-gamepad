@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Robot-settings row hosting the four video-source preset chips. The chips are populated at
+     bind time by VideoSourceChipsPreference (glyph strings/sizes live in code so the row can reuse
+     the bundled smart-glyph core); this layout only provides the GlyphRow container. The cluster
+     is centered horizontally in the row (gravity center_horizontal) rather than flush-left.
+     Vertical padding keeps the full-cell rings clear of the list item's top/bottom boundaries —
+     without it the ring bottom sat flush against the row divider below (the "circle lower bound
+     cut by the list line" look, 2026-09-05). populate() must not clear this container padding. -->
+<com.trikset.gamepad2.glyphs.GlyphRow
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/videoSourceChipsRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:orientation="horizontal" />

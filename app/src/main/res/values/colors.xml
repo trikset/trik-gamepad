@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hud_accent_connected">#6FC555</color>
+    <color name="hud_accent_connected_dark">#559540</color>
+    <color name="hud_accent_connecting">#FFC107</color>
+    <color name="hud_accent_error">#E53935</color>
+    <color name="status_orange">#FF9800</color>
+    <color name="white">#FFFFFF</color>
+    <color name="magic_button_text">#FFFFFF</color>
+    <color name="magic_button_fill_default">#555555</color>
+    <!-- Video-source preset chip glyphs sit on the DayNight settings list: near-black in the light
+         theme (contrast-verified vs white in WcagContrastTest), a white override in values-night. -->
+    <color name="chip_glyph">#212121</color>
+    <color name="video_placeholder_text">#BDBDBD</color>
+
+    <!-- Type 1 HUD theme (see DESIGN.md "HUD themes"). The connection-state accent set:
+         green = Connected, amber = Connecting, sepia = idle/standby (fresh launch, clean pause),
+         red = connection error/lost. "Color is never the only signal": the pill text, gear
+         description and announcements carry the state too. -->
+    <color name="hud_sepia">#C9A97A</color>
+    <color name="hud_disabled">#9E9E9E</color>
+</resources>

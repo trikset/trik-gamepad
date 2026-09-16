@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Type 1 HUD: readability scrim over the video feed (dark top/bottom edges, clear center) so the
+     translucent HUD chrome stays legible over bright frames. Applied to a plain View above the
+     video, below the controls (activity_main.xml child order). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:centerColor="#00000000"
+        android:endColor="#99000000"
+        android:startColor="#80000000" />
+</shape>

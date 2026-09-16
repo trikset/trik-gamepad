@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <issue id="MissingTranslation" severity="warning" />
+    <!-- OldTargetApi is environment-dependent: it fires only when the lint
+         environment knows a newer stable API than targetSdk 36. That decision
+         is locked (plan R7, targetSdk 36), and whether the check
+         trips depends on which SDK platforms are installed, so a lint baseline
+         cannot pin it. Downgrade to ignore; the version is deliberate. -->
+    <issue id="OldTargetApi" severity="ignore" />
+    <!-- AndroidGradlePluginVersion fires when lint's environment knows a newer
+         Gradle than the wrapper pins (9.5.0, matched to AGP 9.2.1). The version
+          is a deliberate lock and the check is environment-dependent (depends on
+          which Gradle versions lint knows about), so it cannot live in the lint
+          baseline: the baseline records the machine-specific absolute path of
+          the wrapper file and would silently stop matching on CI. -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <!-- GradleDependency (version-availability) now fires on the version
+         catalog (gradle/libs.versions.toml), whose baseline location is a
+         machine-specific absolute path that would silently stop matching on CI
+         (the same class of problem as AndroidGradlePluginVersion). The pinned
+         versions (compileSdk 36, core-ktx 1.16.0) are deliberate locks; ignore
+         the check rather than carry an un-baselinable absolute path. -->
+    <issue id="GradleDependency" severity="ignore" />
+    <!-- NewerVersionAvailable fires on the version catalog when lint's
+         environment knows a newer plugin/library release than the pinned one
+         (hit 2026-08-17: spotless 8.10.0 became available after the last green
+         run). Same class as AndroidGradlePluginVersion: environment-dependent,
+         un-baselinable (machine-specific absolute path), and the pin is a
+         deliberate lock. Ignore rather than chase every dependency release. -->
+    <issue id="NewerVersionAvailable" severity="ignore" />
+    <!-- TouchPadListener#onTouch delegates to SquareTouchPadLayout.onTouch,
+         which DOES call View#performClick() in the ACTION_UP and ACTION_DOWN
+         branches; lint's interprocedural analysis cannot see it through the
+         delegation and reports a false-positive ClickableViewAccessibility. -->
+    <issue id="ClickableViewAccessibility" severity="ignore">
+        <ignore path="src/main/kotlin/com/trikset/gamepad/SquareTouchPadLayout.kt" />
+    </issue>
+    <!-- WifiConnectionOpener trust-alls the https video connection so the robot's
+         self-signed camera endpoint works out of the box. User decision 2026-08-19:
+         trust-all for now, TOFU possibly later — the policy is isolated in
+         WifiConnectionOpener's companion so it can be swapped. The trust-all applies
+         to the video https URL only (control stays plain TCP); the robot camera is a
+         private single-purpose endpoint, not a general TLS site. -->
+    <issue id="TrustAllX509TrustManager" severity="ignore">
+        <ignore path="src/main/kotlin/com/trikset/gamepad/WifiConnectionOpener.kt" />
+    </issue>
+    <!-- CustomX509TrustManager: the trust-all manager is implemented as a custom
+         X509TrustManager; the override is deliberately empty (accept-any) — same
+         rationale as TrustAllX509TrustManager above (user decision 2026-08-19,
+         isolated in WifiConnectionOpener for a later TOFU swap). -->
+    <issue id="CustomX509TrustManager" severity="ignore">
+        <ignore path="src/main/kotlin/com/trikset/gamepad/WifiConnectionOpener.kt" />
+    </issue>
+    <!-- Same rationale as TrustAllX509TrustManager above: the self-signed camera has
+         no DNS entry matching its cert, so the hostname check must also be relaxed. -->
+    <issue id="AllowAllHostnameVerifier" severity="ignore">
+        <ignore path="src/main/kotlin/com/trikset/gamepad/WifiConnectionOpener.kt" />
+    </issue>
+    <!-- MainActivity's reflected members (processSensor, setSystemUiVisibility,
+         recreateMagicButtons, createPad, mVideo, mVideoURL, ...) must keep their
+         exact private names for the Java MainActivityTest reflection helpers,
+         and its many listeners generate synthetic accessors exactly as the
+         baselined Java did. -->
+    <issue id="SyntheticAccessor" severity="ignore">
+        <ignore path="src/main/kotlin/com/trikset/gamepad/MainActivity.kt" />
+    </issue>
+</lint>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Video-source preset chip chrome: a circular ring (no fill) that fills the chip's 48dp tap cell
+     (see VideoSourceChipsPreference). Border-only ring, like the pill/badge chrome; the glyph reads
+     on the DayNight settings list background. The stroke is part of the shape, so the drawable has
+     no intrinsic padding and cannot disturb the glyph's ink-centering padding. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="1.5dp"
+        android:color="@color/hud_accent_connected" />
+</shape>

@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  push:
+    branches: [master, 'feat/**', 'fix/**', 'refactor/**']
+  pull_request:
+    branches: [master]
+
+# Never run two pushes' builds at once: a stale run finishing after a newer one
+# uploads misleading artifacts and wastes runner minutes. Cancel the in-progress
+# run when a new push arrives.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and gate suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5.0.2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5.0.2
+        with:
+          # Single-branch no-PR workflow (AGENTS.md): pushes only ever land on
+          # feat/global-refresh, never master, so the default read-only cache
+          # would make every CI run cold. Write the cache back on this branch.
+          cache-read-only: false
+
+      - name: Build debug + androidTest APKs
+        run: ./gradlew assembleDebug assembleDebugAndroidTest -PpreDexEnable=false --build-cache
+
+      - name: Unit tests + quality gates
+        run: >-
+          ./gradlew
+          test
+          lint
+          detekt
+          spotbugsDebug
+          jacocoTestReport
+          jacocoTestCoverageVerification
+          spotlessCheck
+          -PpreDexEnable=false
+          --build-cache
+
+      # Hard test-duplication gate. Any cloned block >= 50 tokens in the
+      # unit/androidTest sources fails the build (import tokens excluded via
+      # .jscpd.json). The logical-SLOC token trend is local-only (gate.py).
+      - name: Test duplication gate (jscpd)
+        run: npx -y jscpd app/src/test app/src/androidTest --config .jscpd.json --reporters console
+
+      # Translation sync guard (mirror of gate.py; Android lint has no
+      # key/format-specifier parity check).
+      - name: Translation sync guard
+        run: python3 scripts/check_translations.py --sync
+
+      # Device-identifier gate (mirror of gate.py): a physical device's serial/
+      # model/IMEI must never reach repo content (AGENTS.md "Repo hygiene").
+      - name: Device-identifier gate
+        run: python3 scripts/check_device_identifiers.py $(git ls-files | grep -E '\.(kt|java|md|xml|yml|yaml|json|gradle|toml|py)$')
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          if-no-files-found: ignore
+
+  instrumented:
+    name: Instrumented tests (API 36)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Required for hardware-accelerated (KVM) emulation on ubuntu-latest;
+      # without it the emulator falls back to software emulation (glacial
+      # boot, install-commit broken-pipe, and slow flaky tests).
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5.0.2
+        with:
+          # Same single-branch write-back reasoning as the build job.
+          cache-read-only: false
+
+      - name: Instrumented tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 36
+          # aosp_atd retry: the original "aosp_atd + swiftshader NEVER grants
+          # focus" finding predates the immersive pre-empt + focus-wait fixes
+          # (ci.yml pre-empt, FocusAwareActivityTestRule), so re-test aosp_atd now
+          # that focus handling exists. aosp_atd is the headless-optimized image
+          # (smaller boot + less render load than pixel_5 default), which also
+          # probes the swiftshader render-load theory.
+          target: aosp_atd
+          arch: x86_64
+          cores: 4
+          ram-size: 4096M
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            # The gamepad runs immersive (system bars hidden); the first entry
+            # pops an ImmersiveModeConfirmation overlay that steals window focus
+            # and makes every Espresso interaction time out. Pre-empt it.
+            adb wait-for-device
+            # Wait for boot to complete; then retry the settings write until the
+            # provider accepts it. sys.boot_completed can report 1 while the
+            # settings provider is still starting, so a single put is silently
+            # lost during a slow headless boot -- which is exactly how the
+            # confirmation overlay appears (CI history: two runs failed with
+            # focus never granted after the pre-empt appeared to run).
+            adb shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 1; done'
+            adb shell 'i=0; while [ $i -lt 60 ]; do settings put secure immersive_mode_confirmations confirmed; [ "$(settings get secure immersive_mode_confirmations)" = "confirmed" ] && break; i=$((i+1)); sleep 1; done'
+            # Dismiss any keyguard and clear an overlay that may already be up.
+            adb shell wm dismiss-keyguard
+            adb shell input keyevent 4
+            # Retry once on failure. NOTE: reactivecircus/android-emulator-runner
+            # runs each `script:` LINE as its own `sh -c`, so the retry must be
+            # a single line (no if/fi block, no backslash continuation).
+            ./gradlew connectedDebugAndroidTest -PpreDexEnable=false || { echo "instrumented run failed; retrying once"; adb shell am force-stop com.trikset.gamepad2; adb shell 'i=0; while [ $i -lt 60 ]; do settings put secure immersive_mode_confirmations confirmed; [ "$(settings get secure immersive_mode_confirmations)" = "confirmed" ] && break; i=$((i+1)); sleep 1; done'; adb shell wm dismiss-keyguard; ./gradlew connectedDebugAndroidTest -PpreDexEnable=false; }
+
+      - name: Upload instrumented test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: instrumented-test-results
+          path: |
+            app/build/outputs/androidTest-results/
+            app/build/reports/androidTests/
+          if-no-files-found: ignore
+
+  publish:
+    name: Publish installable APK
+    # Only publish once ALL tests (build gate + instrumented) are green, and
+    # only on master merges/pushes. Dormant during the single-branch no-PR
+    # workflow (nothing pushes to master); activates when a master merge lands.
+    needs: [build, instrumented]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5.0.2
+
+      - name: Build releaseDebug APK (debug-signed, installable)
+        run: ./gradlew assembleReleaseDebug -PpreDexEnable=false --build-cache
+
+      - name: Upload APK artifact for early adopters
+        uses: actions/upload-artifact@v7
+        with:
+          name: trik-gamepad-releaseDebug
+          path: app/build/outputs/apk/releaseDebug/*.apk
+          if-no-files-found: error

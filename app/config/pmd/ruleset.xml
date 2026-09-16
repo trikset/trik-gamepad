@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Curated PMD ruleset for trik-gamepad (PMD 7.x, category-based).
+     Chosen for high-signal rules that catch real bugs/leaks without drowning
+     in style noise; the vendored com.demo.mjpeg package is excluded at the
+     task level (like checkstyle/spotbugs excludes). -->
+<ruleset name="trik-gamepad"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>High-signal PMD rules for trik-gamepad.</description>
+
+    <!-- Error-prone: leaks, resource handling, null safety, threading.
+         NOTE: NullAssignment and CloseResource are deliberately NOT enabled.
+         NullAssignment fires on every Android lifecycle pattern that nulls a
+         field to release memory (mVideo = null in onDestroy, mOut = null after
+         disconnect) — pure noise. CloseResource cannot see ownership transfer
+         to a long-lived field (SenderService hands the Socket to a PrintWriter
+         stored in mOut and closed in disconnect()) — false positives. -->
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true" />
+        </properties>
+    </rule>
+    <rule ref="category/java/errorprone.xml/UnnecessaryCaseChange" />
+    <rule ref="category/java/errorprone.xml/UnnecessaryBooleanAssertion" />
+    <rule ref="category/java/errorprone.xml/UseEqualsToCompareStrings" />
+    <rule ref="category/java/errorprone.xml/UseProperClassLoader" />
+    <rule ref="category/java/errorprone.xml/AvoidBranchingStatementAsLastInLoop" />
+    <rule ref="category/java/errorprone.xml/AssignmentToNonFinalStatic" />
+
+    <!-- Best practices: correctness/robustness. -->
+    <rule ref="category/java/bestpractices.xml/AvoidPrintStackTrace" />
+    <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters" />
+    <rule ref="category/java/bestpractices.xml/CheckResultSet" />
+    <rule ref="category/java/bestpractices.xml/UnusedLocalVariable" />
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField" />
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod" />
+    <rule ref="category/java/bestpractices.xml/UseTryWithResources" />
+    <rule ref="category/java/bestpractices.xml/SystemPrintln" />
+
+    <!-- Code style: consistency. -->
+    <rule ref="category/java/codestyle.xml/ExtendsObject" />
+    <rule ref="category/java/codestyle.xml/FieldNamingConventions" />
+    <rule ref="category/java/codestyle.xml/UnnecessaryImport" />
+    <rule ref="category/java/codestyle.xml/UnnecessaryModifier" />
+    <rule ref="category/java/codestyle.xml/UnnecessaryReturn" />
+
+    <!-- Performance: allocations in hot paths. -->
+    <rule ref="category/java/performance.xml/AddEmptyString" />
+    <rule ref="category/java/performance.xml/AppendCharacterWithChar" />
+    <rule ref="category/java/performance.xml/InefficientStringBuffering" />
+    <rule ref="category/java/performance.xml/StringInstantiation" />
+    <rule ref="category/java/performance.xml/UseIndexOfChar" />
+</ruleset>

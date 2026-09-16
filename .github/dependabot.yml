@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/app"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    groups:
+      gradle-deps:
+        applies-to: version-updates
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - "*"

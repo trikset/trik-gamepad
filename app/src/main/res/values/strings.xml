@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_settings">Settings</string>
+    <string name="appLabel">TRIK Gamepad</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="about_system">About system</string>
+    <string name="keepalive_must_be_positive_decimal">Keep-alive timeout must be positive decimal integer</string>
+    <string name="keepalive_must_be_not_less">Keep-alive timeout must be not less than %d ms</string>
+    <string name="tap_to_copy">Tap to copy</string>
+    <string name="video_source_chip_needs_host">Set the robot IP address first</string>
+    <string name="settings_button_description">Toggle system bars</string>
+    <string name="left_pad_description">Left pad</string>
+    <string name="right_pad_description">Right pad</string>
+    <string name="video_description">Robot video stream</string>
+    <string name="video_placeholder">No video stream — configure a video URI in Settings</string>
+    <string name="connection_status_connecting">Connecting to %1$s…</string>
+    <string name="connection_status_disconnected">Tap to connect…</string>
+    <!-- Symbol-only HUD: the status pill renders a glyph, not text; the spoken strings above are
+         carried as the pill's contentDescription. ⏻ (U+23FB, IEC power symbol) = tap to connect,
+         ↺ (U+21BA) = connecting. Both are bundled in res/font/symbols_mono.ttf so they render
+         identically on every device; see MEMORY.md "Symbol font". -->
+    <string name="connection_status_disconnected_icon">⏻</string>
+    <string name="connection_status_connecting_icon">↺</string>
+    <!-- Settings gear glyph (⚙ U+2699, bundled symbols_mono font), rendered as the gear button's
+         text; the persistent state color is the button's textColor. -->
+    <string name="settings_gear_glyph">⚙</string>
+    <string name="video_stream_unavailable">Video stream unavailable</string>
+    <string name="video_reconnecting">Video reconnecting…</string>
+    <string name="preset_name_required">Preset name cannot be empty</string>
+    <string name="preset_saved">Preset “%1$s” saved</string>
+    <string name="preset_deleted">Preset “%1$s” deleted</string>
+    <string name="preset_applied">Preset “%1$s” applied</string>
+    <string name="preset_row_summary">%1$s:%2$s · tap to apply</string>
+    <string name="no_presets_saved">No presets saved yet</string>
+    <string name="delete_preset_dialog_title">Delete preset</string>
+    <string name="report_issue">Report an issue</string>
+    <string name="report_issue_summary">Create a diagnostic report; opens in a text editor so you can review it first</string>
+    <string name="copy_report">Copy report</string>
+    <string name="copy_report_summary">Copy the full diagnostic report to the clipboard</string>
+    <string name="view_log">View log</string>
+    <string name="view_log_summary">Show recent app activity logs</string>
+    <string name="view_log_title">App log</string>
+    <string name="view_log_empty">No log entries yet</string>
+    <string name="share_without_editing">Share logs without editing</string>
+    <string name="share_without_editing_off">Check to share directly unchanged</string>
+    <string name="share_without_editing_on">Uncheck to share to editor app for review</string>
+    <string name="report_editor_chooser_title">Choose a text editor to review and edit before sharing to developers</string>
+    <string name="share_report">Share diagnostic report</string>
+    <string name="share_receiver_label">TRIK Gamepad — attach to report</string>
+    <string name="share_receiver_packing">Packing report…</string>
+    <string name="crash_dialog_title">TRIK Gamepad stopped unexpectedly</string>
+    <string name="crash_dialog_message">A report with the crash details is ready. You can review and edit it before sending it to the developers.</string>
+    <string name="review_and_share">Review &amp; share</string>
+    <string name="share">Share</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="diag_level">Diagnostics verbosity…</string>
+    <string name="diag_level_summary">%1$s · How much detail diagnostic reports include: errors, info, debug, verbose</string>
+    <string name="diag_level_label_errors">Errors only</string>
+    <string name="diag_level_label_info">Info</string>
+    <string name="diag_level_label_debug">Debug</string>
+    <string name="diag_level_label_verbose">Verbose</string>
+    <string-array name="diag_level_labels">
+        <item>@string/diag_level_label_errors</item>
+        <item>@string/diag_level_label_info</item>
+        <item>@string/diag_level_label_debug</item>
+        <item>@string/diag_level_label_verbose</item>
+    </string-array>
+    <string-array name="diag_level_values">
+        <item>errors</item>
+        <item>info</item>
+        <item>debug</item>
+        <item>verbose</item>
+    </string-array>
+
+    <!-- Settings: pref_general.xml (externalized; rows that open an input dialog
+         end with ellipsis; see DESIGN.md "Ellipsis on dialog rows"). -->
+    <string name="pref_category_robot_connection">Robot connection</string>
+    <string name="pref_host_address">Robot IP address…</string>
+    <string name="pref_host_port">Robot TCP port…</string>
+    <string name="pref_category_video">Video</string>
+    <string name="pref_video_uri">URI for video stream to play…</string>
+    <!-- Video-source preset chips (Robot settings > Video). Each contentDescription names the
+         stream the chip selects; the visible label is the glyph itself. -->
+    <string name="video_chip_camera_1">Robot camera 1</string>
+    <string name="video_chip_camera_2">Robot camera 2</string>
+    <string name="video_chip_usb">USB video source</string>
+    <string name="video_chip_none">No video</string>
+    <string name="pref_category_controls">Controls</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_keep_screen_on_on">Screen stays on while the gamepad is open</string>
+    <string name="pref_keep_screen_on_off">Screen may sleep while the gamepad is open</string>
+    <string name="pref_category_appearance">Appearance</string>
+    <string name="pref_hud_theme">HUD theme</string>
+    <string name="pref_hud_theme_summary">Type 1 · more themes coming</string>
+    <string name="pref_recenter_glyphs">Smart glyph alignment</string>
+    <string name="pref_recenter_glyphs_on">Symbols are centered on their exact visual center</string>
+    <string name="pref_recenter_glyphs_off">Symbols use the baseline alignment</string>
+    <string name="pref_magic_size">Button size</string>
+    <string name="pref_magic_size_summary">%d</string>
+    <string name="pref_advanced">Advanced settings</string>
+    <string name="pref_advanced_summary">Wheel, pads, hardware gamepad, magic buttons, diagnostics</string>
+    <string name="robot_settings">Robot settings</string>
+    <string name="pref_open_robot_settings_summary">Host, port, video stream, network and presets</string>
+    <string name="pref_open_app_settings">App settings</string>
+    <string name="pref_open_app_settings_summary">Appearance, controls, advanced options</string>
+    <string name="target_chip_description">Open robot settings</string>
+    <!-- Robot chip screen-reader description: "%1$s" = host, "%2$s" = control-state adjective,
+         "%3$s" = video-state adjective (e.g. "192.168.0.1, control connected, video streaming").
+         The action suffix reuses target_chip_description. -->
+    <string name="target_chip_status_format">%1$s, control %2$s, video %3$s</string>
+    <string name="chip_control_connected">@string/connection_status_connected</string>
+    <string name="chip_control_connecting">connecting</string>
+    <string name="chip_control_standby">standby</string>
+    <string name="chip_control_disconnected">disconnected</string>
+    <string name="chip_video_playing">streaming</string>
+    <string name="chip_video_loading">loading</string>
+    <string name="chip_video_reconnecting">reconnecting</string>
+    <string name="chip_video_unavailable">unavailable</string>
+    <string name="chip_video_disabled">disabled</string>
+    <string name="pref_category_wheel">Wheel</string>
+    <string name="pref_wheel_enabled">@string/pref_category_wheel</string>
+    <string name="pref_wheel_enabled_on">Accelerometer wheel on</string>
+    <string name="pref_wheel_enabled_off">Accelerometer wheel off</string>
+    <string name="pref_wheel_sens">Wheel sensitivity…</string>
+    <string name="pref_wheel_sens_summary">%1$d · Smaller = more sensitive; 5..10 is typical</string>
+    <string name="pref_category_pads_video">Pads &amp; video</string>
+    <string name="pref_show_pads">Arrows transparency…</string>
+    <string name="pref_show_pads_summary">%1$d · 0 for fully transparent, 255 is opaque</string>
+    <string name="pref_hide_controls">Hide pads &amp; buttons</string>
+    <string name="pref_hide_controls_on">Pads and buttons are hidden</string>
+    <string name="pref_hide_controls_off">Pads and buttons are visible</string>
+    <string name="pref_show_fps">Show FPS</string>
+    <string name="pref_show_fps_on">FPS counter shown over the video</string>
+    <string name="pref_show_fps_off">FPS counter hidden</string>
+    <string name="pref_video_crop">Crop to fill screen</string>
+    <string name="pref_video_crop_on">Video fills the display (edges may be cropped)</string>
+    <string name="pref_video_crop_off">Video fits within the display (black bars)</string>
+    <string name="pref_category_hardware">Hardware gamepad</string>
+    <string name="pref_gamepad_swap">Swap sticks</string>
+    <string name="pref_gamepad_swap_on">Left and right sticks are swapped</string>
+    <string name="pref_gamepad_swap_off">Left stick drives the left pad</string>
+    <string name="pref_category_network">Network</string>
+    <string name="pref_keepalive_timeout">Keep-alive timeout, ms…</string>
+    <string name="pref_transport">Command transport…</string>
+    <string name="pref_transport_summary">%1$s · How the app sends control commands to the robot</string>
+    <string name="transport_label_tcp">TCP</string>
+    <string name="transport_label_udp">UDP</string>
+    <string name="pref_custom_message">Custom message…</string>
+    <string-array name="transport_labels">
+        <item>@string/transport_label_tcp</item>
+        <item>@string/transport_label_udp</item>
+    </string-array>
+    <string-array name="transport_values">
+        <item>tcp</item>
+        <item>udp</item>
+    </string-array>
+    <string name="pref_copy_robot_ip">Copy robot IP</string>
+    <string name="pref_copy_robot_ip_summary">Copy the configured robot IP address</string>
+    <string name="pref_category_presets">Robot presets</string>
+    <string name="pref_save_preset">Save current robot as preset…</string>
+    <string name="pref_save_preset_summary">Store the current host, port and video URI under a name</string>
+    <string name="pref_delete_preset">Delete a preset…</string>
+    <string name="pref_delete_preset_summary">Remove a saved preset</string>
+    <string name="pref_category_magic">Magic buttons</string>
+    <string name="pref_magic_count">Number of buttons…</string>
+    <string name="pref_magic_count_summary">%1$d · 0 hides the row; 1..5 buttons</string>
+    <string name="pref_magic_symbols">Button symbols…</string>
+    <string name="pref_category_about">About</string>
+
+    <!-- Settings: video-URI current-value summary -->
+    <string name="video_uri_summary_empty">No stream URI set</string>
+
+    <!-- Settings: magic-symbols dialog (advanced; see DESIGN.md "Magic button symbols") -->
+    <string name="magic_symbols_dialog_title">Button symbols</string>
+    <string name="magic_symbols_dialog_hint">Symbol shown on button %1$d</string>
+    <string name="magic_symbols_use_defaults">Use default symbols</string>
+    <string name="magic_symbols_save">Save</string>
+
+    <!-- Settings: About system preview = "Tap to copy — <short spec>". -->
+    <string name="about_system_summary">%1$s — %2$s</string>
+    <string name="about_system_info_format">Version:%1$s; Android %2$s; SDK %3$d; Resolution %4$dx%5$d; PPI %6$dx%7$d</string>
+
+    <!-- Open-source licenses: the bundled symbol font (DejaVu Sans Mono Nerd Font subset) carries
+         the Bitstream Vera + IEC-power-symbol (MIT) texts in res/raw; the row opens them in a
+         dialog (see SettingsFragment.initializeOpenSourceLicensesField). -->
+    <string name="open_source_licenses">Open-source licenses</string>
+    <string name="open_source_licenses_summary">Fonts and symbol glyphs bundled with the app</string>
+
+    <!-- Accessibility: magic-button description carries the glyph so screen-reader users can
+         map glyph to meaning. -->
+    <string name="button_number_description">Button %1$s · %2$s</string>
+
+    <!-- Connection-state announcements (screen-reader users: connection is not color-only).
+         The gear's description carries the state so a TalkBack user who lands on it hears it. -->
+    <string name="connection_status_connected">Connected</string>
+    <string name="settings_button_description_connected">Connected. Toggle system bars</string>
+    <string name="settings_button_description_connecting">Connecting. Toggle system bars</string>
+    <string name="settings_button_description_disconnected">Disconnected. Toggle system bars</string>
+
+    <!-- Connection / input validation notices (previously hardcoded literals). -->
+    <string name="port_number_incorrect">Port number %1$s is incorrect.</string>
+    <string name="disconnected_notice">Disconnected. %1$s</string>
+</resources>

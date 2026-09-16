@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:gamepad="http://schemas.android.com/apk/res-auto" >
-    <item android:id="@+id/wheel" android:title="@string/menu_wheel" android:icon="@android:drawable/ic_menu_rotate" gamepad:showAsAction="ifRoom|withText" gamepad:actionViewClass="android.widget.CheckBox"/>
-    <item android:id="@+id/settings" android:title="@string/menu_settings" android:titleCondensed="@string/menu_settings_condensed" android:icon="@android:drawable/ic_menu_manage" gamepad:showAsAction="ifRoom|withText"/>    
-</menu>
