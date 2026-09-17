@@ -2,7 +2,7 @@
 name = "trik-gamepad-tooling"
 version = "0.1.0"
 description = "Cross-platform dev tooling for trik-gamepad (gate, pre-commit, docs)"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [dependency-groups]
 dev = [
