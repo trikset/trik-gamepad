@@ -156,6 +156,8 @@
     <string name="about_system_info_format">Версия:%1$s; Android %2$s; SDK %3$d; Разрешение %4$dx%5$d; PPI %6$dx%7$d</string>
     <string name="open_source_licenses">Открытые лицензии</string>
     <string name="open_source_licenses_summary">Шрифты и символы, включённые в приложение</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="privacy_policy_summary">Как приложение обрабатывает ваши данные (откроется в браузере)</string>
     <string name="button_number_description">Кнопка %1$s · %2$s</string>
     <string name="connection_status_connected">Подключено</string>
     <string name="settings_button_description_connected">Подключено. Переключить системные панели</string>

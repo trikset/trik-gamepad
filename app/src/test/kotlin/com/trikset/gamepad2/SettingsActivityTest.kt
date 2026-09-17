@@ -2,6 +2,7 @@ package com.trikset.gamepad2
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -128,6 +129,16 @@ class SettingsActivityTest : RobolectricTestBase() {
     row!!.onPreferenceClickListener!!.onPreferenceClick(row)
     val intent = org.robolectric.Shadows.shadowOf(activity).nextStartedActivity
     assertEquals(RobotSettingsActivity::class.java.name, intent?.component?.className)
+  }
+
+  @Test
+  fun privacyPolicyRowShouldOpenPrivacyPolicyInBrowser() {
+    val row = fragment.findPreference<Preference>(SettingsFragment.SK_PRIVACY_POLICY)
+    assertNotNull("the privacy policy row must exist in the app screen", row)
+    row!!.onPreferenceClickListener!!.onPreferenceClick(row)
+    val intent = org.robolectric.Shadows.shadowOf(activity).nextStartedActivity
+    assertEquals(Intent.ACTION_VIEW, intent?.action)
+    assertEquals(SettingsFragment.PRIVACY_POLICY_URL, intent?.dataString)
   }
 
   @Test

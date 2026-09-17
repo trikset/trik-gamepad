@@ -154,6 +154,8 @@
     <string name="about_system_info_format">Phiên bản:%1$s; Android %2$s; SDK %3$d; Độ phân giải %4$dx%5$d; PPI %6$dx%7$d</string>
     <string name="open_source_licenses">Giấy phép mã nguồn mở</string>
     <string name="open_source_licenses_summary">Phông chữ và ký hiệu đi kèm ứng dụng</string>
+    <string name="privacy_policy">Chính sách quyền riêng tư</string>
+    <string name="privacy_policy_summary">Cách ứng dụng xử lý dữ liệu của bạn (mở trong trình duyệt)</string>
     <string name="button_number_description">Nút %1$s · %2$s</string>
     <string name="connection_status_connected">Đã kết nối</string>
     <string name="settings_button_description_connected">Đã kết nối. Bật/tắt thanh hệ thống</string>

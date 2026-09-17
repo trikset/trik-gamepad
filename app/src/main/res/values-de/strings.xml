@@ -154,6 +154,8 @@
     <string name="about_system_info_format">Version:%1$s; Android %2$s; SDK %3$d; Auflösung %4$dx%5$d; PPI %6$dx%7$d</string>
     <string name="open_source_licenses">Open-Source-Lizenzen</string>
     <string name="open_source_licenses_summary">Mit der App gebündelte Schriftarten und Symbole</string>
+    <string name="privacy_policy">Datenschutzerklärung</string>
+    <string name="privacy_policy_summary">Wie die App mit Ihren Daten umgeht (öffnet sich im Browser)</string>
     <string name="button_number_description">Button %1$s · %2$s</string>
     <string name="connection_status_connected">Verbunden</string>
     <string name="settings_button_description_connected">Verbunden. Systemleisten ein-/ausblenden</string>

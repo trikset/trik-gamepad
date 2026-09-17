@@ -1,11 +1,13 @@
 package com.trikset.gamepad2
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.preference.EditTextPreference
@@ -54,6 +56,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     const val SK_COPY_REPORT = "copyReport"
     const val SK_VIEW_LOG = "viewLog"
     const val SK_OPEN_SOURCE_LICENSES = "openSourceLicenses"
+    const val SK_PRIVACY_POLICY = "privacyPolicy"
+    /** Repo PRIVACY.md (EN+RU); store requirement: privacy policy linked in-app (U4). */
+    const val PRIVACY_POLICY_URL = "https://github.com/trikset/trik-gamepad/blob/master/PRIVACY.md"
     // Cross-link rows between the app-settings and robot-settings screens.
     const val SK_OPEN_ROBOT_SETTINGS = "openRobotSettings"
     const val SK_OPEN_APP_SETTINGS = "openAppSettings"
@@ -245,6 +250,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
           .setMessage(texts.joinToString("\n\n---\n\n"))
           .setPositiveButton(R.string.dismiss, null)
           .show()
+      true
+    }
+  }
+
+  /** "Privacy policy": opens the repo's PRIVACY.md in a browser (store requirement U4). */
+  private fun initializePrivacyPolicyField() {
+    val myActivity = requireActivity()
+    val privacy = findPreference<Preference>(SK_PRIVACY_POLICY) ?: return
+    privacy.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+      myActivity.startActivity(Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL.toUri()))
       true
     }
   }
@@ -569,6 +584,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     initializeCopyReportField()
     initializeViewLogField()
     initializeOpenSourceLicensesField()
+    initializePrivacyPolicyField()
     initializeScreenLinks()
   }
 }
