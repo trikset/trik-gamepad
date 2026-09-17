@@ -186,6 +186,10 @@
     <string name="open_source_licenses">Open-source licenses</string>
     <string name="open_source_licenses_summary">Fonts and symbol glyphs bundled with the app</string>
 
+    <!-- Privacy policy: opens the repo's PRIVACY.md in a browser (store requirement U4). -->
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_summary">How the app handles your data (opens in a browser)</string>
+
     <!-- Accessibility: magic-button description carries the glyph so screen-reader users can
          map glyph to meaning. -->
     <string name="button_number_description">Button %1$s · %2$s</string>
