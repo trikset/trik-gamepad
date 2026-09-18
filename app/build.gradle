@@ -10,6 +10,7 @@ plugins {
 def abiCode = 0 // just for fun
 def appMajorVersion = 2 // single digit for each SDK/ABI
 def appMinorVersion = 43 // two digits for each major version
+def appVersionName = "${appMajorVersion}.${appMinorVersion}-API${21}"
 
 // The signing keystore deliberately lives OUTSIDE the repo workdir (one level
 // above the repo root, next to the checkout). It is gitignored via **/*.p12 and
@@ -113,9 +114,9 @@ android {
     }
 
 androidComponents {
-    onVariants { variant ->
+    onVariants(selector().all()) { variant ->
         variant.outputs.forEach { output ->
-            output.outputFileName.set("TRIKGamepad-${variant.versionName}")
+            output.outputFileName.set("TRIKGamepad-${appVersionName}")
         }
     }
 }
