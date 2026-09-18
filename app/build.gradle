@@ -114,9 +114,9 @@ android {
     }
 
 androidComponents {
-    onVariants(selector().all()) { variant ->
+    onVariants(selector().withBuildType("release")) { variant ->
         variant.outputs.forEach { output ->
-            output.outputFileName.set("TRIKGamepad-${appVersionName}")
+            output.outputFileName.set("TRIKGamepad-${appVersionName}-${variant.name}")
         }
     }
 }
