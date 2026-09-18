@@ -9,7 +9,7 @@ plugins {
 
 def abiCode = 0 // just for fun
 def appMajorVersion = 2 // single digit for each SDK/ABI
-def appMinorVersion = 42 // two digits for each major version
+def appMinorVersion = 43 // two digits for each major version
 
 // The signing keystore deliberately lives OUTSIDE the repo workdir (one level
 // above the repo root, next to the checkout). It is gitignored via **/*.p12 and
@@ -109,6 +109,11 @@ android {
         checkAllWarnings = true
         baseline = file('lint-baseline.xml')
         warningsAsErrors = true
+    }
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
+            outputFileName = "TRIKGamepad-${variant.versionName}${variant.versionNameSuffix}.apk"
+        }
     }
 }
 
