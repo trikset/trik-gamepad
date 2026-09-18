@@ -1,0 +1,4 @@
+- Added fastlane metadata for F-Droid and app store compliance
+- Added in-app privacy policy link
+- Added RuStore publishing support
+- Improved Linux compatibility for development tools
