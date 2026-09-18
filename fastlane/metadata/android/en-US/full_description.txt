@@ -1,0 +1,13 @@
+TRIK Gamepad turns your device into a wireless gamepad for TRIK robots. Connect over Wi-Fi, control the robot with touch pads and buttons, and watch a live video stream from the robot's camera.
+
+Features:
+- Dual touch pads with steering wheel and accelerometer control modes
+- Hardware gamepad button support
+- Configurable magic buttons for custom robot commands
+- Live video streaming (MJPEG) from the robot camera
+- UDP and TCP control protocols
+- Custom message commands for user programs
+- Connection diagnostics with crash reporting
+- System bar auto-hide in gamepad mode
+
+Available in English, Russian, French, German, and Vietnamese.
