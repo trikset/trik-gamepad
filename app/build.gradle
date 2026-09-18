@@ -110,9 +110,12 @@ android {
         baseline = file('lint-baseline.xml')
         warningsAsErrors = true
     }
-    applicationVariants.configureEach { variant ->
-        variant.outputs.configureEach { output ->
-            outputFileName = "TRIKGamepad-${variant.versionName}${variant.versionNameSuffix}.apk"
+    }
+
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("TRIKGamepad-${variant.versionName}")
         }
     }
 }
