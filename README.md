@@ -38,6 +38,25 @@ landscape lock, so the gamepad can appear rotated or stretched. To keep the
 intended layout, opt in to the app's default orientation behavior in the
 system's aspect-ratio settings, or lock your device's rotation to landscape.
 
+### Hardware gamepad button mapping
+
+When using a physical gamepad (PS-style), the buttons map to TRIK Studio
+variables as follows:
+
+| PS button | Gamepad command | TRIK Studio variable |
+|---|---|---|
+| A (Cross) | `btn 1` | `gamepadButton1` |
+| B (Circle) | `btn 2` | `gamepadButton2` |
+| X (Square) | `btn 3` | `gamepadButton3` |
+| Y (Triangle) | `btn 4` | `gamepadButton4` |
+| L1 / R1 (Shoulder) | `btn 5` | `gamepadButton5` |
+| Left stick / D-pad | `pad 1` | `padX[1]`, `padY[1]` |
+| Right stick | `pad 2` | `padX[2]`, `padY[2]` |
+
+Configure the number of magic buttons in Settings → App settings to match the
+variables you use in your program. L1 and R1 both map to button 5 (the same
+command).
+
 ## For developers
 
 New session or contributor? Start here:

@@ -242,6 +242,12 @@ class MainActivity :
         VideoRetryController(
             shouldReload = { shouldReloadVideo() },
             reload = { restartVideoStream() },
+            onTimeout = {
+              setVideoLoading(false)
+              robotChip.setVideoStatus(VideoStatus.UNAVAILABLE)
+              findViewById<android.widget.TextView>(R.id.videoPlaceholder)?.visibility =
+                  View.VISIBLE
+            },
         )
 
     // Observe the TCP connection state for the activity's lifetime; repeatOnLifecycle

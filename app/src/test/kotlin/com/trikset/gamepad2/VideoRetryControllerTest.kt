@@ -25,6 +25,7 @@ class VideoRetryControllerTest : RobolectricTestBase() {
 
   private val reloads = AtomicInteger(0)
   private var shouldReload = true
+  private val timeouts = AtomicInteger(0)
 
   @After
   fun tearDown() {
@@ -32,13 +33,17 @@ class VideoRetryControllerTest : RobolectricTestBase() {
     shadowOf(Looper.getMainLooper()).idle()
   }
 
-  private fun controller(): VideoRetryController =
-      VideoRetryController(
-          mainHandler = Handler(Looper.getMainLooper()),
-          retryIntervalMs = 1000,
-          shouldReload = { shouldReload },
-          reload = { reloads.incrementAndGet() },
-      )
+  private fun controller(timeoutMs: Long = 5000): VideoRetryController {
+    timeouts.set(0)
+    return VideoRetryController(
+        mainHandler = Handler(Looper.getMainLooper()),
+        retryIntervalMs = 1000,
+        loadTimeoutMs = timeoutMs,
+        shouldReload = { shouldReload },
+        reload = { reloads.incrementAndGet() },
+        onTimeout = { timeouts.incrementAndGet() },
+    )
+  }
 
   @Test
   fun loadFailureShouldRetryOnNextTickWhileShouldReload() {
@@ -149,5 +154,41 @@ class VideoRetryControllerTest : RobolectricTestBase() {
     c.onLoadFailed()
     shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(3))
     assertEquals(0, reloads.get())
+  }
+
+  @Test
+  fun loadFailureShouldFireTimeoutWhenNoSuccessWithinWindow() {
+    val c = controller(timeoutMs = 500)
+    c.onResume()
+    c.onLoadFailed()
+    assertEquals("no timeout yet before the window", 0, timeouts.get())
+    shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(600))
+    assertEquals("timeout must fire after the window expires", 1, timeouts.get())
+    c.onLoadFailed()
+    shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(3))
+    assertEquals("reloads stop after timeout", 0, reloads.get())
+  }
+
+  @Test
+  fun loadSuccessBeforeTimeoutCancelsTimeout() {
+    val c = controller(timeoutMs = 500)
+    c.onResume()
+    c.onLoadFailed()
+    c.onLoadSuccess()
+    shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(600))
+    assertEquals("timeout must not fire when load succeeded", 0, timeouts.get())
+  }
+
+  @Test
+  fun timeoutResetByControlConnected() {
+    val c = controller(timeoutMs = 500)
+    c.onResume()
+    c.onLoadFailed()
+    shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(600))
+    assertEquals("timeout must have fired", 1, timeouts.get())
+    assertEquals("no reloads after timeout", 0, reloads.get())
+    shouldReload = true
+    c.onControlConnected()
+    assertEquals("reload must fire after timeout on reconnect", 1, reloads.get())
   }
 }

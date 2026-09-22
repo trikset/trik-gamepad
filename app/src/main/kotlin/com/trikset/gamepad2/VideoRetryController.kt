@@ -10,6 +10,10 @@ import android.os.Looper
  * (a pad touch reconnects the control connection → instant video reload instead of waiting for the
  * next tick). The control state is a reload *trigger*, not part of the gate.
  *
+ * If no successful load happens within [loadTimeoutMs] the [onTimeout] callback fires and further
+ * retries are stopped until the control connection flips to Connected again (which resets the
+ * timeout state).
+ *
  * Replaces the safety net lost when the original unconditional 30 s MJPEG restart was removed (the
  * socket-leak driver): a failed open / a silently-stalled stream no longer leaves the video black
  * until the user leaves and re-enters. Unlike the 30 s loop, a healthy stream is never touched
@@ -21,11 +25,18 @@ import android.os.Looper
 class VideoRetryController(
     private val mainHandler: Handler = Handler(Looper.getMainLooper()),
     private val retryIntervalMs: Long = DEFAULT_RETRY_INTERVAL_MS,
+    private val loadTimeoutMs: Long = DEFAULT_LOAD_TIMEOUT_MS,
     private val shouldReload: () -> Boolean,
     private val reload: () -> Unit,
+    private val onTimeout: () -> Unit = {},
 ) {
   private val tick = Runnable { onTick() }
+  private val timeoutRunnable = Runnable {
+    onTimeout()
+    timedOut = true
+  }
   private var active = false
+  private var timedOut = false
 
   /** Arm the retry loop; the activity is resumed (ticks only run between onResume/onPause). */
   fun onResume() {
@@ -51,20 +62,25 @@ class VideoRetryController(
     }
   }
 
-  /** A load attempt failed (stream could not be opened): arm the retry loop. */
+  /** A load attempt failed (stream could not be opened): arm the retry loop and timeout. */
   fun onLoadFailed() {
+    timedOut = false
     if (active && shouldReload()) {
       schedule()
+      scheduleTimeout()
     }
   }
 
   /** A load attempt succeeded: disarm — a healthy stream is left alone. */
   fun onLoadSuccess() {
     cancel()
+    cancelTimeout()
+    timedOut = false
   }
 
   /** The control connection is Connected (robot reachable): reload right away if needed. */
   fun onControlConnected() {
+    timedOut = false
     if (active && shouldReload()) {
       reload()
     }
@@ -74,6 +90,7 @@ class VideoRetryController(
   // pending callback, so no liveness re-checks are needed (a healthy stream is skipped by the
   // shouldReload gate anyway).
   private fun onTick() {
+    if (timedOut) return
     if (shouldReload()) {
       reload()
     }
@@ -81,6 +98,7 @@ class VideoRetryController(
   }
 
   private fun schedule() {
+    if (timedOut) return
     mainHandler.removeCallbacks(tick)
     mainHandler.postDelayed(tick, retryIntervalMs)
   }
@@ -89,8 +107,19 @@ class VideoRetryController(
     mainHandler.removeCallbacks(tick)
   }
 
+  private fun scheduleTimeout() {
+    mainHandler.removeCallbacks(timeoutRunnable)
+    mainHandler.postDelayed(timeoutRunnable, loadTimeoutMs)
+  }
+
+  private fun cancelTimeout() {
+    mainHandler.removeCallbacks(timeoutRunnable)
+  }
+
   companion object {
     /** 5 s tick + ≤ 5 s connect timeout keeps the 10 s recovery budget. */
     const val DEFAULT_RETRY_INTERVAL_MS = 5000L
+    /** After 10 s without a successful load, stop retrying and inform the UI. */
+    const val DEFAULT_LOAD_TIMEOUT_MS = 10_000L
   }
 }
