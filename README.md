@@ -5,22 +5,12 @@
 
 [![CI](https://github.com/iakov/trik-gamepad/actions/workflows/ci.yml/badge.svg)](https://github.com/iakov/trik-gamepad/actions/workflows/ci.yml)
 
-## Screenshots
+![TRIK Gamepad connected to a robot](docs/img/hud_connected.jpg)
 
-<p align="center">
-  <img src="docs/img/hud_connected.jpg" width="640" alt="Gamepad HUD connected to robot"><br>
-  <em>Connected — live video, touch pads, control buttons</em>
-</p>
+When no camera is available, the loading spinner stops after 10s and a badge
+appears:
 
-<p align="center">
-  <img src="docs/img/hud_disconnected.jpg" width="320" alt="HUD standby">
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/img/settings_main.jpg" width="240" alt="Main settings">
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/img/settings_robot.jpg" width="240" alt="Robot settings">
-  <br>
-  <em>Standby (left), app preferences (center), robot connection (right)</em>
-</p>
+![No video stream after timeout](docs/img/video_placeholder.jpg)
 
 Simple Android application that mimics a gamepad and is used to control TRIK
 robots.
