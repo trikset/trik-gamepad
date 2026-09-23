@@ -200,6 +200,8 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     environment: signed_release
     runs-on: ubuntu-latest
+    outputs:
+      can-sign: ${{ steps.sign-check.outputs.can-sign }}
     env:
       TRIK_GAMEPAD_STORE_PASSWORD: ${{ secrets.TRIK_GAMEPAD_STORE_PASSWORD }}
       TRIK_GAMEPAD_KEY_PASSWORD: ${{ secrets.TRIK_GAMEPAD_KEY_PASSWORD }}
@@ -214,7 +216,22 @@ jobs:
         env:
           TRIK_GAMEPAD_KEYSTORE_B64: ${{ secrets.TRIK_GAMEPAD_KEYSTORE_B64 }}
 
-      # Gate: sign ONLY when both passwords exist AND the keystore is at the
+      # Gate 1: the pushed tag MUST match version.properties — a release is
+      # signed/tagged by the maintainer's explicit intent; a mismatched tag
+      # (e.g. v1.0 on code at 2.5) must never become a release.
+      - name: Verify tag matches version.properties
+        shell: bash
+        run: |
+          major=$(sed -n 's/^VERSION_MAJOR=//p' version.properties)
+          minor=$(sed -n 's/^VERSION_MINOR=//p' version.properties)
+          expected="v${major}.${minor}"
+          if [ "$expected" != "${{ github.ref_name }}" ]; then
+            echo "::error::Tag ${{ github.ref_name }} does not match version.properties ($expected). Refusing to release."
+            exit 1
+          fi
+          echo "Tag matches version.properties: $expected"
+
+      # Gate 2: sign ONLY when both passwords exist AND the keystore is at the
       # project root. Any missing piece -> skip signing entirely (fall back to
       # the unsigned reproducibility build rather than fail the tag CI).
       - name: Check signing prerequisites
@@ -243,8 +260,8 @@ jobs:
         if: steps.sign-check.outputs.can-sign == 'true'
         uses: actions/upload-artifact@v7
         with:
-          # Correct versioned name, e.g. trik-gamepad-v2.44
-          name: trik-gamepad-${{ github.ref_name }}
+          # Release asset convention: trik-gamepad-<tag>-signed.apk
+          name: trik-gamepad-${{ github.ref_name }}-signed.apk
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
@@ -255,3 +272,56 @@ jobs:
             "set TRIK_GAMEPAD_STORE_PASSWORD + TRIK_GAMEPAD_KEY_PASSWORD secrets " \
             "and TRIK_GAMEPAD_KEYSTORE_B64 to build a signed release APK."
           echo "The unsigned reproducibility build (F-Droid path) still applies."
+
+  # Auto-publish the GitHub release from a signed release tag. Discipline: the
+  # annotated/signed tag carries the full release notes (prepared by the
+  # release-notes skill as release-<tag>-tag-text.md, embedded via
+  # `git tag -s -F`). Line 1 of the tag message = release title; the rest =
+  # release body (markdown). The signed APK from signed-release is attached as
+  # trik-gamepad-<tag>-signed.apk. Runs ONLY when signing succeeded.
+  publish-release:
+    name: Publish GitHub release
+    needs: [signed-release]
+    if: >-
+      startsWith(github.ref, 'refs/tags/v') &&
+      needs.signed-release.outputs.can-sign == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download signed APK
+        uses: actions/download-artifact@v7
+        with:
+          name: trik-gamepad-${{ github.ref_name }}-signed.apk
+          path: release-assets/
+
+      # Tag message -> title (head -1) + body (rest), so the release text is
+      # exactly what was reviewed and signed into the tag. Written to temp
+      # files, never interpolated through GITHUB_OUTPUT/bash directly (a `$` or
+      # double quote in the tag message would otherwise be shell-expanded).
+      - name: Extract title and body from tag
+        id: notes
+        run: |
+          git fetch origin tag ${{ github.ref_name }} --no-tags
+          git for-each-ref refs/tags/${{ github.ref_name }} --format='%(contents)' > .release-tag-text.md
+          sed -n '1p' .release-tag-text.md > .release-tag-title.md
+          sed -n '2,$p' .release-tag-text.md > .release-tag-body.md
+          if [ ! -s .release-tag-title.md ]; then
+            echo "::error::Tag ${{ github.ref_name }} has an empty message; write the release notes via git tag -F first"
+            exit 1
+          fi
+          echo "TITLE: $(cat .release-tag-title.md)"
+
+      # The release is PUBLISHED (not a draft): a signed tag push + signed APK
+      # build success is the user's explicit intent to release.
+      - name: Publish release
+        shell: bash
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "$(cat .release-tag-title.md)" \
+            --notes-file .release-tag-body.md \
+            release-assets/*.apk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
