@@ -1,0 +1,30 @@
+Categories:
+  - Connectivity
+
+License: Apache-2.0
+AuthorName: Iakov Kirilenko
+AuthorEmail: support@trikset.com
+AuthorWebSite: https://github.com/iakov
+WebSite: https://github.com/trikset/trik-gamepad
+SourceCode: https://github.com/trikset/trik-gamepad
+IssueTracker: https://github.com/trikset/trik-gamepad/issues
+Translation: https://github.com/trikset/trik-gamepad
+
+RepoType: git
+Repo: https://github.com/trikset/trik-gamepad.git
+
+Builds:
+  - versionName: '2.44'
+    versionCode: 210244
+    commit: v2.44
+    subdir: app
+    gradle:
+      - assembleRelease
+    scandelete:
+      - app/src/test/resources
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '2.44'
+CurrentVersionCode: 210244
+AntiFeatures: []

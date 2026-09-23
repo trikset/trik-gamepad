@@ -1,0 +1,1 @@
+TRIK Gamepad verwandelt Ihr Gerät in ein drahtloses Gamepad für TRIK-Roboter. Verbinden Sie sich über WLAN, steuern Sie den Roboter mit Touchpads und Tasten und sehen Sie einen Live-Videostream von der Roboterkamera.

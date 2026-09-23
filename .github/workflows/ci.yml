@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [master, 'feat/**', 'fix/**', 'refactor/**']
+    tags: ['v*']
   pull_request:
     branches: [master]
 
@@ -186,3 +187,71 @@ jobs:
           name: trik-gamepad-releaseDebug
           path: app/build/outputs/apk/releaseDebug/*.apk
           if-no-files-found: error
+
+  # Signed release APK — ONLY for tagged versions (v*). The F-Droid/reproducible
+  # contract: build.gradle signs iff BOTH passwords are set AND the keystore is
+  # present at the project root (android-keystorage.p12, gitignored). CI has
+  # no keystore, so on tag pushes the maintainer supplies it as a base64 secret
+  # (TRIK_GAMEPAD_KEYSTORE_B64); the job restores it, then builds assembleRelease
+  # only when all three conditions hold, and uploads the signed APK.
+  signed-release:
+    name: Signed release APK
+    needs: [build, instrumented]
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: signed_release
+    runs-on: ubuntu-latest
+    env:
+      TRIK_GAMEPAD_STORE_PASSWORD: ${{ secrets.TRIK_GAMEPAD_STORE_PASSWORD }}
+      TRIK_GAMEPAD_KEY_PASSWORD: ${{ secrets.TRIK_GAMEPAD_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Restore keystore from secret
+        run: |
+          if [ -n "$TRIK_GAMEPAD_KEYSTORE_B64" ]; then
+            echo "$TRIK_GAMEPAD_KEYSTORE_B64" | base64 -d > android-keystorage.p12
+          fi
+        env:
+          TRIK_GAMEPAD_KEYSTORE_B64: ${{ secrets.TRIK_GAMEPAD_KEYSTORE_B64 }}
+
+      # Gate: sign ONLY when both passwords exist AND the keystore is at the
+      # project root. Any missing piece -> skip signing entirely (fall back to
+      # the unsigned reproducibility build rather than fail the tag CI).
+      - name: Check signing prerequisites
+        id: sign-check
+        run: |
+          if [ -n "$TRIK_GAMEPAD_STORE_PASSWORD" ] && [ -n "$TRIK_GAMEPAD_KEY_PASSWORD" ] && [ -f android-keystorage.p12 ]; then
+            echo "can-sign=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "can-sign=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6.3.0
+
+      - name: Build signed release APK
+        if: steps.sign-check.outputs.can-sign == 'true'
+        run: ./gradlew assembleRelease -PpreDexEnable=false --build-cache
+
+      - name: Upload signed release APK
+        if: steps.sign-check.outputs.can-sign == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          # Correct versioned name, e.g. trik-gamepad-v2.44
+          name: trik-gamepad-${{ github.ref_name }}
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Report unsigned skip
+        if: steps.sign-check.outputs.can-sign != 'true'
+        run: |
+          echo "::warning::Signed APK skipped on tag ${{ github.ref_name }}: " \
+            "set TRIK_GAMEPAD_STORE_PASSWORD + TRIK_GAMEPAD_KEY_PASSWORD secrets " \
+            "and TRIK_GAMEPAD_KEYSTORE_B64 to build a signed release APK."
+          echo "The unsigned reproducibility build (F-Droid path) still applies."
