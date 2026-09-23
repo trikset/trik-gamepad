@@ -49,11 +49,14 @@ def _local_properties_sdk() -> str | None:
             line = line.strip()
             if line.startswith("sdk.dir"):
                 _, _, val = line.partition("=")
-                val = val.strip().replace("\\:", ":").replace("\\", "/").replace("C:", "")
-                val = val.replace("\\", "/")
-                if val.startswith("/"):
-                    val = "C:" + val
-                return val.replace("/", os.sep)
+                val = val.strip()
+                if os.name == "nt":
+                    # Windows local.properties: C:\Users\... -> C:/Users/... (drive letter kept).
+                    val = val.replace("\\:", ":").replace("\\", "/").replace("C:", "")
+                    if val.startswith("/"):
+                        val = "C:" + val
+                    val = val.replace("/", os.sep)
+                return val
     return None
 
 
@@ -61,6 +64,7 @@ def apkanalyzer() -> str:
     sdk = _local_properties_sdk() or os.environ.get("ANDROID_SDK_ROOT") or os.environ.get("ANDROID_HOME") or ""
     candidates = [
         os.path.join(sdk, "cmdline-tools", "latest", "bin", "apkanalyzer.bat"),
+        os.path.join(sdk, "cmdline-tools", "latest", "bin", "apkanalyzer"),
         shutil.which("apkanalyzer"),
         shutil.which("apkanalyzer.bat"),
     ]
