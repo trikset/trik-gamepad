@@ -12,7 +12,6 @@
     <string name="left_pad_description">Pad gauche</string>
     <string name="right_pad_description">Pad droit</string>
     <string name="video_description">Flux vidéo du robot</string>
-    <string name="video_placeholder">Aucun flux vidéo — configurez une URI vidéo dans les paramètres</string>
     <string name="connection_status_connecting">Connexion à %1$s…</string>
     <string name="connection_status_disconnected">Toucher pour se connecter…</string>
     <string name="connection_status_disconnected_icon">⏻</string>

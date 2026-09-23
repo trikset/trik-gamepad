@@ -12,7 +12,6 @@
     <string name="left_pad_description">Bàn cảm ứng trái</string>
     <string name="right_pad_description">Bàn cảm ứng phải</string>
     <string name="video_description">Luồng video của robot</string>
-    <string name="video_placeholder">Không có luồng video — hãy đặt URI video trong Cài đặt</string>
     <string name="connection_status_connecting">Đang kết nối tới %1$s…</string>
     <string name="connection_status_disconnected">Chạm để kết nối…</string>
     <string name="connection_status_disconnected_icon">⏻</string>

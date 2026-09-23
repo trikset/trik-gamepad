@@ -12,7 +12,6 @@
     <string name="left_pad_description">Linkes Pad</string>
     <string name="right_pad_description">Rechtes Pad</string>
     <string name="video_description">Videostream des Roboters</string>
-    <string name="video_placeholder">Kein Videostream — konfiguriere eine Video-URI in den Einstellungen</string>
     <string name="connection_status_connecting">Verbinde mit %1$s…</string>
     <string name="connection_status_disconnected">Zum Verbinden tippen…</string>
     <string name="connection_status_disconnected_icon">⏻</string>

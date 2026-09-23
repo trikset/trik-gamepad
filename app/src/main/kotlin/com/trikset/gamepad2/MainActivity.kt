@@ -1,5 +1,6 @@
 package com.trikset.gamepad2
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -27,6 +28,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.PreferenceManager
 import com.trikset.gamepad2.diagnostics.CrashLogStore
 import com.trikset.gamepad2.diagnostics.CrashReportDialog
+import com.trikset.gamepad2.glyphs.GlyphRendering
 import com.trikset.gamepad2.mjpeg.ScaleMode
 import com.trikset.gamepad2.video.VideoPlayer
 import com.trikset.gamepad2.video.VideoPlayerFactory
@@ -244,9 +246,7 @@ class MainActivity :
             reload = { restartVideoStream() },
             onTimeout = {
               setVideoLoading(false)
-              robotChip.setVideoStatus(VideoStatus.UNAVAILABLE)
-              findViewById<android.widget.TextView>(R.id.videoPlaceholder)?.visibility =
-                  View.VISIBLE
+              setVideoStatus(VideoStatus.UNAVAILABLE)
             },
         )
 
@@ -338,7 +338,7 @@ class MainActivity :
       // "MJPEG: reconnect-on-error").
       video.setOnStreamErrorListener {
         runOnUiThread {
-          robotChip.setVideoStatus(VideoStatus.UNAVAILABLE)
+          setVideoStatus(VideoStatus.UNAVAILABLE)
           videoRetryController?.onStreamError()
         }
       }
@@ -347,7 +347,7 @@ class MainActivity :
       video.setOnFirstFrameListener {
         runOnUiThread {
           setVideoLoading(false)
-          robotChip.setVideoStatus(VideoStatus.PLAYING)
+          setVideoStatus(VideoStatus.PLAYING)
         }
       }
       restartVideoStream()
@@ -402,8 +402,9 @@ class MainActivity :
     // Keep the chip eye glyph in sync with the spinner: a load in flight is LOADING, a reload of
     // a stream that WAS playing is RECONNECTING. Hiding the spinner never overrides a status
     // (the first-frame listener flips to PLAYING; an error listener flips to UNAVAILABLE).
+    // Also synchronises the center placeholder: LOADING/RECONNECTING hide the crossed-eye glyph.
     if (visible) {
-      robotChip.setVideoStatus(if (reconnecting) VideoStatus.RECONNECTING else VideoStatus.LOADING)
+      setVideoStatus(if (reconnecting) VideoStatus.RECONNECTING else VideoStatus.LOADING)
     }
   }
 
@@ -428,6 +429,38 @@ class MainActivity :
     runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_LONG).show() }
   }
 
+  /**
+   * Single authority for the video-stream status: keeps the chip eye and the center placeholder in
+   * lock-step. Every status transition MUST go through here — a call site that pokes
+   * [android.widget.ProgressBar]robotChip only desyncs the two indicators (see DECISIONS.md "Center
+   * placeholder vs chip eye").
+   */
+  private fun setVideoStatus(status: VideoStatus) {
+    robotChip.setVideoStatus(status)
+    updateVideoPlaceholder(status)
+  }
+
+  /**
+   * Shows the crossed-eye glyph placeholder when video content is absent (DISABLED or UNAVAILABLE)
+   * and hides it for all other states (LOADING, PLAYING, RECONNECTING). The corner chip eye is the
+   * precise status indicator; the center badge is a glance "no video" signal. Synchronised with
+   * every [robotChip.setVideoStatus] call site (see DESIGN.md "Center placeholder vs chip eye").
+   */
+  @SuppressLint("SetTextI18n") // glyph is an icon, not localisable text
+  private fun updateVideoPlaceholder(status: VideoStatus) {
+    val placeholder = findViewById<android.widget.TextView>(R.id.videoPlaceholder)
+    if (status == VideoStatus.DISABLED || status == VideoStatus.UNAVAILABLE) {
+      placeholder?.let {
+        it.text = VideoSourceChip.NONE.glyph
+        GlyphRendering.configure(it)
+        it.setTextSize(VIDEO_PLACEHOLDER_TEXT_SIZE)
+        it.visibility = View.VISIBLE
+      }
+    } else {
+      placeholder?.visibility = View.GONE
+    }
+  }
+
   override fun animatePadsAlpha(alpha: Float, previousAlpha: Float) {
     padsAlphaBase = alpha
     // Single alpha authority: applyHudTone recomputes the final alpha from the connection state,
@@ -436,6 +469,7 @@ class MainActivity :
     applyHudTone(senderViewModel.connectionState.value)
   }
 
+  @SuppressLint("SetTextI18n") // glyph is an icon, not localisable text
   override fun setVideoUrl(url: String?) {
     videoUrl = url
     // Replace the running player: stop + release the previous one before building the new one. A
@@ -451,9 +485,8 @@ class MainActivity :
       previous.setOnFirstFrameListener(null)
       previous.release()
     }
-    findViewById<android.widget.TextView>(R.id.videoPlaceholder)?.visibility =
-        if (url == null) View.VISIBLE else View.GONE
-    robotChip.setVideoStatus(if (url == null) VideoStatus.DISABLED else VideoStatus.LOADING)
+    val status = if (url == null) VideoStatus.DISABLED else VideoStatus.LOADING
+    setVideoStatus(status)
     video =
         VideoPlayerFactory.create(
             url,
@@ -584,6 +617,8 @@ class MainActivity :
     const val HIDE_DELAY_MS = 3000L
     const val WHEEL_STEP_DEFAULT = 7
     const val ERROR_SUFFIX = " error."
+    /** Crossed-eye placeholder glyph size (sp). */
+    const val VIDEO_PLACEHOLDER_TEXT_SIZE = 48f
     // Type 1 HUD: controls opacity while not Connected (see applyHudTone).
     const val CONTROLS_DIM_ALPHA = 0.4f
   }

@@ -912,13 +912,39 @@ class MainActivityTest : RobolectricTestBase() {
     assertEquals("chip margin unchanged", chipStart, newChipStart)
   }
 
-  @Test
-  fun streamErrorDuringResumeShouldReportUnavailable() {
+  /** Sets up a stream error with a [StubVideoPlayer] and returns the placeholder. */
+  private fun triggerPlaceholderSetup(nullRetryController: Boolean): android.widget.TextView {
     val player = StubVideoPlayer()
     setField(activity, "video", player)
+    if (nullRetryController) setField(activity, "videoRetryController", null)
     method(activity, "onResume").invoke(activity)
     player.triggerStreamError()
     org.robolectric.shadows.ShadowLooper.idleMainLooper()
+    return activity.findViewById(R.id.videoPlaceholder)!!
+  }
+
+  @Test
+  fun streamErrorDuringResumeShouldReportUnavailable() {
+    val placeholder = triggerPlaceholderSetup(nullRetryController = false)
+    // The retry controller immediately reloads (restartVideoStream → setVideoLoading(true) →
+    // LOADING), which hides the placeholder — the brief UNAVAILABLE→VISIBLE window is overridden
+    // before the looper drains. The onTimeout path (no immediate reload) properly leaves it
+    // VISIBLE.
+    assertEquals(
+        "stream error triggers reload which hides placeholder (LOADING)",
+        View.GONE,
+        placeholder.visibility,
+    )
+  }
+
+  @Test
+  fun streamErrorWithNullRetryControllerShouldShowPlaceholder() {
+    val placeholder = triggerPlaceholderSetup(nullRetryController = true)
+    assertEquals(
+        "stream error without retry must show the crossed-eye glyph",
+        View.VISIBLE,
+        placeholder.visibility,
+    )
   }
 
   @Test
@@ -929,6 +955,50 @@ class MainActivityTest : RobolectricTestBase() {
     method(activity, "onResume").invoke(activity)
     player.triggerStreamError()
     org.robolectric.shadows.ShadowLooper.idleMainLooper()
+  }
+
+  @Test
+  fun firstFrameShouldHideVideoPlaceholder() {
+    val placeholder = triggerPlaceholderSetup(nullRetryController = true)
+    assertEquals("stream error must show the glyph first", View.VISIBLE, placeholder.visibility)
+    val player = field(activity, "video") as StubVideoPlayer
+    player.triggerFirstFrame()
+    org.robolectric.shadows.ShadowLooper.idleMainLooper()
+    assertEquals("first frame must hide the placeholder", View.GONE, placeholder.visibility)
+  }
+
+  @Test
+  fun disabledVideoUrlShouldSetGlyphText() {
+    val placeholder = activity.findViewById<android.widget.TextView>(R.id.videoPlaceholder)!!
+    setPref(SettingsFragment.SK_VIDEO_URI, "")
+    assertEquals(
+        "setVideoUrl(null) must show the crossed-eye glyph",
+        View.VISIBLE,
+        placeholder.visibility,
+    )
+    assertEquals("placeholder must use the NONE glyph", "\uDB80\uDE09", placeholder.text.toString())
+  }
+
+  @Test
+  fun reconnectingShouldHidePlaceholder() {
+    val placeholder = triggerPlaceholderSetup(nullRetryController = true)
+    assertEquals("UNAVAILABLE must show the glyph first", View.VISIBLE, placeholder.visibility)
+
+    // RECONNECTING → placeholder must hide.
+    val setVideoLoading =
+        method(
+            activity,
+            "setVideoLoading",
+            Boolean::class.javaPrimitiveType!!,
+            Boolean::class.javaPrimitiveType!!,
+        )
+    setVideoLoading.invoke(activity, true, true)
+    org.robolectric.shadows.ShadowLooper.idleMainLooper()
+    assertEquals(
+        "RECONNECTING must hide the center glyph so the reconnecting pill is the sole indicator",
+        View.GONE,
+        placeholder.visibility,
+    )
   }
 
   /** Builds a SensorEvent of [type] via the modern SensorEventBuilder API. */
@@ -957,11 +1027,19 @@ private class StubVideoPlayer : VideoPlayer {
     streamErrorListener = listener
   }
 
-  override fun setOnFirstFrameListener(listener: (() -> Unit)?) {}
+  override fun setOnFirstFrameListener(listener: (() -> Unit)?) {
+    firstFrameListener = listener
+  }
 
   override fun release() {}
 
   fun triggerStreamError() {
     streamErrorListener?.invoke()
   }
+
+  fun triggerFirstFrame() {
+    firstFrameListener?.invoke()
+  }
+
+  var firstFrameListener: (() -> Unit)? = null
 }

@@ -12,7 +12,6 @@
     <string name="left_pad_description">Left pad</string>
     <string name="right_pad_description">Right pad</string>
     <string name="video_description">Robot video stream</string>
-    <string name="video_placeholder">No video stream — configure a video URI in Settings</string>
     <string name="connection_status_connecting">Connecting to %1$s…</string>
     <string name="connection_status_disconnected">Tap to connect…</string>
     <!-- Symbol-only HUD: the status pill renders a glyph, not text; the spoken strings above are
