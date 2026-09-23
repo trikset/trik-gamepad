@@ -17,8 +17,7 @@ the same command works on Windows and POSIX, and CI invokes them the same way.
   clone. But **no goldplating**: implement what the task needs, nothing more.
 - **Doc header + UTF-8.** Every script starts with a `#!/usr/bin/env python3`
   - a docstring that says what it does, when to use it, and how (usage
-    examples). Sources are UTF-8 (no BOM; `strip_bom` was a recovery, never a
-    routine step).
+    examples). Sources are UTF-8 (no BOM).
 - **Gate + CI.** `scripts/gate.py` is the canonical local quality gate; the
   steps it runs are mirrored in `.github/workflows/ci.yml` (keep both in
   sync). Pre-commit hooks live in `.pre-commit-config.yaml` and call scripts
@@ -40,17 +39,6 @@ the same command works on Windows and POSIX, and CI invokes them the same way.
 | `check_translations.py` | Enforce key/format parity across all 5 locales (`--sync`, in gate/CI); `--back-translate` for one-off semantic review | in gate.py + CI; ad-hoc semantic check |
 | `check_xml_comments.py` | Reject `--` inside XML comments (aapt2 hard-fails) | pre-commit hook |
 | `check_device_identifiers.py` | Reject device serials / model codes / IMEIs in committed content | pre-commit hook + gate.py + CI |
-| `export_readme_screenshot.py` | Export the README hero screenshot from the HudThemeTest render (`--check` verifies freshness) | before release / HUD changes |
-| `build_symbol_font.py` | Regenerate the bundled HUD symbol font (DejaVuSansMono Nerd Font subset) | when the glyph set changes |
-| `glyph_metrics.py` | Rasterize the bundled font (Pillow) and emit per-glyph `visualHeightEm`/`medianBiasEm` metrics (Kotlin `GlyphMetrics` or `--print`) | when the glyph set changes (wired into `build_symbol_font.py`) |
-| `measure_glyph_row.py` | Measure a row of glyph buttons' VISUAL ink alignment (weighted median + 90% band per button) from a uiautomator dump + screenshot | on-device verification of `GlyphRow` / video-source preset chips |
-| `png_census.py` | **Pixel-census / pixel-diff** of UI screenshots (pure Python PNG decode; no PIL) — verify "the look changed" or "video is live" by pixels, not eyeballing | any UI screenshot proof (AGENTS.md pixel-census guardrail) |
-| `jacoco_report.py` | Summarize the JaCoCo report — global counters + per-class missed branches (`totals`) and exact uncovered lines (`lines`) | when the coverage gate fails or a feature adds app classes |
-| `ci_failures.py` | Which job/step failed in a `gh run`? (avoids the PowerShell `--jq` quoting trap) | the "check CI" loop after every push |
-| `ui_dump_parse.py` | Print a uiautomator dump as readable rows (id/class/desc/text/bounds) with a `--filter` | reading the view tree + deriving tap bounds-centre |
-| `dummy_gamepad.py` | Interactive/batch protocol-tracking gamepad client (TCP/UDP): logs every outbound command + inbound line, `wait <ms>`, `--batch "c1;c2"` for scripting | probing DummyRobotServer / a robot's control port |
-| `strip_bom.py` | Remove a UTF-8 BOM from files (PS rewrites drop BOMs — hit C24) | after a PowerShell `Set-Content`/`Out-File` rewrite touched sources |
-| `refresh_kotlin_ls.py` | Check the opencode kotlin-ls JetBrains EAP build age (`majorVersionReleaseDate` in `product-info.json`) and exit 1 when it's nearing expiry; `--refresh` downloads + installs the latest from the VS Code Marketplace | session init (AGENTS.md kotlin-ls expiry guard); when the LSP silently fails |
 | `pr_gate.py` | Pre-upstream-PR APK quality gate: 7 checks via apkanalyzer (density completeness, dex refs, permissions, size, large blobs) | before creating a pull request to upstream trikset/trik-gamepad; after `assembleReleaseDebug` |
 | `version_manager.py` | **Single source of truth for the app version** (`version.properties`): `check` verifies version.properties ≡ fastlane/F-Droid metadata (and the built APK); `bump [minor]` bumps VERSION_MINOR and syncs the fastlane yml; `--dry-run` previews | before every release — the ONLY supported way to bump the version |
 | `check_reproducibility.py` | **F-Droid reproducible build check**: builds twice without the keystore, compares the unsigned APK hashes; lock-guarded against concurrent runs | before every release (with `android.injected.build.time.zero` and keystore-free `assembleRelease`) |
