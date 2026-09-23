@@ -14,7 +14,6 @@
     <string name="left_pad_description">Левая площадка</string>
     <string name="right_pad_description">Правая площадка</string>
     <string name="video_description">Видеопоток робота</string>
-    <string name="video_placeholder">Видеопоток отсутствует — укажите URI видео в настройках</string>
     <string name="connection_status_connecting">Подключение к %1$s…</string>
     <string name="connection_status_disconnected">Нажмите, чтобы подключиться…</string>
     <string name="connection_status_disconnected_icon">⏻</string>
