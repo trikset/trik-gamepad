@@ -8,21 +8,29 @@ plugins {
 }
 
 def abiCode = 0 // just for fun
-def appMajorVersion = 2 // single digit for each SDK/ABI
-def appMinorVersion = 44 // two digits for each major version
+
+// Version is single-sourced from ../version.properties (repo root). Bump via
+// `uv run python scripts/version_manager.py bump [minor]`, not by hand.
+def versionProps = new Properties()
+rootProject.file('version.properties').withInputStream { versionProps.load(it) }
+def appMajorVersion = Integer.parseInt(versionProps.getProperty('VERSION_MAJOR'))
+def appMinorVersion = Integer.parseInt(versionProps.getProperty('VERSION_MINOR'))
 def appVersionName = "${appMajorVersion}.${appMinorVersion}-API${21}"
 
-// The signing keystore deliberately lives OUTSIDE the repo workdir (one level
-// above the repo root, next to the checkout). It is gitignored via **/*.p12 and
-// never enters CI. Debug builds in CI fall back to the auto-generated debug
-// keystore; release signing stays local-only and keystore-gated.
-def keystoreFile = file('../../android-keystorage.p12')
+// The signing keystore is gitignored (**/*.p12) and never enters the repo.
+// When present at the project root — a real file locally or a base64 secret
+// restored by the release CI job — release is signed; F-Droid/CI without it
+// build unsigned (reproducible, F-Droid re-signs or ships the developer-signed
+// APK). Everything below gates on keystore existence.
+def keystoreFile = file('../android-keystorage.p12')
 
 android {
     signingConfigs {
         config {
             keyAlias 'gamepad'
             storeFile keystoreFile
+            storePassword System.getenv("TRIK_GAMEPAD_STORE_PASSWORD") ?: ""
+            keyPassword System.getenv("TRIK_GAMEPAD_KEY_PASSWORD") ?: ""
         }
     }
     compileSdk 36
@@ -52,7 +60,11 @@ android {
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             debuggable false
-            signingConfig = signingConfigs.config
+            // Only sign with the local keystore when it actually exists:
+            // F-Droid/CI rebuild from source without it (reproducible, unsigned).
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.config
+            }
         }
         releaseDebug {
             minifyEnabled false
@@ -116,7 +128,7 @@ android {
 androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         variant.outputs.forEach { output ->
-            output.outputFileName.set("TRIKGamepad-${appVersionName}-${variant.name}")
+            output.outputFileName.set("TRIKGamepad-${appVersionName}-${variant.name}.apk")
         }
     }
 }

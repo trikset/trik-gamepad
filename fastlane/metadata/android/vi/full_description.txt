@@ -1,0 +1,1 @@
+TRIK Gamepad biến thiết bị của bạn thành gamepad không dây cho robot TRIK. Kết nối qua Wi-Fi, điều khiển robot bằng bàn di chuột và các nút bấm, xem luồng video trực tiếp từ camera của robot.

@@ -7,6 +7,7 @@
     <uses-feature android:name="android.hardware.touchscreen.multitouch.distinct" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
     <uses-feature android:name="android.hardware.gamepad" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi" android:required="true" />
 
     <!-- Package visibility: ReportSharer probes for text editors handling the
          report file (ACTION_EDIT + text/plain) to decide between the

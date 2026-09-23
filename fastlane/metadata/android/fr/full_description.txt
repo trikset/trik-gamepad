@@ -1,0 +1,1 @@
+TRIK Gamepad transforme votre appareil en une manette sans fil pour les robots TRIK. Connectez-vous en Wi-Fi, contrôlez le robot avec des pavés tactiles et des boutons, et regardez un flux vidéo en direct depuis la caméra du robot.

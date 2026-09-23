@@ -53,6 +53,7 @@ the same command works on Windows and POSIX, and CI invokes them the same way.
 | `refresh_kotlin_ls.py` | Check the opencode kotlin-ls JetBrains EAP build age (`majorVersionReleaseDate` in `product-info.json`) and exit 1 when it's nearing expiry; `--refresh` downloads + installs the latest from the VS Code Marketplace | session init (AGENTS.md kotlin-ls expiry guard); when the LSP silently fails |
 | `pr_gate.py` | Pre-upstream-PR APK quality gate: 7 checks via apkanalyzer (density completeness, dex refs, permissions, size, large blobs) | before creating a pull request to upstream trikset/trik-gamepad; after `assembleReleaseDebug` |
 | `version_manager.py` | **Single source of truth for the app version** (`version.properties`): `check` verifies version.properties ≡ fastlane/F-Droid metadata (and the built APK); `bump [minor]` bumps VERSION_MINOR and syncs the fastlane yml; `--dry-run` previews | before every release — the ONLY supported way to bump the version |
+| `check_reproducibility.py` | **F-Droid reproducible build check**: builds twice without the keystore, compares the unsigned APK hashes; lock-guarded against concurrent runs | before every release (with `android.injected.build.time.zero` and keystore-free `assembleRelease`) |
 
 ## New-script workflow
 
