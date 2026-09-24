@@ -63,9 +63,22 @@ def read_version() -> Version:
         k, _, v = line.partition("=")
         props[k.strip()] = v.strip()
     try:
-        return Version(int(props["VERSION_MAJOR"]), int(props["VERSION_MINOR"]))
+        version = Version(int(props["VERSION_MAJOR"]), int(props["VERSION_MINOR"]))
     except (KeyError, ValueError) as e:
         sys.exit(f"version_manager: bad {VERSION_PROPS}: {e}")
+    # Verify stored VERSION_CODE matches the computed one (F-Droid reads it
+    # via UpdateCheckData). Warn — don't hard-fail — for the transient state
+    # where VERSION_CODE hasn't been added yet.
+    if "VERSION_CODE" in props:
+        stored = int(props["VERSION_CODE"])
+        if stored != version.code:
+            print(
+                f"WARNING: {VERSION_PROPS} VERSION_CODE={stored} != computed "
+                f"versionCode={version.code} — run `bump` to sync."
+            )
+    else:
+        print(f"WARNING: VERSION_CODE missing in {VERSION_PROPS}")
+    return version
 
 
 def parse_fastlane() -> dict[str, str | None]:
@@ -99,16 +112,20 @@ def write_fastlane(version: Version) -> None:
     FASTLANE_YML.write_text(text, encoding="utf-8")
 
 
-def set_minor(minor: int) -> None:
-    """Write VERSION_MINOR into version.properties, preserving the header."""
-    lines = VERSION_PROPS.read_text(encoding="utf-8").splitlines(keepends=True)
-    for i, line in enumerate(lines):
-        if line.startswith("VERSION_MINOR="):
-            lines[i] = f"VERSION_MINOR={minor}\n"
-            break
+def write_version_props(version: Version) -> None:
+    """Rewrite VERSION_MINOR and VERSION_CODE in version.properties."""
+    text = VERSION_PROPS.read_text(encoding="utf-8")
+    text, n1 = re.subn(r"^VERSION_MINOR=\d+", f"VERSION_MINOR={version.minor}", text, count=1, flags=re.MULTILINE)
+    if n1 != 1:
+        sys.exit(f"version_manager: cannot find VERSION_MINOR in {VERSION_PROPS}")
+    has_code = re.search(r"^VERSION_CODE=", text, re.MULTILINE)
+    if has_code:
+        text, n2 = re.subn(r"^VERSION_CODE=\d+", f"VERSION_CODE={version.code}", text, count=1, flags=re.MULTILINE)
+        if n2 != 1:
+            sys.exit(f"version_manager: cannot update VERSION_CODE in {VERSION_PROPS}")
     else:
-        sys.exit(f"version_manager: VERSION_MINOR missing in {VERSION_PROPS}")
-    VERSION_PROPS.write_text("".join(lines), encoding="utf-8")
+        text += f"VERSION_CODE={version.code}\n"
+    VERSION_PROPS.write_text(text, encoding="utf-8")
 
 
 def cmd_check(_args) -> int:
@@ -176,7 +193,7 @@ def cmd_bump(args) -> int:
     print(f"new:     {new}")
 
     if not args.dry_run:
-        set_minor(new_minor)
+        write_version_props(new)
         write_fastlane(new)
         print(f"\nWrote {VERSION_PROPS.name} and {FASTLANE_YML.relative_to(ROOT)}")
     else:
