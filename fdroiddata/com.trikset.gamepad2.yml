@@ -20,13 +20,13 @@ Repo: https://github.com/trikset/trik-gamepad.git
 UpdateCheckMode: Tags ^v\d+\.\d+$
 UpdateCheckData: version.properties|^VERSION_CODE=(\d+)|.|
 AutoUpdateMode: Version
-CurrentVersion: '2.44'
-CurrentVersionCode: 210244
+CurrentVersion: '2.45'
+CurrentVersionCode: 210245
 
 Builds:
-  - versionName: '2.44'
-    versionCode: 210244
-    commit: v2.44
+  - versionName: '2.45'
+    versionCode: 210245
+    commit: v2.45
     subdir: app
     gradle:
       - yes
