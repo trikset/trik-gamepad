@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 VERSION_PROPS = ROOT / "version.properties"
 BUILD_GRADLE = ROOT / "app" / "build.gradle"
 FASTLANE_YML = ROOT / "fastlane" / "metadata" / "com.trikset.gamepad2.yml"
+FDROID_YML = ROOT / "fdroiddata" / "com.trikset.gamepad2.yml"
 
 MIN_SDK = 21  # mirrors app/build.gradle defaultConfig.minSdk
 ABI_CODE = 0  # mirrors app/build.gradle `def abiCode = 0`
@@ -94,9 +95,9 @@ def parse_fastlane() -> dict[str, str | None]:
     return {k: (m.group(1) if m else None) for k, m in fields.items()}
 
 
-def write_fastlane(version: Version) -> None:
-    """Rewrite version-dependent lines of the yml in place (line-based, safe)."""
-    text = FASTLANE_YML.read_text(encoding="utf-8")
+def _apply_version(yml_path: Path, version: Version) -> None:
+    """Rewrite version-dependent lines of a YAML file in place."""
+    text = yml_path.read_text(encoding="utf-8")
     replacements = [
         (r"versionName:\s*'[^']+'", f"versionName: '{version.name}'"),
         (r"versionCode:\s*\d+", f"versionCode: {version.code}"),
@@ -107,9 +108,15 @@ def write_fastlane(version: Version) -> None:
     for pattern, replacement in replacements:
         new_text, n = re.subn(pattern, replacement, text, count=1)
         if n != 1:
-            sys.exit(f"version_manager: cannot update {FASTLANE_YML} ({pattern})")
+            sys.exit(f"version_manager: cannot update {yml_path} ({pattern})")
         text = new_text
-    FASTLANE_YML.write_text(text, encoding="utf-8")
+    yml_path.write_text(text, encoding="utf-8")
+
+
+def write_fastlane(version: Version) -> None:
+    _apply_version(FASTLANE_YML, version)
+    if FDROID_YML.exists():
+        _apply_version(FDROID_YML, version)
 
 
 def write_version_props(version: Version) -> None:
