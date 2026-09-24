@@ -7,14 +7,13 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
-def abiCode = 0 // just for fun
-
 // Version is single-sourced from ../version.properties (repo root). Bump via
 // `uv run python scripts/version_manager.py bump [minor]`, not by hand.
 def versionProps = new Properties()
 rootProject.file('version.properties').withInputStream { versionProps.load(it) }
 def appMajorVersion = Integer.parseInt(versionProps.getProperty('VERSION_MAJOR'))
 def appMinorVersion = Integer.parseInt(versionProps.getProperty('VERSION_MINOR'))
+def appVersionCode = Integer.parseInt(versionProps.getProperty('VERSION_CODE'))
 def appVersionName = "${appMajorVersion}.${appMinorVersion}-API${21}"
 
 // The signing keystore is gitignored (**/*.p12) and never enters the repo.
@@ -39,7 +38,7 @@ android {
         minSdk 21
         targetSdk 36
         maxSdk compileSdk
-        versionCode (minSdk * 10000 + abiCode * 1000 +  appMajorVersion * 100  + appMinorVersion)
+        versionCode appVersionCode
         versionName ('' + appMajorVersion + '.' + appMinorVersion)
         versionNameSuffix ('-API' + minSdk)
         resourceConfigurations += ['en', 'ru', 'fr', 'de', 'vi']

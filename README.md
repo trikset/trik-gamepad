@@ -20,6 +20,9 @@ gamepad, or phone tilt.
 Available in English, Russian, French, German and Vietnamese (follows the
 system language).
 
+The app respects your privacy — it works fully offline, needs no account,
+and collects no data. Read the [Privacy Policy](PRIVACY.md) for details.
+
 On large-screen Android 16 devices (tablets, foldables, and desktop windows —
 screens with the smaller side at least 600 dp), Android ignores the app's
 landscape lock, so the gamepad can appear rotated or stretched. To keep the
