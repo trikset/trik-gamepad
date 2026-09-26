@@ -1,32 +1,29 @@
 Categories:
   - Connectivity
 License: Apache-2.0
-WebSite: https://github.com/trikset/trik-gamepad
 SourceCode: https://github.com/trikset/trik-gamepad
 IssueTracker: https://github.com/trikset/trik-gamepad/issues
 Changelog: https://github.com/trikset/trik-gamepad/releases
 
 AutoName: TRIK Gamepad
-Description: |-
-  Turn your phone or tablet into a gamepad to control a TRIK robot.
-  Connect over Wi-Fi, drive with touchpads or phone tilt, trigger
-  actions with buttons, and see live video from the robot's camera.
-  No account, no internet — just your local Wi-Fi to the robot.
 
-  Available in English, Russian, French, German and Vietnamese.
 RepoType: git
 Repo: https://github.com/trikset/trik-gamepad.git
-
-UpdateCheckMode: Tags ^v\d+\.\d+$
-UpdateCheckData: version.properties|^VERSION_CODE=(\d+)|.|
-AutoUpdateMode: Version
-CurrentVersion: '2.45'
-CurrentVersionCode: 210245
+Binaries: 
+  https://github.com/trikset/trik-gamepad/releases/download/v%v/TRIKGamepad-%v-API21-release.apk
 
 Builds:
-  - versionName: '2.45'
-    versionCode: 210245
-    commit: v2.45
+  - versionName: '2.46'
+    versionCode: 210246
+    commit: v2.46
     subdir: app
     gradle:
       - yes
+
+AllowedAPKSigningKeys: 72febae48abf5162c1b82bf17d02ae6f0a3730fae3f375e9546eeee7c4047fa3
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v\d+\.\d+$
+UpdateCheckData: version.properties|VERSION_CODE=(\d+)|.|
+CurrentVersion: '2.46'
+CurrentVersionCode: 210246

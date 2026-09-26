@@ -1,0 +1,2 @@
+-Privacy policy linked from the project page.
+-F-Droid store readiness: metadata cleanup, reproducible build verification.

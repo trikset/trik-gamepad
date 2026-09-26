@@ -23,6 +23,7 @@ Usage examples:
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -31,6 +32,7 @@ VERSION_PROPS = ROOT / "version.properties"
 BUILD_GRADLE = ROOT / "app" / "build.gradle"
 FASTLANE_YML = ROOT / "fastlane" / "metadata" / "com.trikset.gamepad2.yml"
 FDROID_YML = ROOT / "fdroiddata" / "com.trikset.gamepad2.yml"
+CHANGELOG_DIR = ROOT / "fastlane" / "metadata" / "android" / "en-US" / "changelogs"
 
 MIN_SDK = 21  # mirrors app/build.gradle defaultConfig.minSdk
 ABI_CODE = 0  # mirrors app/build.gradle `def abiCode = 0`
@@ -135,6 +137,60 @@ def write_version_props(version: Version) -> None:
     VERSION_PROPS.write_text(text, encoding="utf-8")
 
 
+def check_fdroiddata(version: Version) -> list[str]:
+    """Validate fdroiddata/build metadata. Returns list of issues (empty = ok)."""
+    issues: list[str] = []
+    if not FDROID_YML.exists():
+        issues.append(f"fdroiddata YAML not found at {FDROID_YML}")
+        return issues
+
+    text = FDROID_YML.read_text(encoding="utf-8")
+
+    # 1. Valid YAML
+    try:
+        import yaml as _y  # noqa: F401
+        import yaml
+        yaml.safe_load(text)
+    except Exception as e:
+        issues.append(f"fdroiddata YAML parse error: {e}")
+
+    # 2. AllowedAPKSigningKeys present
+    if "AllowedAPKSigningKeys:" not in text:
+        issues.append("fdroiddata: missing AllowedAPKSigningKeys")
+
+    # 3. Binaries present
+    if "Binaries:" not in text:
+        issues.append("fdroiddata: missing Binaries")
+
+    # 4. commit: uses full SHA (not tag/branch) — warn for ref copy
+    m = re.search(r"commit:\s*(\S+)", text)
+    if m:
+        sha = m.group(1)
+        if re.match(r"^v?\d+\.\d+$", sha) or "/" in sha:
+            print("  WARNING: fdroiddata commit uses tag/branch '{0}' — "
+                  "replace with full SHA before submitting to fdroiddata".format(sha))
+
+    # 5. UpdateCheckData regex: no ^ anchor (fdroidserver uses re.MULTILINE=False)
+    m = re.search(r"UpdateCheckData:\s*\S+\|(\^?)([^|]+)", text)
+    if m and m.group(1) == "^":
+        issues.append("fdroiddata: UpdateCheckData regex starts with ^ — fdroidserver "
+                      "compiles without re.MULTILINE, so ^ matches only the file start")
+
+    # 6. No Description / Summary in fdroiddata (they go in upstream fastlane)
+    for field in ("Description:", "Summary:"):
+        if re.search(rf"^{field}", text, re.MULTILINE):
+            issues.append(f"fdroiddata: {field} should be removed — "
+                          "lives in upstream repo's fastlane metadata, not in fdroiddata")
+
+    # 7. Changelog for current versionCode exists
+    changelog = CHANGELOG_DIR / f"{version.code}.txt"
+    if not changelog.exists():
+        issues.append(f"missing changelog: {changelog.relative_to(ROOT)} "
+                      "(create it before release)")
+
+    return issues
+
+
 def cmd_check(_args) -> int:
     version = read_version()
     print(f"version.properties: {version}")
@@ -164,29 +220,37 @@ def cmd_check(_args) -> int:
         built_vc, built_vn = element["versionCode"], element["versionName"]
         built_name = built_vn.removesuffix(f"-API{MIN_SDK}")
         ok = built_vc == version.code and built_name == version.name
-        print(f"  built APK: versionCode={built_vc} versionName={built_vn} "
-              f"{'OK' if ok else 'MISMATCH'}")
+        print(f"  built APK: versionCode={built_vc} versionName={built_vn} {'OK' if ok else 'MISMATCH'}")
         if not ok:
             issues.append(f"built APK versionCode/versionName != {version.name}")
 
     # Tag advisory: vX.Y exists? (During development it may legitimately not.)
-    import subprocess
-
     tags = subprocess.run(
         ["git", "tag", "--list", f"v{version.name}"],
-        cwd=ROOT, capture_output=True, text=True,
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
     ).stdout.strip()
-    print(f"  git tag v{version.name}: "
-          f"{'exists' if tags else 'NOT TAGGED yet (normal during development)'}")
+    print(f"  git tag v{version.name}: {'exists' if tags else 'NOT TAGGED yet (normal during development)'}")
+
+    # F-Droid metadata validation
+    print()
+    fd_issues = check_fdroiddata(version)
+    if fd_issues:
+        print("F-Droid metadata issues:")
+        for i in fd_issues:
+            print(f"  - {i}")
+            issues.append(i)
+    else:
+        print("fdroiddata metadata: OK")
 
     if issues:
         print("\nFAIL: version drift detected:")
         for issue in issues:
             print(f"  - {issue}")
-        print("Run `uv run python scripts/version_manager.py bump --dry-run` "
-              "to preview a sync, or fix manually.")
+        print("Run `uv run python scripts/version_manager.py bump --dry-run` to preview a sync, or fix manually.")
         return 1
-    print("\nOK: all version consumers agree.")
+    print("\nOK: all consumers agree, fdroiddata metadata valid.")
     return 0
 
 
@@ -207,10 +271,11 @@ def cmd_bump(args) -> int:
         print("\n[--dry-run] no files changed.")
 
     print("\nNext steps:")
-    print(f"  1. uv run python scripts/version_manager.py check")
-    print(f"  2. ./gradlew test  (or full gate: uv run python scripts/gate.py)")
-    print(f"  3. uv run python scripts/check_reproducibility.py  (F-Droid gate)")
-    print(f"  4. git tag -s v{new.name} HEAD   # after the release commit")
+    print("  1. uv run python scripts/version_manager.py check")
+    print("  2. ./gradlew test  (or full gate: uv run python scripts/gate.py)")
+    print("  3. uv run python scripts/check_reproducibility.py  (F-Droid gate)")
+    print(f"  4. git tag -s v{new.name} upstream/master")
+    print(f"  5. git push upstream v{new.name}")
     return 0
 
 
@@ -227,11 +292,15 @@ def main(argv: list[str] | None = None) -> int:
 
     p_bump = sub.add_parser("bump", help="bump VERSION_MINOR and sync metadata")
     p_bump.add_argument(
-        "minor", type=int, nargs="?", default=None,
+        "minor",
+        type=int,
+        nargs="?",
+        default=None,
         help="new minor (default: current + 1), e.g. 45",
     )
     p_bump.add_argument(
-        "--dry-run", action="store_true",
+        "--dry-run",
+        action="store_true",
         help="show what would change without writing any file",
     )
     p_bump.set_defaults(func=cmd_bump)
