@@ -1,0 +1,40 @@
+# F-Droid submission metadata template for TRIK Gamepad
+#
+# Before submitting to fdroiddata, generate the actual file with:
+#   VERSION_NAME=2.46 VERSION_CODE=210246 \
+#   COMMIT_SHA=$(git rev-parse v2.46^{commit}) \
+#   envsubst '${VERSION_NAME}${VERSION_CODE}${COMMIT_SHA}' \
+#     < fdroiddata/com.trikset.gamepad2.yml.template \
+#     > .tmp/com.trikset.gamepad2.yml
+#
+# 5 template fields change per release; everything else is static.
+
+Categories:
+  - Connectivity
+License: Apache-2.0
+SourceCode: https://github.com/trikset/trik-gamepad
+IssueTracker: https://github.com/trikset/trik-gamepad/issues
+Changelog: https://github.com/trikset/trik-gamepad/releases
+
+AutoName: TRIK Gamepad
+
+RepoType: git
+Repo: https://github.com/trikset/trik-gamepad.git
+Binaries: 
+  https://github.com/trikset/trik-gamepad/releases/download/v%v/TRIKGamepad-%c-release.apk
+
+Builds:
+  - versionName: '${VERSION_NAME}'
+    versionCode: ${VERSION_CODE}
+    commit: ${COMMIT_SHA}
+    subdir: app
+    gradle:
+      - yes
+
+AllowedAPKSigningKeys: 72febae48abf5162c1b82bf17d02ae6f0a3730fae3f375e9546eeee7c4047fa3
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v2\.(4[6-9]|[5-9]\d)$
+UpdateCheckData: version.properties|VERSION_CODE=(\d+)|.|
+CurrentVersion: '${VERSION_NAME}'
+CurrentVersionCode: ${VERSION_CODE}

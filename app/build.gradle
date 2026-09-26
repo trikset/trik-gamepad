@@ -33,6 +33,14 @@ android {
         }
     }
     compileSdk 36
+
+    dependenciesInfo {
+        // Dependency metadata block encrypted with Google Play key;
+        // F-Droid scanner flags it. We don't use Play Store, so strip it.
+        // https://developer.android.com/build/dependencies#dependency-metadata
+        includeInApk = false
+    }
+
     defaultConfig {
         applicationId "com.trikset.gamepad2"
         minSdk 21
