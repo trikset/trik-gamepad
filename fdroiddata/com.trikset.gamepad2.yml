@@ -10,7 +10,7 @@ AutoName: TRIK Gamepad
 RepoType: git
 Repo: https://github.com/trikset/trik-gamepad.git
 Binaries: 
-  https://github.com/trikset/trik-gamepad/releases/download/v%v/TRIKGamepad-%v-API21-release.apk
+  https://github.com/trikset/trik-gamepad/releases/download/v%v/TRIKGamepad-%c-release.apk
 
 Builds:
   - versionName: '2.46'

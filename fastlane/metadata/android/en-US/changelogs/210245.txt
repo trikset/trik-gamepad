@@ -1,2 +1,1 @@
--Privacy policy linked from the project page.
--Infrastructure improvements for F-Droid store readiness.
+-First F-Droid submission prepared: automated release pipeline, reproducible builds, fastlane metadata.
