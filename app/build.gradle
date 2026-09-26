@@ -14,7 +14,7 @@ rootProject.file('version.properties').withInputStream { versionProps.load(it) }
 def appMajorVersion = Integer.parseInt(versionProps.getProperty('VERSION_MAJOR'))
 def appMinorVersion = Integer.parseInt(versionProps.getProperty('VERSION_MINOR'))
 def appVersionCode = Integer.parseInt(versionProps.getProperty('VERSION_CODE'))
-def appVersionName = "${appMajorVersion}.${appMinorVersion}-API${21}"
+def appVersionName = "${appMajorVersion}.${appMinorVersion}"
 
 // The signing keystore is gitignored (**/*.p12) and never enters the repo.
 // When present at the project root — a real file locally or a base64 secret
@@ -127,7 +127,7 @@ android {
 androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         variant.outputs.forEach { output ->
-            output.outputFileName.set("TRIKGamepad-${appVersionName}-${variant.name}.apk")
+            output.outputFileName.set("TRIKGamepad-${appVersionCode}-${variant.name}.apk")
         }
     }
 }
