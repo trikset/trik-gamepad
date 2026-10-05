@@ -330,25 +330,6 @@ tasks.register('writeDummyServerClasspath') {
     }
 }
 
-// Intercept the build graph to ask for passwords before the release task runs
-gradle.taskGraph.whenReady { taskGraph ->
-    return;
-    if (taskGraph.hasTask(":app:validateSigningRelease") || taskGraph.hasTask(":app:packageRelease")) {
-        def console = System.console()
-        if (console != null) {
-            // Read passwords securely (characters will be hidden in the terminal)
-            def storePassword = new String(console.readPassword("\nEnter Keystore password: "))
-            def keyPassword = new String(console.readPassword("Enter Key password: "))
-
-            // Assign them directly to the signing config
-            android.signingConfigs.release.storePassword = storePassword
-            android.signingConfigs.release.keyPassword = keyPassword
-        } else {
-            throw new GradleException("Console not available. Run the command from an interactive terminal.")
-        }
-    }
-}
-
 dependencies {
     implementation libs.appcompat
     implementation libs.coreKtx
