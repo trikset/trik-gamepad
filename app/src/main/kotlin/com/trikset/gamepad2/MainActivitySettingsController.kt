@@ -38,6 +38,8 @@ class MainActivitySettingsController(
 
     var wheelEnabled: Boolean
 
+    var padSendInterval: Int
+
     fun setKeepScreenOn(enabled: Boolean)
 
     fun setMagicButtons(count: Int, symbols: List<String>, sizePercent: Int)
@@ -157,6 +159,14 @@ class MainActivitySettingsController(
     val wheelEnabled = sharedPreferences.getBoolean(SettingsFragment.SK_WHEEL_ENABLED, false)
     ui.wheelEnabled = wheelEnabled
 
+    val padSendInterval =
+        SettingsFragment.readSeekBarValue(
+            sharedPreferences,
+            SettingsFragment.SK_PAD_SEND_INTERVAL,
+            SettingsFragment.DEFAULT_PAD_SEND_INTERVAL,
+        )
+    ui.padSendInterval = padSendInterval.coerceIn(0, PAD_SEND_INTERVAL_MAX)
+
     val keepScreenOn = sharedPreferences.getBoolean(SettingsFragment.SK_KEEP_SCREEN_ON, true)
     ui.setKeepScreenOn(keepScreenOn)
 
@@ -234,6 +244,7 @@ class MainActivitySettingsController(
     // Shown in the top-left IP chip when neither a host nor a video stream is configured
     // (the chip stays readable instead of empty).
     const val TARGET_CHIP_EMPTY = "---.---.---.---"
+    const val PAD_SEND_INTERVAL_MAX = 250
 
     /** Reads the configured magic-button count (0..MAX), honoring both Int and String storage. */
     fun readMagicButtonCount(prefs: SharedPreferences): Int {

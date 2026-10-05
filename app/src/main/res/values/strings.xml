@@ -134,6 +134,8 @@
     <string name="pref_video_crop">Crop to fill screen</string>
     <string name="pref_video_crop_on">Video fills the display (edges may be cropped)</string>
     <string name="pref_video_crop_off">Video fits within the display (black bars)</string>
+    <string name="pref_pad_send_interval">Pad send rate…</string>
+    <string name="pref_pad_send_interval_summary">%1$d ms · 0 = instant; higher values reduce dropped commands on weak Wi-Fi</string>
     <string name="pref_category_hardware">Hardware gamepad</string>
     <string name="pref_gamepad_swap">Swap sticks</string>
     <string name="pref_gamepad_swap_on">Left and right sticks are swapped</string>

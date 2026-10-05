@@ -25,6 +25,9 @@ class SquareTouchPadLayout : RelativeLayout {
   private var maxX = 0f
   private var maxY = 0f
   private val touchPadController = TouchPadController()
+  private var padActive = false
+  private var sendInterval = 0
+  private var scheduledSend: Runnable? = null
 
   constructor(context: Context) : super(context) {
     init()
@@ -232,6 +235,9 @@ class SquareTouchPadLayout : RelativeLayout {
     return when (event.action) {
       MotionEvent.ACTION_UP -> {
         parent?.requestDisallowInterceptTouchEvent(false)
+        cancelSendTick()
+        padActive = false
+        touchPadController.onUp()
         send("up")
         performClick()
         // User design: one CLICK on release — the acknowledgement is stronger than the down tick
@@ -241,6 +247,9 @@ class SquareTouchPadLayout : RelativeLayout {
       }
       MotionEvent.ACTION_CANCEL -> {
         parent?.requestDisallowInterceptTouchEvent(false)
+        cancelSendTick()
+        padActive = false
+        touchPadController.onUp()
         send("up")
         performClick()
         true
@@ -248,7 +257,9 @@ class SquareTouchPadLayout : RelativeLayout {
       MotionEvent.ACTION_DOWN -> {
         parent?.requestDisallowInterceptTouchEvent(true)
         performClick()
+        padActive = true
         sendCoordinate(event)
+        if (sendInterval > 0) scheduleSendTick()
         // One light tick when a thumb lands: the "every interaction is noticeable" anchor. It is a
         // discrete per-touch event, NOT per-move feedback (the old per-move buzz was the C24
         // "queued after finger lift" noise).
@@ -268,15 +279,67 @@ class SquareTouchPadLayout : RelativeLayout {
     }
   }
 
+  /**
+   * Sets the send interval (ms) for pad position commands. 0 or less means event-driven (send
+   * immediately on every touch move). When the interval is > 0, a timer periodically polls the
+   * current position and sends it; touch moves only update the visual knob.
+   */
+  fun setSendInterval(ms: Int) {
+    sendInterval = ms
+    if (ms > 0 && padActive) {
+      scheduleSendTick()
+    } else {
+      cancelSendTick()
+    }
+  }
+
+  /**
+   * Resets the pad to its idle state: cancels the send timer, marks the pad inactive, resets the
+   * touch controller to centre, and moves the visual knob to the pad centre. Called on disconnect
+   * to prevent stale state from affecting the next touch after reconnect.
+   */
+  fun reset() {
+    cancelSendTick()
+    padActive = false
+    touchPadController.onUp()
+    setAbsXY(maxX / 2f, maxY / 2f)
+  }
+
+  private fun scheduleSendTick() {
+    cancelSendTick()
+    if (sendInterval <= 0 || !padActive) return
+    scheduledSend = Runnable { onSendTick() }
+    postDelayed(scheduledSend, sendInterval.toLong())
+  }
+
+  private fun cancelSendTick() {
+    scheduledSend?.let { removeCallbacks(it) }
+    scheduledSend = null
+  }
+
+  internal fun onSendTick() {
+    if (!padActive) return
+    val command = touchPadController.pollSend()
+    if (command != null) {
+      send(String.format(Locale.ROOT, "%d %d", command.x, command.y))
+    }
+    scheduleSendTick()
+  }
+
   private fun sendCoordinate(event: MotionEvent) {
     val x = max(0f, min(event.x, maxX))
     val y = max(0f, min(event.y, maxY))
     setAbsXY(x, y)
+    touchPadController.setPosition(x, y, maxX, maxY)
 
-    val command = touchPadController.nextCoordinates(x, y, maxX, maxY)
-    if (command != null) {
-      send(String.format(Locale.ROOT, "%d %d", command.x, command.y))
+    if (sendInterval <= 0) {
+      // Event mode: send immediately
+      val command = touchPadController.pollSend()
+      if (command != null) {
+        send(String.format(Locale.ROOT, "%d %d", command.x, command.y))
+      }
     }
+    // Timer mode: position stored via setPosition, the periodic tick sends it.
   }
 
   private inner class TouchPadListener : OnTouchListener {

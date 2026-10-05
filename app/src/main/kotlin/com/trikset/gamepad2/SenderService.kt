@@ -69,6 +69,13 @@ class SenderService(
       }
     }
 
+  /**
+   * Commands to flush through the executor before closing the transport in [disconnect]. Set by
+   * [MainActivity] to send stop commands (e.g. `pad N up`) without network I/O on the caller's
+   * thread (Android StrictMode blocks socket writes from the main thread).
+   */
+  var commandsToFlushBeforeClose: List<String> = emptyList()
+
   private var connectTask: Runnable? = null
   // internal (not private) so ConnectRunnable / KeepAliveTimer can reach them.
   internal val mainHandler = Handler(Looper.getMainLooper())
@@ -230,9 +237,17 @@ class SenderService(
 
   fun disconnect(reason: String) {
     keepAliveTimer.stop()
-    val transport = transport
-    if (transport != null) {
-      transport.close()
+    val t = transport
+    if (t != null) {
+      val cmds = commandsToFlushBeforeClose
+      if (cmds.isNotEmpty()) {
+        executor.execute {
+          cmds.forEach { t.send(it) }
+          t.close()
+        }
+      } else {
+        t.close()
+      }
       this.transport = null
       AppLog.i(TCP_TAG, "Disconnected.")
       onDisconnectedListener?.onEvent(reason)

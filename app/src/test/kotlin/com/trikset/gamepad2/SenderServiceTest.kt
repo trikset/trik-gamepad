@@ -129,6 +129,39 @@ class SenderServiceTest : RobolectricTestBase() {
   }
 
   @Test
+  fun commandsToFlushBeforeCloseShouldBeSentOnDisconnect() {
+    TestTcpServer().use { server ->
+      client = SenderService(mExecutor)
+      client!!.setTarget(TestTcpServer.HOST, server.port)
+      client!!.keepaliveTimeout = 10000000
+      client!!.commandsToFlushBeforeClose = listOf("pad 1 up", "pad 2 up")
+      client!!.send("ping")
+      mExecutor.runAll()
+      shadowOf(getMainLooper()).idle()
+      assertTrue(server.awaitCount(1))
+      client!!.disconnect("done")
+      mExecutor.runAll()
+      assertTrue("flush commands not sent", server.awaitCount(3))
+    }
+  }
+
+  @Test
+  fun disconnectShouldNotThrowWhenCommandsToFlushIsEmpty() {
+    TestTcpServer().use { server ->
+      client = SenderService(mExecutor)
+      client!!.setTarget(TestTcpServer.HOST, server.port)
+      client!!.keepaliveTimeout = 10000000
+      // Leave commandsToFlushBeforeClose as empty list
+      client!!.send("ping")
+      mExecutor.runAll()
+      shadowOf(getMainLooper()).idle()
+      assertTrue(server.awaitCount(1))
+      client!!.disconnect("done")
+      // No crash = pass
+    }
+  }
+
+  @Test
   fun sendAndDisconnectShouldCompleteTheSendPath() {
     TestTcpServer().use { server ->
       client = SenderService(mExecutor)

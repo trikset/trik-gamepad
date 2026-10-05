@@ -121,6 +121,8 @@
     <string name="pref_video_crop">Recadrer pour remplir l&#8217;écran</string>
     <string name="pref_video_crop_on">La vidéo remplit l&#8217;écran (les bords peuvent être rognés)</string>
     <string name="pref_video_crop_off">La vidéo s&#8217;adapte à l&#8217;écran (barres noires)</string>
+    <string name="pref_pad_send_interval">Intervalle d’envoi des pads…</string>
+    <string name="pref_pad_send_interval_summary">%1$d ms · 0 = instantané; des valeurs plus élevées réduisent les pertes sur Wi-Fi faible</string>
     <string name="pref_category_hardware">Gamepad matériel</string>
     <string name="pref_gamepad_swap">Inverser les manettes</string>
     <string name="pref_gamepad_swap_on">Les manettes gauche et droite sont inversées</string>
@@ -163,3 +165,4 @@
     <string name="port_number_incorrect">Le numéro de port «%1$s» est incorrect.</string>
     <string name="disconnected_notice">Déconnecté. %1$s</string>
 </resources>
+

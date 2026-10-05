@@ -123,6 +123,8 @@
     <string name="pref_video_crop">Обрезать до экрана</string>
     <string name="pref_video_crop_on">Видео заполняет дисплей (края могут быть обрезаны)</string>
     <string name="pref_video_crop_off">Видео вписывается в дисплей (чёрные полосы)</string>
+    <string name="pref_pad_send_interval">Интервал отправки геймпада…</string>
+    <string name="pref_pad_send_interval_summary">%1$d мс · 0 = мгновенно; большие значения снижают потери команд при слабом Wi-Fi</string>
     <string name="pref_category_hardware">Аппаратный геймпад</string>
     <string name="pref_gamepad_swap">Поменять стики местами</string>
     <string name="pref_gamepad_swap_on">Левый и правый стики меняются местами</string>

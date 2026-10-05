@@ -121,6 +121,8 @@
     <string name="pref_video_crop">Cắt để vừa màn hình</string>
     <string name="pref_video_crop_on">Video lấp đầy màn hình (cạnh có thể bị cắt)</string>
     <string name="pref_video_crop_off">Video vừa khít màn hình (thanh đen)</string>
+    <string name="pref_pad_send_interval">Khoảng thời gian gửi pad…</string>
+    <string name="pref_pad_send_interval_summary">%1$d ms · 0 = tức thì; giá trị cao hơn giảm mất lệnh khi Wi-Fi yếu</string>
     <string name="pref_category_hardware">Gamepad vật lý</string>
     <string name="pref_gamepad_swap">Đổi cần điều khiển</string>
     <string name="pref_gamepad_swap_on">Đổi cần trái và cần phải</string>

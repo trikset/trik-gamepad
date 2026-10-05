@@ -58,6 +58,12 @@
 
         <PreferenceCategory android:title="@string/pref_category_pads_video">
             <SeekBarPreference
+                android:defaultValue="80"
+                android:key="padSendInterval"
+                android:max="250"
+                android:summary="@string/pref_pad_send_interval_summary"
+                android:title="@string/pref_pad_send_interval" />
+            <SeekBarPreference
                 android:defaultValue="100"
                 android:key="showPads"
                 android:max="255"

@@ -5,6 +5,7 @@ import android.view.View
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -240,5 +241,84 @@ class SquareTouchPadLayoutTest : RobolectricTestBase() {
     pad.send("up")
     // Haptics are tied to the touch gesture (pad-down/up), not to command sends.
     assertEquals("send must not vibrate", -1, shadowOf(pad).lastHapticFeedbackPerformed())
+  }
+
+  @Test
+  fun timerModeShouldStartTimerOnDownAndCancelOnUp() {
+    pad.setSendInterval(80)
+    assertNull("no timer before touch", field(pad, "scheduledSend"))
+
+    pad.dispatchTouchEvent(eventAt(100f, 100f, MotionEvent.ACTION_DOWN))
+    assertNotNull("timer started by DOWN", field(pad, "scheduledSend"))
+
+    pad.dispatchTouchEvent(eventAt(100f, 100f, MotionEvent.ACTION_UP))
+    assertNull("timer cancelled by UP", field(pad, "scheduledSend"))
+  }
+
+  @Test
+  fun timerModeActionCancelShouldCancelTimerAndSendUp() {
+    pad.setSendInterval(80)
+    pad.dispatchTouchEvent(eventAt(100f, 100f, MotionEvent.ACTION_DOWN))
+    assertNotNull("timer started by DOWN", field(pad, "scheduledSend"))
+
+    val before = mExecutor.runAll()
+    pad.dispatchTouchEvent(eventAt(100f, 100f, MotionEvent.ACTION_CANCEL))
+    assertNull("timer cancelled by CANCEL", field(pad, "scheduledSend"))
+    assertTrue("up sent on CANCEL", mExecutor.runAll() > before)
+  }
+
+  @Test
+  fun setSendIntervalWithInactivePadDoesNotStartTimer() {
+    pad.setSendInterval(80)
+    // Pad is inactive — scheduleSendTick's guard (!padActive) prevents start
+    assertNull("no timer when pad inactive", field(pad, "scheduledSend"))
+  }
+
+  @Test
+  fun setSendIntervalToZeroCancelsActiveTimer() {
+    pad.setSendInterval(80)
+    pad.dispatchTouchEvent(eventAt(100f, 100f, MotionEvent.ACTION_DOWN))
+    assertNotNull("timer active", field(pad, "scheduledSend"))
+
+    pad.setSendInterval(0)
+    assertNull("timer cancelled by setSendInterval(0)", field(pad, "scheduledSend"))
+  }
+
+  @Test
+  fun doubleResetShouldNotCrash() {
+    // Both scheduledSend = null paths of cancelSendTick are safe
+    pad.reset()
+    pad.reset()
+  }
+
+  @Test
+  fun onSendTickShouldSendPositionWhenPadIsActive() {
+    pad.setSendInterval(80)
+    pad.dispatchTouchEvent(eventAt(200f, 0f, MotionEvent.ACTION_DOWN))
+    // Drain initial executor tasks (timer started, position may have been sent in timer mode)
+    mExecutor.runAll()
+
+    val before = mExecutor.runAll()
+    pad.onSendTick()
+    assertTrue("position sent on timer tick", mExecutor.runAll() > before)
+  }
+
+  @Test
+  fun onSendTickShouldNotCrashWhenPollReturnsNull() {
+    pad.setSendInterval(80)
+    pad.dispatchTouchEvent(eventAt(200f, 0f, MotionEvent.ACTION_DOWN))
+    mExecutor.runAll()
+    pad.onSendTick()
+    mExecutor.runAll()
+    pad.onSendTick()
+  }
+
+  @Test
+  fun onSendTickShouldNotSendWhenPadIsInactive() {
+    pad.setSendInterval(80)
+    // No touch → padActive is false → guard in onSendTick returns
+    val before = mExecutor.runAll()
+    pad.onSendTick()
+    assertEquals("no send when pad inactive", before, mExecutor.runAll())
   }
 }
