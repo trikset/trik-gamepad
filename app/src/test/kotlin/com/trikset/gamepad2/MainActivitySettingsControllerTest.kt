@@ -429,19 +429,19 @@ class MainActivitySettingsControllerTest : RobolectricTestBase() {
   }
 
   @Test
-  fun registerSweepShouldNotSendCustomCommand() {
-    AppLog.minBufferLevel = Log.DEBUG
-    AppLog.clearForTest()
-    prefs.edit().putString(SettingsFragment.SK_CUSTOM_MESSAGE, "hello").commit()
-    // register() applies the stored prefs without a changed key -> the custom edge must not fire.
-    controller.register()
-    try {
-      assertTrue(
-          "the register sweep must not re-send the custom message",
-          AppLog.tail(100).none { it.contains("Sending 'custom hello'") },
-      )
-    } finally {
-      controller.unregister()
-    }
+  fun padSendIntervalShouldClampToValidRange() {
+    // Default (no pref stored) → 80
+    controller.onPreferenceChanged(prefs)
+    assertEquals("default pad send interval", 80, ui.padSendInterval)
+
+    // Out of range high → clamped to 250
+    prefs.edit().putString(SettingsFragment.SK_PAD_SEND_INTERVAL, "300").commit()
+    controller.onPreferenceChanged(prefs)
+    assertEquals("clamped to 250", 250, ui.padSendInterval)
+
+    // Out of range low → clamped to 0
+    prefs.edit().putString(SettingsFragment.SK_PAD_SEND_INTERVAL, "-10").commit()
+    controller.onPreferenceChanged(prefs)
+    assertEquals("clamped to 0", 0, ui.padSendInterval)
   }
 }

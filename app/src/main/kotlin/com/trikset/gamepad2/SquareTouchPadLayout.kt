@@ -280,9 +280,9 @@ class SquareTouchPadLayout : RelativeLayout {
   }
 
   /**
-   * Sets the send interval (ms) for pad position commands. 0 or less means event-driven
-   * (send immediately on every touch move). When the interval is > 0, a timer periodically
-   * polls the current position and sends it; touch moves only update the visual knob.
+   * Sets the send interval (ms) for pad position commands. 0 or less means event-driven (send
+   * immediately on every touch move). When the interval is > 0, a timer periodically polls the
+   * current position and sends it; touch moves only update the visual knob.
    */
   fun setSendInterval(ms: Int) {
     sendInterval = ms
@@ -317,7 +317,7 @@ class SquareTouchPadLayout : RelativeLayout {
     scheduledSend = null
   }
 
-  private fun onSendTick() {
+  internal fun onSendTick() {
     if (!padActive) return
     val command = touchPadController.pollSend()
     if (command != null) {

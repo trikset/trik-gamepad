@@ -43,16 +43,17 @@ class MainActivity :
 
   private var sensorManager: SensorManager? = null
   private var angle = 0 // -100% .. +100%
-override var wheelEnabled: Boolean = false
-override var wheelStep: Int = WHEEL_STEP_DEFAULT
-private var _padSendInterval = 0
-override var padSendInterval: Int
+  override var wheelEnabled: Boolean = false
+  override var wheelStep: Int = WHEEL_STEP_DEFAULT
+  private var _padSendInterval = 0
+  override var padSendInterval: Int
     get() = _padSendInterval
     set(value) {
       _padSendInterval = value
       findViewById<SquareTouchPadLayout>(R.id.leftPad)?.setSendInterval(value)
       findViewById<SquareTouchPadLayout>(R.id.rightPad)?.setSendInterval(value)
     }
+
   private var video: VideoPlayer? = null
   private var videoUrl: String? = null
   var settingsController: MainActivitySettingsController? = null

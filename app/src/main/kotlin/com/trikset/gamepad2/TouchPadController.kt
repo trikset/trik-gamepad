@@ -8,8 +8,8 @@ import kotlin.math.min
  * Pure touch-coordinate math for the square gamepad pads. Maps a touch point into the robot command
  * space (-100..100) and applies the hysteresis gate that suppresses tiny movements.
  *
- * Two independent state pairs are tracked: [knobX/knobY] is the *current* finger position (updated on
- * every touch event); [sentX/sentY] is the *last transmitted* position (updated only when
+ * Two independent state pairs are tracked: [knobX/knobY] is the *current* finger position (updated
+ * on every touch event); [sentX/sentY] is the *last transmitted* position (updated only when
  * [pollSend] returns a command). This split decouples the visual knob rendering (which consumes
  * every frame) from the network send rate (which a timer throttles to the configured interval).
  *

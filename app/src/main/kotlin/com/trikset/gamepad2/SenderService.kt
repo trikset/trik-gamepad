@@ -70,9 +70,9 @@ class SenderService(
     }
 
   /**
-   * Optional callback invoked inside [disconnect] before the transport is closed. Receives the
-   * live [CommandTransport] so the caller can flush stop commands (e.g. `pad N up`) before the
-   * socket closes. Runs on the caller's thread; must not block or access [sender] directly.
+   * Optional callback invoked inside [disconnect] before the transport is closed. Receives the live
+   * [CommandTransport] so the caller can flush stop commands (e.g. `pad N up`) before the socket
+   * closes. Runs on the caller's thread; must not block or access [sender] directly.
    */
   var onBeforeDisconnect: ((CommandTransport) -> Unit)? = null
 

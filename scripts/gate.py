@@ -45,6 +45,7 @@ A0_BASELINE = 12659
 
 GRADLE_STEPS = [
     ("spotlessApply", ["spotlessApply"]),
+    ("working-tree-clean", []),  # placeholder — checked inline below
     ("test", ["test"]),
     ("lint", ["lint"]),
     ("detekt", ["detekt"]),
@@ -168,6 +169,31 @@ def main() -> None:
     with open(LOG, "w", encoding="utf-8"):
         pass
     for label, args in GRADLE_STEPS:
+        if label == "working-tree-clean":
+            # Gate 0b: after spotlessApply, the working tree MUST match HEAD.
+            # spotlessApply writes .kt formatting changes that the CI
+            # spotlessCheck later verifies against committed files. If the
+            # working tree has uncommitted formatting changes, CI will fail.
+            rc = subprocess.run(
+                ["git", "diff", "--stat", "HEAD"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            if rc.returncode != 0:
+                msg = f"working-tree-clean: git diff HEAD failed ({rc.returncode})"
+                print(f"FAILED: {msg} (see {LOG})")
+                append_log(msg)
+                sys.exit(rc.returncode)
+            if rc.stdout.strip():
+                msg = "working-tree-clean FAILED: uncommitted changes after spotlessApply.\n"
+                msg += "Run  git add -A && git commit --amend --no-edit\n"
+                msg += f"    {rc.stdout.strip()}"
+                print(f"FAILED: (see {LOG})")
+                append_log(msg)
+                sys.exit(1)
+            continue
         rc = call_gradle(label, *args, log=LOG)
         if rc != 0:
             print(f"FAILED: {label} (see {LOG})")

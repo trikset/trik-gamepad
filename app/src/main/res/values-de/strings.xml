@@ -121,6 +121,8 @@
     <string name="pref_video_crop">Bildschirmfüllender Zuschnitt</string>
     <string name="pref_video_crop_on">Video füllt den Bildschirm (Ränder werden ggf. beschnitten)</string>
     <string name="pref_video_crop_off">Video passt in den Bildschirm (schwarze Balken)</string>
+    <string name="pref_pad_send_interval">Sendeintervall der Pads…</string>
+    <string name="pref_pad_send_interval_summary">%1$d ms · 0 = sofort; höhere Werte reduzieren Ausfälle bei schwachem WLAN</string>
     <string name="pref_category_hardware">Hardware-Gamepad</string>
     <string name="pref_gamepad_swap">Sticks tauschen</string>
     <string name="pref_gamepad_swap_on">Linker und rechter Stick sind getauscht</string>
