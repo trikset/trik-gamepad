@@ -5,35 +5,62 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Pure touch-coordinate math for the square gamepad pads. Extracted from [SquareTouchPadLayout] so
- * the clamp and sensitivity rules are directly unit-testable. Maps a touch point in pad coordinates
- * (0..[maxX], 0..[maxY]) into the robot command space (-100..100) and applies the hysteresis gate
- * that suppresses tiny movements. The controller owns the previous command (prevX/prevY) so
- * [nextCoordinates] has a short signature.
+ * Pure touch-coordinate math for the square gamepad pads. Maps a touch point into the robot command
+ * space (-100..100) and applies the hysteresis gate that suppresses tiny movements.
+ *
+ * Two independent state pairs are tracked: [knobX/knobY] is the *current* finger position (updated on
+ * every touch event); [sentX/sentY] is the *last transmitted* position (updated only when
+ * [pollSend] returns a command). This split decouples the visual knob rendering (which consumes
+ * every frame) from the network send rate (which a timer throttles to the configured interval).
+ *
+ * Usage:
+ * - Every touch move → [setPosition] (stores the normalised coords, no side-effect).
+ * - When ready to send → [pollSend] (checks hysteresis against the last-sent position).
+ * - On finger lift → [onUp] (resets both state pairs).
  */
 class TouchPadController {
 
   /** A normalized pad command in robot coordinates (-100..100). */
   data class Command(val x: Int, val y: Int)
 
-  private var prevX = 0
-  private var prevY = 0
+  /** Knob position — updated on every touch event via [setPosition]. */
+  private var knobX = 0
+  private var knobY = 0
+
+  /** Last sent position — updated only when [pollSend] returns a non-null command. */
+  private var sentX = 0
+  private var sentY = 0
 
   /**
-   * Computes the command for a touch point, or null when the point moved less than [SENSITIVITY] on
-   * both axes from the previous command (no command should be sent).
+   * Normalises a touch point into robot coordinates (-100..100) and stores it as the current knob
+   * position. Does NOT send anything — call [pollSend] to check the hysteresis gate.
    */
-  fun nextCoordinates(x: Float, y: Float, maxX: Float, maxY: Float): Command? {
+  fun setPosition(x: Float, y: Float, maxX: Float, maxY: Float) {
     val rX = (COORDINATE_SCALE * SCALE * (x / maxX - CENTER_OFFSET)).toInt()
     val rY = -(COORDINATE_SCALE * SCALE * (y / maxY - CENTER_OFFSET)).toInt()
-    val curX = max(-MAX_COORDINATE, min(rX, MAX_COORDINATE))
-    val curY = max(-MAX_COORDINATE, min(rY, MAX_COORDINATE))
-    if (abs(curX - prevX) > SENSITIVITY || abs(curY - prevY) > SENSITIVITY) {
-      prevX = curX
-      prevY = curY
-      return Command(curX, curY)
+    knobX = max(-MAX_COORDINATE, min(rX, MAX_COORDINATE))
+    knobY = max(-MAX_COORDINATE, min(rY, MAX_COORDINATE))
+  }
+
+  /**
+   * Returns a [Command] when the knob moved more than [SENSITIVITY] units from the last *sent*
+   * position; returns null to skip sending. Updates the last-sent state only on a non-null return.
+   */
+  fun pollSend(): Command? {
+    if (abs(knobX - sentX) > SENSITIVITY || abs(knobY - sentY) > SENSITIVITY) {
+      sentX = knobX
+      sentY = knobY
+      return Command(knobX, knobY)
     }
     return null
+  }
+
+  /** Resets both the knob and sent state to centre. Call on finger lift. */
+  fun onUp() {
+    sentX = 0
+    sentY = 0
+    knobX = 0
+    knobY = 0
   }
 
   private companion object {

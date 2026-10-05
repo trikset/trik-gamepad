@@ -42,6 +42,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     const val SK_SHOW_FPS = "showFps"
     const val SK_VIDEO_CROP = "videoCropToFill"
     const val SK_RECENTER_GLYPHS = "recenterGlyphs"
+    const val SK_PAD_SEND_INTERVAL = "padSendInterval"
     const val SK_GAMEPAD_SWAP = "gamepadSwap"
     const val SK_ADVANCED = "advancedSettings"
     const val SK_MAGIC_BUTTON_COUNT = "magicButtonCount"
@@ -78,6 +79,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     internal const val DEFAULT_RECENTER_GLYPHS = true
     /** Button size as percent of the WCAG-minimum 48dp touch target (70-150). */
     internal const val DEFAULT_MAGIC_BUTTON_SIZE = 100
+    /** Pad send interval in ms (0 = send on every touch event). */
+    internal const val DEFAULT_PAD_SEND_INTERVAL = 80
     /** Lower/upper bounds of the magic button size slider, in percent of the 48dp touch target. */
     internal const val MIN_MAGIC_BUTTON_SIZE = 70
     internal const val MAX_MAGIC_BUTTON_SIZE = 150
@@ -321,6 +324,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             SK_MAGIC_BUTTON_COUNT to
                 (R.string.pref_magic_count_summary to DEFAULT_MAGIC_BUTTON_COUNT),
             SK_MAGIC_BUTTON_SIZE to (R.string.pref_magic_size_summary to DEFAULT_MAGIC_BUTTON_SIZE),
+            SK_PAD_SEND_INTERVAL to
+                (R.string.pref_pad_send_interval_summary to DEFAULT_PAD_SEND_INTERVAL),
         )
     for ((preferenceKey, pair) in seekBarFormats) {
       val preference = findPreference<Preference>(preferenceKey) ?: continue

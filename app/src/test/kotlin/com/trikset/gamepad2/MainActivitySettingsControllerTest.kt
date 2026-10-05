@@ -47,6 +47,8 @@ class MainActivitySettingsControllerTest : RobolectricTestBase() {
 
     override var wheelEnabled: Boolean = false
 
+    override var padSendInterval: Int = 0
+
     var keepScreenOnState = true
 
     override fun setKeepScreenOn(enabled: Boolean) {

@@ -43,8 +43,16 @@ class MainActivity :
 
   private var sensorManager: SensorManager? = null
   private var angle = 0 // -100% .. +100%
-  override var wheelEnabled: Boolean = false
-  override var wheelStep: Int = WHEEL_STEP_DEFAULT
+override var wheelEnabled: Boolean = false
+override var wheelStep: Int = WHEEL_STEP_DEFAULT
+private var _padSendInterval = 0
+override var padSendInterval: Int
+    get() = _padSendInterval
+    set(value) {
+      _padSendInterval = value
+      findViewById<SquareTouchPadLayout>(R.id.leftPad)?.setSendInterval(value)
+      findViewById<SquareTouchPadLayout>(R.id.rightPad)?.setSendInterval(value)
+    }
   private var video: VideoPlayer? = null
   private var videoUrl: String? = null
   var settingsController: MainActivitySettingsController? = null
@@ -231,6 +239,14 @@ class MainActivity :
     createPad(R.id.leftPad, "1")
     createPad(R.id.rightPad, "2")
 
+    // Before the control socket closes, flush stop commands so the robot stops driving even if
+    // the disconnect is unexpected (connection lost mid-drive). The pad reset below (connection
+    // state handler) restores the local knob state; the transport callback runs before close.
+    senderService.onBeforeDisconnect = { t ->
+      t.send("pad 1 up")
+      t.send("pad 2 up")
+    }
+
     settingsController = MainActivitySettingsController(this, senderService, this)
     settingsController?.register()
     // Bounded video-stream retry, gated on a configured URL + a not-playing view only — the control
@@ -269,6 +285,9 @@ class MainActivity :
               // Edge: just lost control while driving — the alert buzz (two strong pulses)
               // must be felt even when the eyes are on the robot.
               rejectHaptic.play()
+              // Reset pad state — the onBeforeDisconnect callback already flushed pad N up.
+              findViewById<SquareTouchPadLayout>(R.id.leftPad)?.reset()
+              findViewById<SquareTouchPadLayout>(R.id.rightPad)?.reset()
             }
             connectionFeedback.error(getString(R.string.disconnected_notice, state.reason))
           }

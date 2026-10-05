@@ -69,6 +69,13 @@ class SenderService(
       }
     }
 
+  /**
+   * Optional callback invoked inside [disconnect] before the transport is closed. Receives the
+   * live [CommandTransport] so the caller can flush stop commands (e.g. `pad N up`) before the
+   * socket closes. Runs on the caller's thread; must not block or access [sender] directly.
+   */
+  var onBeforeDisconnect: ((CommandTransport) -> Unit)? = null
+
   private var connectTask: Runnable? = null
   // internal (not private) so ConnectRunnable / KeepAliveTimer can reach them.
   internal val mainHandler = Handler(Looper.getMainLooper())
@@ -230,9 +237,11 @@ class SenderService(
 
   fun disconnect(reason: String) {
     keepAliveTimer.stop()
-    val transport = transport
-    if (transport != null) {
-      transport.close()
+    val t = transport
+    if (t != null) {
+      // Best-effort flush of stop commands before the socket closes.
+      onBeforeDisconnect?.invoke(t)
+      t.close()
       this.transport = null
       AppLog.i(TCP_TAG, "Disconnected.")
       onDisconnectedListener?.onEvent(reason)
