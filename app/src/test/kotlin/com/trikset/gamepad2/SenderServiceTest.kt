@@ -129,30 +129,29 @@ class SenderServiceTest : RobolectricTestBase() {
   }
 
   @Test
-  fun onBeforeDisconnectShouldBeInvokedWithActiveTransportOnDisconnect() {
+  fun commandsToFlushBeforeCloseShouldBeSentOnDisconnect() {
     TestTcpServer().use { server ->
       client = SenderService(mExecutor)
       client!!.setTarget(TestTcpServer.HOST, server.port)
       client!!.keepaliveTimeout = 10000000
-      var invoked = false
-      client!!.onBeforeDisconnect = { _ -> invoked = true }
+      client!!.commandsToFlushBeforeClose = listOf("pad 1 up", "pad 2 up")
       client!!.send("ping")
       mExecutor.runAll()
       shadowOf(getMainLooper()).idle()
       assertTrue(server.awaitCount(1))
       client!!.disconnect("done")
       mExecutor.runAll()
-      assertTrue("onBeforeDisconnect not invoked", invoked)
+      assertTrue("flush commands not sent", server.awaitCount(3))
     }
   }
 
   @Test
-  fun onBeforeDisconnectShouldNotThrowWhenCallbackIsNull() {
+  fun disconnectShouldNotThrowWhenCommandsToFlushIsEmpty() {
     TestTcpServer().use { server ->
       client = SenderService(mExecutor)
       client!!.setTarget(TestTcpServer.HOST, server.port)
       client!!.keepaliveTimeout = 10000000
-      // Do NOT set onBeforeDisconnect — leave it null
+      // Leave commandsToFlushBeforeClose as empty list
       client!!.send("ping")
       mExecutor.runAll()
       shadowOf(getMainLooper()).idle()

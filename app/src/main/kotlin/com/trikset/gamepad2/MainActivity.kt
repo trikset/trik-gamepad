@@ -242,11 +242,9 @@ class MainActivity :
 
     // Before the control socket closes, flush stop commands so the robot stops driving even if
     // the disconnect is unexpected (connection lost mid-drive). The pad reset below (connection
-    // state handler) restores the local knob state; the transport callback runs before close.
-    senderService.onBeforeDisconnect = { t ->
-      t.send("pad 1 up")
-      t.send("pad 2 up")
-    }
+    // state handler) restores the local knob state; the flush runs on the executor thread so it
+    // doesn't violate Android's StrictMode network-on-main-thread rule.
+    senderService.commandsToFlushBeforeClose = listOf("pad 1 up", "pad 2 up")
 
     settingsController = MainActivitySettingsController(this, senderService, this)
     settingsController?.register()
@@ -286,7 +284,7 @@ class MainActivity :
               // Edge: just lost control while driving — the alert buzz (two strong pulses)
               // must be felt even when the eyes are on the robot.
               rejectHaptic.play()
-              // Reset pad state — the onBeforeDisconnect callback already flushed pad N up.
+              // Reset pad state — commandsToFlushBeforeClose already flushed pad N up.
               findViewById<SquareTouchPadLayout>(R.id.leftPad)?.reset()
               findViewById<SquareTouchPadLayout>(R.id.rightPad)?.reset()
             }

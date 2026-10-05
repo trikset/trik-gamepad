@@ -70,11 +70,11 @@ class SenderService(
     }
 
   /**
-   * Optional callback invoked inside [disconnect] before the transport is closed. Receives the live
-   * [CommandTransport] so the caller can flush stop commands (e.g. `pad N up`) before the socket
-   * closes. Runs on the caller's thread; must not block or access [sender] directly.
+   * Commands to flush through the executor before closing the transport in [disconnect]. Set by
+   * [MainActivity] to send stop commands (e.g. `pad N up`) without network I/O on the caller's
+   * thread (Android StrictMode blocks socket writes from the main thread).
    */
-  var onBeforeDisconnect: ((CommandTransport) -> Unit)? = null
+  var commandsToFlushBeforeClose: List<String> = emptyList()
 
   private var connectTask: Runnable? = null
   // internal (not private) so ConnectRunnable / KeepAliveTimer can reach them.
@@ -239,9 +239,15 @@ class SenderService(
     keepAliveTimer.stop()
     val t = transport
     if (t != null) {
-      // Best-effort flush of stop commands before the socket closes.
-      onBeforeDisconnect?.invoke(t)
-      t.close()
+      val cmds = commandsToFlushBeforeClose
+      if (cmds.isNotEmpty()) {
+        executor.execute {
+          cmds.forEach { t.send(it) }
+          t.close()
+        }
+      } else {
+        t.close()
+      }
       this.transport = null
       AppLog.i(TCP_TAG, "Disconnected.")
       onDisconnectedListener?.onEvent(reason)
