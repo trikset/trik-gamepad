@@ -49,6 +49,9 @@ class KeepAliveTests {
     // In order to set connection up
     client.send("testtest")
     assertTrue(server.awaitMessage("testtest", 30000))
+    // Clear the app-level flush commands (set by MainActivity) so the "no messages after
+    // disconnect" assertion below isn't polluted by "pad 1 up" / "pad 2 up".
+    client.commandsToFlushBeforeClose = emptyList()
     client.disconnect("testtest")
 
     // Give any (incorrectly scheduled) keepalive a chance to appear within a
