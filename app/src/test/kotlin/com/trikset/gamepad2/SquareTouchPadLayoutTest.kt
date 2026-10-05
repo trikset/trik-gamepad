@@ -304,6 +304,16 @@ class SquareTouchPadLayoutTest : RobolectricTestBase() {
   }
 
   @Test
+  fun onSendTickShouldNotCrashWhenPollReturnsNull() {
+    pad.setSendInterval(80)
+    pad.dispatchTouchEvent(eventAt(200f, 0f, MotionEvent.ACTION_DOWN))
+    mExecutor.runAll()
+    pad.onSendTick()
+    mExecutor.runAll()
+    pad.onSendTick()
+  }
+
+  @Test
   fun onSendTickShouldNotSendWhenPadIsInactive() {
     pad.setSendInterval(80)
     // No touch → padActive is false → guard in onSendTick returns
