@@ -13,9 +13,9 @@ Binaries:
   https://github.com/trikset/trik-gamepad/releases/download/v%v/TRIKGamepad-%c-release.apk
 
 Builds:
-  - versionName: '2.47'
-    versionCode: 210247
-    commit: v2.47
+  - versionName: '2.48'
+    versionCode: 210248
+    commit: v2.48
     subdir: app
     gradle:
       - yes
@@ -25,5 +25,5 @@ AllowedAPKSigningKeys: 72febae48abf5162c1b82bf17d02ae6f0a3730fae3f375e9546eeee7c
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v\d+\.\d+$
 UpdateCheckData: version.properties|VERSION_CODE=(\d+)|.|
-CurrentVersion: '2.47'
-CurrentVersionCode: 210247
+CurrentVersion: '2.48'
+CurrentVersionCode: 210248

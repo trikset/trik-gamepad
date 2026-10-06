@@ -1,0 +1,2 @@
+-Timer-based pad send with configurable interval (noisy Wi-Fi fix).
+-Branch coverage improvements (85.58% branch coverage).
