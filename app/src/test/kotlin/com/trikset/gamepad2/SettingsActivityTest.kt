@@ -103,6 +103,26 @@ class SettingsActivityTest : RobolectricTestBase() {
   }
 
   @Test
+  fun onPreferenceStartScreenWithoutXmlArgShouldNotSetPreferenceXml() {
+    // When the caller fragment has NO ARG_PREFERENCE_XML, callerXml == 0 and the nested screen
+    // must NOT carry forward a preferenceXml argument (it defaults to pref_app in the fragment).
+    val manager = PreferenceManager(activity)
+    val screen = manager.createPreferenceScreen(activity)
+    screen.key = SettingsFragment.SK_ADVANCED
+    // Bare fragment with no arguments — callerXml reads 0 via getInt(..., 0).
+    val caller = SettingsFragment()
+    activity.supportFragmentManager.beginTransaction().add(caller, "caller").commitNow()
+    assertTrue(activity.onPreferenceStartScreen(caller, screen))
+    activity.supportFragmentManager.executePendingTransactions()
+    val top = activity.supportFragmentManager.fragments.last()
+    assertEquals(
+        "preference XML must NOT be set when callerXml is 0",
+        0,
+        top.arguments?.getInt(SettingsFragment.ARG_PREFERENCE_XML, 0) ?: 0,
+    )
+  }
+
+  @Test
   fun nestedFragmentWithAdvancedRootShouldLoadAdvancedPrefs() {
     // The sub-screen fragment runs onCreatePreferences with rootKey="advancedSettings", so its
     // tree is the Advanced subtree and the init helpers resolve within it.

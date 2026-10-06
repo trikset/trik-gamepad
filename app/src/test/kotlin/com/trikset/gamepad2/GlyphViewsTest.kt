@@ -234,4 +234,9 @@ class GlyphViewsTest : RobolectricTestBase() {
   fun metricForUnknownGlyphShouldReturnNull() {
     assertNull(GlyphMetrics.metricFor("\uD83E\uDD16"))
   }
+
+  @Test
+  fun typefaceShouldReturnBundledFont() {
+    assertNotNull(GlyphRendering.typeface(context))
+  }
 }
