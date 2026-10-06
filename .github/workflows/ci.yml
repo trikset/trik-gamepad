@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.3.0
+        uses: gradle/actions/wrapper-validation@v6.4.0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v6
@@ -34,7 +34,7 @@ jobs:
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6.3.0
+        uses: gradle/actions/setup-gradle@v6.4.0
         with:
           # Single-branch no-PR workflow (AGENTS.md): pushes only ever land on
           # feat/global-refresh, never master, so the default read-only cache
@@ -106,7 +106,7 @@ jobs:
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6.3.0
+        uses: gradle/actions/setup-gradle@v6.4.0
         with:
           # Same single-branch write-back reasoning as the build job.
           cache-read-only: false
@@ -176,7 +176,7 @@ jobs:
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6.3.0
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Build releaseDebug APK (debug-signed, installable)
         run: ./gradlew assembleReleaseDebug -PpreDexEnable=false --build-cache
@@ -250,7 +250,7 @@ jobs:
           java-version: 21
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6.3.0
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Build signed release APK
         if: steps.sign-check.outputs.can-sign == 'true'
@@ -293,7 +293,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Download signed APK
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           # Matches the default label from the upload step ("artifact").
           # download-artifact keeps the file's original Gradle filename.
