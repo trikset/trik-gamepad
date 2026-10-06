@@ -3,8 +3,10 @@
 
 `version.properties` (repo root) holds VERSION_MAJOR / VERSION_MINOR. It feeds
 `app/build.gradle` (versionCode/versionName) and this script keeps the
-fastlane/F-Droid metadata (fastlane/metadata/com.trikset.gamepad2.yml) and
-release tags in sync. Bump the version here, never by hand.
+fastlane metadata in sync. The fdroiddata YAML is generated from a template
+(fdroiddata/com.trikset.gamepad2.yml.template) — the template is tracked in
+the repo; the rendered YAML is gitignored and produced locally before F-Droid
+submission.
 
 Subcommands:
   check             Verify all version consumers agree with version.properties.
@@ -32,6 +34,7 @@ VERSION_PROPS = ROOT / "version.properties"
 BUILD_GRADLE = ROOT / "app" / "build.gradle"
 FASTLANE_YML = ROOT / "fastlane" / "metadata" / "com.trikset.gamepad2.yml"
 FDROID_YML = ROOT / "fdroiddata" / "com.trikset.gamepad2.yml"
+FDROID_YML_TEMPLATE = ROOT / "fdroiddata" / "com.trikset.gamepad2.yml.template"
 CHANGELOG_DIR = ROOT / "fastlane" / "metadata" / "android" / "en-US" / "changelogs"
 
 MIN_SDK = 21  # mirrors app/build.gradle defaultConfig.minSdk
@@ -117,8 +120,15 @@ def _apply_version(yml_path: Path, version: Version) -> None:
 
 def write_fastlane(version: Version) -> None:
     _apply_version(FASTLANE_YML, version)
-    if FDROID_YML.exists():
-        _apply_version(FDROID_YML, version)
+    # Generate fdroiddata YAML from the template (which uses envsubst-style
+    # ${VERSION_NAME} / ${VERSION_CODE} / ${COMMIT_SHA} placeholders).
+    if FDROID_YML_TEMPLATE.exists():
+        tpl = FDROID_YML_TEMPLATE.read_text(encoding="utf-8")
+        text = tpl.replace("${VERSION_NAME}", version.name)
+        text = text.replace("${VERSION_CODE}", str(version.code))
+        text = text.replace("${COMMIT_SHA}", f"v{version.name}")
+        FDROID_YML.parent.mkdir(parents=True, exist_ok=True)
+        FDROID_YML.write_text(text, encoding="utf-8")
 
 
 def write_version_props(version: Version) -> None:
@@ -138,48 +148,48 @@ def write_version_props(version: Version) -> None:
 
 
 def check_fdroiddata(version: Version) -> list[str]:
-    """Validate fdroiddata/build metadata. Returns list of issues (empty = ok)."""
+    """Validate fdroiddata template. Returns list of issues (empty = ok)."""
     issues: list[str] = []
-    if not FDROID_YML.exists():
-        issues.append(f"fdroiddata YAML not found at {FDROID_YML}")
+    if not FDROID_YML_TEMPLATE.exists():
+        issues.append(f"fdroiddata template not found at {FDROID_YML_TEMPLATE}")
         return issues
 
-    text = FDROID_YML.read_text(encoding="utf-8")
+    text = FDROID_YML_TEMPLATE.read_text(encoding="utf-8")
 
-    # 1. Valid YAML
+    # 1. Valid YAML (with placeholders substituted so yaml parser is happy)
     try:
         import yaml as _y  # noqa: F401
         import yaml
-        yaml.safe_load(text)
+        sample = text
+        for ph in ("${VERSION_NAME}", "${VERSION_CODE}", "${COMMIT_SHA}"):
+            sample = sample.replace(ph, "0")
+        yaml.safe_load(sample)
     except Exception as e:
-        issues.append(f"fdroiddata YAML parse error: {e}")
+        issues.append(f"fdroiddata template YAML parse error: {e}")
 
     # 2. AllowedAPKSigningKeys present
     if "AllowedAPKSigningKeys:" not in text:
-        issues.append("fdroiddata: missing AllowedAPKSigningKeys")
+        issues.append("fdroiddata template: missing AllowedAPKSigningKeys")
 
     # 3. Binaries present
     if "Binaries:" not in text:
-        issues.append("fdroiddata: missing Binaries")
+        issues.append("fdroiddata template: missing Binaries")
 
-    # 4. commit: uses full SHA (not tag/branch) — warn for ref copy
+    # 4. commit uses placeholder (will be replaced by tag at release)
     m = re.search(r"commit:\s*(\S+)", text)
-    if m:
-        sha = m.group(1)
-        if re.match(r"^v?\d+\.\d+$", sha) or "/" in sha:
-            print("  WARNING: fdroiddata commit uses tag/branch '{0}' — "
-                  "replace with full SHA before submitting to fdroiddata".format(sha))
+    if m and "${COMMIT_SHA}" not in m.group(1):
+        issues.append(f"fdroiddata template: commit should use ${{COMMIT_SHA}} placeholder, got '{m.group(1)}'")
 
     # 5. UpdateCheckData regex: no ^ anchor (fdroidserver uses re.MULTILINE=False)
     m = re.search(r"UpdateCheckData:\s*\S+\|(\^?)([^|]+)", text)
     if m and m.group(1) == "^":
-        issues.append("fdroiddata: UpdateCheckData regex starts with ^ — fdroidserver "
+        issues.append("fdroiddata template: UpdateCheckData regex starts with ^ — fdroidserver "
                       "compiles without re.MULTILINE, so ^ matches only the file start")
 
     # 6. No Description / Summary in fdroiddata (they go in upstream fastlane)
     for field in ("Description:", "Summary:"):
         if re.search(rf"^{field}", text, re.MULTILINE):
-            issues.append(f"fdroiddata: {field} should be removed — "
+            issues.append(f"fdroiddata template: {field} should be removed — "
                           "lives in upstream repo's fastlane metadata, not in fdroiddata")
 
     # 7. Changelog for current versionCode exists
@@ -266,16 +276,22 @@ def cmd_bump(args) -> int:
     if not args.dry_run:
         write_version_props(new)
         write_fastlane(new)
-        print(f"\nWrote {VERSION_PROPS.name} and {FASTLANE_YML.relative_to(ROOT)}")
+        generated = f" and {FDROID_YML.relative_to(ROOT)} (from template)" if FDROID_YML_TEMPLATE.exists() else ""
+        print(f"\nWrote {VERSION_PROPS.name}, {FASTLANE_YML.relative_to(ROOT)}{generated}")
     else:
         print("\n[--dry-run] no files changed.")
 
     print("\nNext steps:")
     print("  1. uv run python scripts/version_manager.py check")
     print("  2. ./gradlew test  (or full gate: uv run python scripts/gate.py)")
-    print("  3. uv run python scripts/check_reproducibility.py  (F-Droid gate)")
-    print(f"  4. git tag -s v{new.name} upstream/master")
-    print(f"  5. git push upstream v{new.name}")
+    if FDROID_YML_TEMPLATE.exists():
+        print(f"  3. uv run python scripts/check_reproducibility.py  (F-Droid gate)")
+        print(f"  4. fdroiddata YAML generated at {FDROID_YML.relative_to(ROOT)} "
+              "(gitignored — copy to fdroiddata repo when submitting)")
+    else:
+        print(f"  3. uv run python scripts/check_reproducibility.py  (F-Droid gate)")
+    print(f"  5. git tag -s v{new.name} upstream/master")
+    print(f"  6. git push upstream v{new.name}")
     return 0
 
 

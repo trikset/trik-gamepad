@@ -58,3 +58,4 @@ app/.gradle
 # Scratch (repo-local temp files; see AGENTS.md)
 .tmp/
 .opencode/opencode.json
+fdroiddata/com.trikset.gamepad2.yml
