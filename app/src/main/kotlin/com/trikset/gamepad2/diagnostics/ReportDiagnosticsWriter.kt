@@ -2,6 +2,7 @@ package com.trikset.gamepad2.diagnostics
 
 import android.content.Context
 import java.io.File
+import java.io.IOException
 
 /**
  * Writes the diagnostic report to the app's cache as a single markdown file so it can be opened in
@@ -13,10 +14,14 @@ object ReportDiagnosticsWriter {
   const val DIAGNOSTICS_DIR = "diagnostics"
   const val FILE_PREFIX = "trik-gamepad-report"
 
-  fun write(context: Context, reportText: String): File {
-    val file = newFile(context, "md")
-    file.writeText(reportText, Charsets.UTF_8)
-    return file
+  fun write(context: Context, reportText: String): File? {
+    try {
+      val file = newFile(context, "md")
+      file.writeText(reportText, Charsets.UTF_8)
+      return file
+    } catch (_: IOException) {
+      return null
+    }
   }
 
   /** A fresh timestamped file in the diagnostics dir with the given [extension]. */
