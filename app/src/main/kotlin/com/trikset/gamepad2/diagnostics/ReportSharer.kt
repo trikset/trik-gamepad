@@ -24,7 +24,7 @@ import java.io.File
 object ReportSharer {
 
   fun share(context: Context, reportText: String, crash: Boolean = false) {
-    val file = ReportDiagnosticsWriter.write(context, reportText)
+    val file = ReportDiagnosticsWriter.write(context, reportText) ?: return
     val uri =
         FileProvider.getUriForFile(
             context,

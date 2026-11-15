@@ -15,13 +15,14 @@ class ReportDiagnosticsWriterTest {
   fun writeStoresReportAsMarkdownInCacheDiagnosticsDir() {
     val context = RuntimeEnvironment.getApplication()
     val file = ReportDiagnosticsWriter.write(context, "hello report")
+    assertNotNull(file)
 
-    assertTrue(file.name.endsWith(".md"))
-    assertNotNull("written report must have a parent dir", file.parentFile)
-    assertEquals("diagnostics", file.parentFile!!.name)
-    assertEquals(context.cacheDir.absolutePath, file.parentFile!!.parentFile?.absolutePath)
-    assertTrue(file.exists())
-    assertEquals("hello report", file.readText())
+    assertTrue(file!!.name.endsWith(".md"))
+    assertNotNull("written report must have a parent dir", file!!.parentFile)
+    assertEquals("diagnostics", file!!.parentFile!!.name)
+    assertEquals(context.cacheDir.absolutePath, file!!.parentFile!!.parentFile?.absolutePath)
+    assertTrue(file!!.exists())
+    assertEquals("hello report", file!!.readText())
   }
 
   @Test

@@ -34,10 +34,14 @@ class CrashLogStore(context: Context) {
     }
   }
 
-  /** The newest crash, or null when no crash has been captured. */
+  /** The newest crash, or null when no crash has been captured or on I/O error. */
   fun latest(): CrashRecord? {
-    val newest = dir.listFiles()?.maxByOrNull { it.name } ?: return null
-    return CrashRecord(newest.name, newest.readText())
+    try {
+      val newest = dir.listFiles()?.maxByOrNull { it.name } ?: return null
+      return CrashRecord(newest.name, newest.readText())
+    } catch (_: java.io.IOException) {
+      return null
+    }
   }
 
   fun shouldPrompt(): Boolean {
