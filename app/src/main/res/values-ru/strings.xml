@@ -145,7 +145,7 @@
     <string name="pref_delete_preset_summary">Удалить сохранённый пресет</string>
     <string name="pref_category_magic">Кнопки с символами</string>
     <string name="pref_magic_count">Число кнопок…</string>
-    <string name="pref_magic_count_summary">%1$d · 0 скрывает ряд; 1..5 кнопок</string>
+    <string name="pref_magic_count_summary">%1$d · 0 скрывает ряд; 1..7 кнопок</string>
     <string name="pref_magic_symbols">Символы кнопок…</string>
     <string name="pref_category_about">О приложении</string>
     <string name="video_uri_summary_empty">URI видеопотока не задан</string>

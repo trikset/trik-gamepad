@@ -234,7 +234,7 @@ class MainWindowTests {
   @RunWith(JUnit4::class)
   class MagicButtonsTests {
     // The magic-button row renders at the configured count during onCreate; set it
-    // to 5 before the activity launches so the full row (buttons 1..5) is asserted.
+    // to 7 before the activity launches so the full row (buttons 1..7) is asserted.
     @get:Rule
     val mActivityTestRule =
         object : FocusAwareActivityTestRule<MainActivity>(MainActivity::class.java) {
@@ -244,12 +244,12 @@ class MainWindowTests {
                         .targetContext
                 )
                 .edit()
-                .putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 5)
+                .putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 7)
                 .commit()
           }
         }
 
-    private val defaultGlyphs = listOf("▲", "■", "●", "✕", "◆")
+    private val defaultGlyphs = listOf("▲", "■", "●", "✕", "◆", "◈", "▽")
 
     @Before
     fun initNetworkSettings() {
@@ -260,7 +260,7 @@ class MainWindowTests {
     @Throws(InterruptedException::class)
     fun magicButtonsShouldSendCorrectCommands() {
       val server = DummyServer()
-      for (i in 1..5) {
+      for (i in 1..7) {
         // The description is locale-dependent word + "· <glyph>" (e.g. "Кнопка 1 · ▲").
         // Match by the glyph suffix, which is the same in every locale.
         onView(withContentDescription(org.hamcrest.Matchers.endsWith("· ${defaultGlyphs[i - 1]}")))
@@ -276,7 +276,7 @@ class MainWindowTests {
       server.stopListening()
 
       val messages = server.receivedMessages.iterator()
-      for (i in 1..5) {
+      for (i in 1..7) {
         assertTrue(messages.hasNext())
         val currentMessage = messages.next()
         assertEquals(String.format(Locale.ROOT, "btn %d down", i), currentMessage)

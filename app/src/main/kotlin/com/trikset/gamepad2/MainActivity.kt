@@ -35,8 +35,8 @@ import com.trikset.gamepad2.video.VideoPlayerFactory
 import kotlinx.coroutines.launch
 
 /**
- * The gamepad: two touch pads, five magic buttons, a sensor-driven wheel and the MJPEG video
- * stream, all sending commands through [SenderService].
+ * The gamepad: two touch pads, 1-7 magic buttons, a sensor-driven wheel and the MJPEG video stream,
+ * all sending commands through [SenderService].
  */
 class MainActivity :
     AppCompatActivity(), SensorEventListener, MainActivitySettingsController.SettingsUi {

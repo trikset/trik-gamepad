@@ -57,7 +57,7 @@ class HudThemeTest : RobolectricTestBase() {
   }
 
   private fun buildActivity(): MainActivity {
-    setPref(SettingsFragment.SK_MAGIC_BUTTON_COUNT, "5")
+    setPref(SettingsFragment.SK_MAGIC_BUTTON_COUNT, "7")
     setPref(SettingsFragment.SK_HOST_ADDRESS, "192.168.77.1")
     setPref(SettingsFragment.SK_HOST_PORT, "4444")
     // Full user alpha so the connected-vs-standby dimming is a real contrast (the default 100/255

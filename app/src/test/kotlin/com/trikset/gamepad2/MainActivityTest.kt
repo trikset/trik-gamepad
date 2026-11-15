@@ -758,10 +758,10 @@ class MainActivityTest : RobolectricTestBase() {
   }
 
   @Test
-  fun setMagicButtonsWithFullCountShouldPopulateFive() {
-    activity.setMagicButtons(5, listOf("▲", "■", "●", "✕", "◆"), 100)
+  fun setMagicButtonsWithFullCountShouldPopulateSeven() {
+    activity.setMagicButtons(7, listOf("▲", "■", "●", "✕", "◆", "◈", "▽"), 100)
     val row = activity.findViewById<android.view.ViewGroup>(R.id.buttons)!!
-    assertEquals(5, row.childCount)
+    assertEquals(7, row.childCount)
   }
 
   @Test

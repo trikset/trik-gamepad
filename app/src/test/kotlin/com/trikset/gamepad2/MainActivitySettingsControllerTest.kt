@@ -280,7 +280,7 @@ class MainActivitySettingsControllerTest : RobolectricTestBase() {
   fun onPreferenceChangedWithDefaultMagicButtonsShouldApplyDefaults() {
     controller.onPreferenceChanged(prefs)
     assertEquals(3, ui.magicCount)
-    assertEquals(listOf("▲", "■", "●", "✕", "◆"), ui.magicSymbols)
+    assertEquals(listOf("▲", "■", "●", "✕", "◆", "◈", "▽"), ui.magicSymbols)
     assertEquals(100, ui.magicSizePercent)
   }
 
@@ -304,13 +304,13 @@ class MainActivitySettingsControllerTest : RobolectricTestBase() {
 
   @Test
   fun onPreferenceChangedWithMagicButtonCountShouldClamp() {
-    prefs.edit().putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 5).commit()
+    prefs.edit().putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 7).commit()
     controller.onPreferenceChanged(prefs)
-    assertEquals(5, ui.magicCount)
+    assertEquals(7, ui.magicCount)
 
     prefs.edit().putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 999).commit()
     controller.onPreferenceChanged(prefs)
-    assertEquals("clamped to max", 5, ui.magicCount)
+    assertEquals("clamped to max", 7, ui.magicCount)
 
     prefs.edit().putString(SettingsFragment.SK_MAGIC_BUTTON_COUNT, "0").commit()
     controller.onPreferenceChanged(prefs)
@@ -365,7 +365,7 @@ class MainActivitySettingsControllerTest : RobolectricTestBase() {
     prefs.edit().putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 2).commit()
     assertEquals(2, MainActivitySettingsController.readMagicButtonCount(prefs))
     prefs.edit().putString(SettingsFragment.SK_MAGIC_BUTTON_COUNT, "7").commit()
-    assertEquals("clamped to max", 5, MainActivitySettingsController.readMagicButtonCount(prefs))
+    assertEquals("clamped to max", 7, MainActivitySettingsController.readMagicButtonCount(prefs))
     prefs.edit().putString(SettingsFragment.SK_MAGIC_BUTTON_COUNT, "garbage").commit()
     assertEquals(
         "garbage -> default",

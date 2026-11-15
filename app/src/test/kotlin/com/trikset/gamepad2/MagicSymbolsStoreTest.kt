@@ -29,6 +29,7 @@ class MagicSymbolsStoreTest : RobolectricTestBase() {
   fun readShouldFallBackToDefaultsWhenUnset() {
     assertEquals("▲", store.read(1))
     assertEquals("◆", store.read(5))
+    assertEquals("▽", store.read(7))
   }
 
   @Test
@@ -40,26 +41,26 @@ class MagicSymbolsStoreTest : RobolectricTestBase() {
   @Test
   fun readAllShouldReturnResolvedGlyphsInOrder() {
     prefs.edit().putString(SettingsFragment.magicSymbolKey(2), "X").commit()
-    assertEquals(listOf("▲", "X", "●", "✕", "◆"), store.readAll())
+    assertEquals(listOf("▲", "X", "●", "✕", "◆", "◈", "▽"), store.readAll())
   }
 
   @Test
   fun defaultsShouldReturnCultureNeutralGlyphs() {
-    assertEquals(listOf("▲", "■", "●", "✕", "◆"), store.defaults())
+    assertEquals(listOf("▲", "■", "●", "✕", "◆", "◈", "▽"), store.defaults())
   }
 
   @Test
   fun saveShouldPersistTheWholeArray() {
-    store.save(listOf("A", "B", "C", "D", "E"))
+    store.save(listOf("A", "B", "C", "D", "E", "F", "G"))
     assertEquals("A", prefs.getString(SettingsFragment.magicSymbolKey(1), ""))
-    assertEquals("E", prefs.getString(SettingsFragment.magicSymbolKey(5), ""))
+    assertEquals("G", prefs.getString(SettingsFragment.magicSymbolKey(7), ""))
     assertEquals("A", store.read(1))
   }
 
   @Test
   fun saveShouldNeverTouchButtonCount() {
     prefs.edit().putInt(SettingsFragment.SK_MAGIC_BUTTON_COUNT, 2).commit()
-    store.save(listOf("A", "B", "C", "D", "E"))
+    store.save(listOf("A", "B", "C", "D", "E", "F", "G"))
     assertEquals(
         "symbol save must leave the display count untouched",
         2,
