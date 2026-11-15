@@ -8,7 +8,7 @@ package com.trikset.gamepad2
  */
 object MagicButtonSymbols {
 
-  private val DEFAULTS = listOf("▲", "■", "●", "✕", "◆")
+  private val DEFAULTS = listOf("▲", "■", "●", "✕", "◆", "◈", "▽")
 
   fun default(buttonNumber: Int): String = DEFAULTS[buttonNumber - 1]
 

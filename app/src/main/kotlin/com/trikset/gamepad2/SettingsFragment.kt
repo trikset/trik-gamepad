@@ -63,7 +63,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     // Cross-link rows between the app-settings and robot-settings screens.
     const val SK_OPEN_ROBOT_SETTINGS = "openRobotSettings"
     const val SK_OPEN_APP_SETTINGS = "openAppSettings"
-    const val MAX_MAGIC_BUTTONS = 5
+    const val MAX_MAGIC_BUTTONS = 7
     /** Preference XML loaded by this fragment: app or robot/target settings. */
     const val ARG_PREFERENCE_XML = "preferenceXml"
     // Defaults mirror the pref_app.xml/pref_robot.xml defaultValue attributes (the XML is the
@@ -148,6 +148,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
   }
 
   private fun applyVideoSourceChip(chip: VideoSourceChip) {
+    if (!isAdded()) return
     val myActivity = requireActivity()
     val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
     val storedUri = prefs.readString(SK_VIDEO_URI, "")
@@ -267,7 +268,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
   }
 
-  private fun buildDiagnosticsReport(): String = DiagnosticsReport.fromAppState(requireContext())
+  private fun buildDiagnosticsReport(): String {
+    if (!isAdded()) return ""
+    return DiagnosticsReport.fromAppState(requireContext())
+  }
 
   private fun initializeDynamicPreferenceSummary() {
     val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
@@ -284,7 +288,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // The video-URI row derives its default from the host: a host change must refresh it
         // (the row shows the effective value, not just the stored one). The change listener fires
         // before the value is persisted, so pass the new host explicitly.
-        if (preferenceKey == SK_HOST_ADDRESS) {
+        if (preferenceKey == SK_HOST_ADDRESS && isAdded()) {
           refreshVideoUriSummary(hostOverride = value.toString())
         }
         true
@@ -351,27 +355,31 @@ class SettingsFragment : PreferenceFragmentCompat() {
     val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
     keepalive.summary = prefs.getString(SK_KEEPALIVE, SenderService.DEFAULT_KEEPALIVE.toString())
     keepalive.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { pref, value ->
-      val typed = value.toString()
-      val timeout = typed.toIntOrNull()
-      if (timeout == null) {
-        Toast.makeText(
-                requireContext(),
-                R.string.keepalive_must_be_positive_decimal,
-                Toast.LENGTH_SHORT,
-            )
-            .show()
-        false
-      } else if (timeout < SenderService.MINIMAL_KEEPALIVE) {
-        Toast.makeText(
-                requireContext(),
-                getString(R.string.keepalive_must_be_not_less, SenderService.MINIMAL_KEEPALIVE),
-                Toast.LENGTH_SHORT,
-            )
-            .show()
+      if (!isAdded()) {
         false
       } else {
-        pref.summary = typed
-        true
+        val typed = value.toString()
+        val timeout = typed.toIntOrNull()
+        if (timeout == null) {
+          Toast.makeText(
+                  requireContext(),
+                  R.string.keepalive_must_be_positive_decimal,
+                  Toast.LENGTH_SHORT,
+              )
+              .show()
+          false
+        } else if (timeout < SenderService.MINIMAL_KEEPALIVE) {
+          Toast.makeText(
+                  requireContext(),
+                  getString(R.string.keepalive_must_be_not_less, SenderService.MINIMAL_KEEPALIVE),
+                  Toast.LENGTH_SHORT,
+              )
+              .show()
+          false
+        } else {
+          pref.summary = typed
+          true
+        }
       }
     }
   }
@@ -384,6 +392,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
    * edited host value that is not yet persisted (the change listener fires before prefs are saved).
    */
   private fun refreshVideoUriSummary(hostOverride: String? = null) {
+    if (!isAdded()) return
     val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
     val videoUri = findPreference<Preference>(SK_VIDEO_URI) ?: return
     videoUri.summary =
@@ -418,48 +427,58 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     val save = findPreference<EditTextPreference>(SK_SAVE_PRESET)
     save?.setOnPreferenceChangeListener { _, newValue ->
-      val name = newValue?.toString()?.trim().orEmpty()
-      if (name.isEmpty()) {
-        Toast.makeText(requireContext(), R.string.preset_name_required, Toast.LENGTH_SHORT).show()
+      if (!isAdded()) {
         false
       } else {
-        val host = prefs.readString(SK_HOST_ADDRESS, DEFAULT_HOST_ADDRESS)
-        val port = prefs.readString(SK_HOST_PORT, DEFAULT_HOST_PORT)
-        val videoUri = prefs.readString(SK_VIDEO_URI, "")
-        store.save(name, host, port, videoUri)
-        refreshPresetRows(category, store)
-        Toast.makeText(
-                requireContext(),
-                getString(R.string.preset_saved, name),
-                Toast.LENGTH_SHORT,
-            )
-            .show()
-        true
+        val name = newValue?.toString()?.trim().orEmpty()
+        if (name.isEmpty()) {
+          Toast.makeText(requireContext(), R.string.preset_name_required, Toast.LENGTH_SHORT).show()
+          false
+        } else {
+          val host = prefs.readString(SK_HOST_ADDRESS, DEFAULT_HOST_ADDRESS)
+          val port = prefs.readString(SK_HOST_PORT, DEFAULT_HOST_PORT)
+          val videoUri = prefs.readString(SK_VIDEO_URI, "")
+          store.save(name, host, port, videoUri)
+          refreshPresetRows(category, store)
+          Toast.makeText(
+                  requireContext(),
+                  getString(R.string.preset_saved, name),
+                  Toast.LENGTH_SHORT,
+              )
+              .show()
+          true
+        }
       }
     }
 
     val delete = findPreference<Preference>(SK_DELETE_PRESET)
     delete?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-      val myActivity = requireActivity()
-      val names = store.all().values.map { it.name }.sorted()
-      if (names.isEmpty()) {
-        Toast.makeText(requireContext(), R.string.no_presets_saved, Toast.LENGTH_SHORT).show()
+      if (!isAdded()) {
+        true
       } else {
-        androidx.appcompat.app.AlertDialog.Builder(myActivity)
-            .setTitle(R.string.delete_preset_dialog_title)
-            .setItems(names.toTypedArray()) { _, which ->
-              store.delete(names[which])
-              refreshPresetRows(category, store)
-              Toast.makeText(
-                      requireContext(),
-                      getString(R.string.preset_deleted, names[which]),
-                      Toast.LENGTH_SHORT,
-                  )
-                  .show()
-            }
-            .show()
+        val myActivity = requireActivity()
+        val names = store.all().values.map { it.name }.sorted()
+        if (names.isEmpty()) {
+          Toast.makeText(requireContext(), R.string.no_presets_saved, Toast.LENGTH_SHORT).show()
+        } else {
+          androidx.appcompat.app.AlertDialog.Builder(myActivity)
+              .setTitle(R.string.delete_preset_dialog_title)
+              .setItems(names.toTypedArray()) { _, which ->
+                if (isAdded()) {
+                  store.delete(names[which])
+                  refreshPresetRows(category, store)
+                  Toast.makeText(
+                          requireContext(),
+                          getString(R.string.preset_deleted, names[which]),
+                          Toast.LENGTH_SHORT,
+                      )
+                      .show()
+                }
+              }
+              .show()
+        }
+        true
       }
-      true
     }
 
     refreshPresetRows(category, store)
@@ -480,20 +499,24 @@ class SettingsFragment : PreferenceFragmentCompat() {
       row.summary = getString(R.string.preset_row_summary, preset.host, preset.port)
       row.isPersistent = false
       row.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        prefs.edit {
-          putString(SK_HOST_ADDRESS, preset.host)
-          putString(SK_HOST_PORT, preset.port)
-          putString(SK_VIDEO_URI, preset.videoUri)
+        if (!isAdded()) {
+          true
+        } else {
+          val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+          prefs.edit {
+            putString(SK_HOST_ADDRESS, preset.host)
+            putString(SK_HOST_PORT, preset.port)
+            putString(SK_VIDEO_URI, preset.videoUri)
+          }
+          initializeDynamicPreferenceSummary()
+          Toast.makeText(
+                  requireContext(),
+                  getString(R.string.preset_applied, preset.name),
+                  Toast.LENGTH_SHORT,
+              )
+              .show()
+          true
         }
-        initializeDynamicPreferenceSummary()
-        Toast.makeText(
-                requireContext(),
-                getString(R.string.preset_applied, preset.name),
-                Toast.LENGTH_SHORT,
-            )
-            .show()
-        true
       }
       category.addPreference(row)
     }

@@ -164,7 +164,7 @@
     <string name="pref_delete_preset_summary">Remove a saved preset</string>
     <string name="pref_category_magic">Magic buttons</string>
     <string name="pref_magic_count">Number of buttons…</string>
-    <string name="pref_magic_count_summary">%1$d · 0 hides the row; 1..5 buttons</string>
+    <string name="pref_magic_count_summary">%1$d · 0 hides the row; 1..7 buttons</string>
     <string name="pref_magic_symbols">Button symbols…</string>
     <string name="pref_category_about">About</string>
 

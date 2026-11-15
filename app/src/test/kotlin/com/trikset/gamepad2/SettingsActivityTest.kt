@@ -165,7 +165,7 @@ class SettingsActivityTest : RobolectricTestBase() {
   fun magicSymbolsRowShouldShowResolvedGlyphSummary() {
     val symbols = fragment.findPreference<Preference>(SettingsFragment.SK_MAGIC_SYMBOLS)
     assertNotNull(symbols)
-    assertEquals("▲ ■ ● ✕ ◆", symbols!!.summary)
+    assertEquals("▲ ■ ● ✕ ◆ ◈ ▽", symbols!!.summary)
   }
 
   @Test
@@ -214,7 +214,7 @@ class SettingsActivityTest : RobolectricTestBase() {
     val pads = fragment.findPreference<Preference>(SettingsFragment.SK_SHOW_PADS)
     assertEquals("100 · 0 for fully transparent, 255 is opaque", pads!!.summary)
     val count = fragment.findPreference<Preference>(SettingsFragment.SK_MAGIC_BUTTON_COUNT)
-    assertEquals("3 · 0 hides the row; 1..5 buttons", count!!.summary)
+    assertEquals("3 · 0 hides the row; 1..7 buttons", count!!.summary)
     val size = fragment.findPreference<Preference>(SettingsFragment.SK_MAGIC_BUTTON_SIZE)
     assertEquals("100", size!!.summary)
   }
@@ -305,7 +305,7 @@ class SettingsActivityTest : RobolectricTestBase() {
         org.robolectric.shadows.ShadowDialog.getLatestDialog() as androidx.appcompat.app.AlertDialog
     org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
     val fields = dialogViews(dialog) { it is android.widget.EditText }
-    assertTrue("the dialog must pre-fill 5 glyph fields", fields.size == 5)
+    assertTrue("the dialog must pre-fill 7 glyph fields", fields.size == 7)
     (fields[0] as android.widget.EditText).setText("Z")
     dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).performClick()
     org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()

@@ -102,7 +102,7 @@
             <SeekBarPreference
                 android:defaultValue="3"
                 android:key="magicButtonCount"
-                android:max="5"
+                android:max="7"
                 android:summary="@string/pref_magic_count_summary"
                 android:title="@string/pref_magic_count" />
             <!-- One consolidated row for the 5 per-button glyphs (stored under the legacy

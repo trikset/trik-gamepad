@@ -143,7 +143,7 @@
     <string name="pref_delete_preset_summary">Supprimer un préréglage enregistré</string>
     <string name="pref_category_magic">Boutons magiques</string>
     <string name="pref_magic_count">Nombre de boutons…</string>
-    <string name="pref_magic_count_summary">%1$d · 0 masque la rangée; 1..5 boutons</string>
+    <string name="pref_magic_count_summary">%1$d · 0 masque la rangée; 1..7 boutons</string>
     <string name="pref_magic_symbols">Symboles des boutons…</string>
     <string name="pref_category_about">À propos</string>
     <string name="video_uri_summary_empty">Aucune URI de flux définie</string>
