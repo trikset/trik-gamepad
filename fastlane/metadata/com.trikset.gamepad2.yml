@@ -14,9 +14,9 @@ RepoType: git
 Repo: https://github.com/trikset/trik-gamepad.git
 
 Builds:
-  - versionName: '2.48'
-    versionCode: 210248
-    commit: v2.48
+  - versionName: '2.49'
+    versionCode: 210249
+    commit: v2.49
     subdir: app
     gradle:
       - assembleRelease
@@ -25,6 +25,6 @@ Builds:
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '2.48'
-CurrentVersionCode: 210248
+CurrentVersion: '2.49'
+CurrentVersionCode: 210249
 AntiFeatures: []

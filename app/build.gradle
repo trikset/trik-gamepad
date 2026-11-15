@@ -45,7 +45,6 @@ android {
         applicationId "com.trikset.gamepad2"
         minSdk 21
         targetSdk 36
-        maxSdk compileSdk
         versionCode appVersionCode
         versionName ('' + appMajorVersion + '.' + appMinorVersion)
         versionNameSuffix ('-API' + minSdk)
